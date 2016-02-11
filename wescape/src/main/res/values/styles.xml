@@ -10,6 +10,10 @@
 
 
     <style name="RedTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Dropdown -->
+        <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
+        <item name="android:dropDownItemStyle">@style/Widget.DropDownItemLight</item>
+
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/regularRed</item>
         <item name="colorPrimaryDark">@color/darkRed</item>
@@ -26,8 +30,12 @@
         <item name="android:textColorTertiaryInverse">@color/white</item>
     </style>
 
-    <style name="RedTheme.NoActionBar" parent="RedTheme">
-        <item name="android:windowNoTitle">true</item>
+    <!-- Questi stili impostano il colore del testo delle dropdown a nero -->
+    <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
+        <item name="android:textColor">@android:color/primary_text_light</item>
+    </style>
+    <style name="Widget.DropDownItemLight" parent="@android:style/Widget.DropDownItem">
+        <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
 
 

@@ -35,6 +35,7 @@
                 android:layout_height="170dp"
                 android:layout_gravity="center_horizontal"
                 android:src="@drawable/wescape_logo"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="15dp"/>
 
             <android.support.design.widget.TextInputLayout
@@ -48,7 +49,8 @@
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -66,7 +68,8 @@
                     android:imeOptions="actionUnspecified"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:singleLine="true"
+                    android:fontFamily="sans-serif"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -78,6 +81,24 @@
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
                 android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/sign_up_text"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_account_text"
+                android:clickable="true"/>
+
+            <TextView
+                android:id="@+id/reset_passwd_text"
+                android:layout_marginTop="15dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reset_password_text"
+                android:clickable="true" />
 
         </LinearLayout>
     </ScrollView>

@@ -7,4 +7,5 @@
     <color name="regularRed">#D60000</color>
     <color name="darkRed">#B72D2A</color>
     <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 </resources>
