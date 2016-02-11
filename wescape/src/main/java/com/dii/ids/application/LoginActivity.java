@@ -70,8 +70,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
-    private TextView signupText;
-    private TextView resetPasswdText;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -123,10 +121,26 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
-        
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    /**
+     * Listener del TextView per la registrazione
+     * @param v Oggetto TextView clickato
+     */
+    public void signupClicked(View v) {
+        Log.i(LOG_TAG, "SignupTextView clicked!");
+    }
+
+    /**
+     * Listener del TextView per il reset della password
+     * @param v Oggetto TextView clickato
+     */
+    public void resetPasswdClicked(View v) {
+        Log.i(LOG_TAG, "ResetPasswdClicked");
     }
 
     private void populateAutoComplete() {
@@ -167,11 +181,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
+            mEmailTextInputLayout.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailTextInputLayout.setError(getResources().getString(R.string.error_invalid_email));
+            mEmailTextInputLayout.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }

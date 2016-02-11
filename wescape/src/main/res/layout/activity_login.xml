@@ -92,21 +92,23 @@
 
             <TextView
                 android:id="@+id/sign_up_text"
+                android:layout_marginTop="20dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp"
+                android:text="@string/create_account_text"
                 android:clickable="true"
-                android:text="@string/create_account_text"/>
+                android:onClick="signupClicked"/>
 
             <TextView
                 android:id="@+id/reset_passwd_text"
+                android:layout_marginTop="15dp"
+                android:layout_gravity="center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="15dp"
-                android:clickable="true"
-                android:text="@string/reset_password_text"/>
+                android:text="@string/reset_password_text"
+                android:clickable="true" 
+                android:onClick="resetPasswdClicked"/>
 
         </LinearLayout>
     </ScrollView>

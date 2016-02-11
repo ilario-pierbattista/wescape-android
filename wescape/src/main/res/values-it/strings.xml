@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_field_required">Il campo è obbligatorio</string>
+    <string name="error_incorrect_password">La password non è corretta</string>
+    <string name="error_invalid_email">Questa non è un\'email valida</string>
+    <string name="error_invalid_password">La password è troppo corta</string>
+    <string name="permission_rationale">Sono necessari i permessi per accedere ai contatti per fornire l\'email</string>
+    <string name="reset_password_text">Hai dimenticato la password? Reimpostala</string>
+    <string name="create_account_text">Non hai un account? Crealo</string>
+</resources>

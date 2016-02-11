@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Wescape</string>
+    <string name="app_name" translatable="false">Wescape</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Login</string>
-    <string name="action_sign_in_short">Login</string>
+    <string name="prompt_email" translatable="false">Email</string>
+    <string name="prompt_password" translatable="false">Password</string>
+    <string name="action_sign_in" translatable="false">Login</string>
+    <string name="action_sign_in_short" translatable="false">Login</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
@@ -13,6 +13,6 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="create_account_text">Non hai un account? Crealo</string>
-    <string name="reset_password_text">Hai dimenticato la password? Reimpostala</string>
+    <string name="reset_password_text">Forgot the password? Restore it</string>
+    <string name="create_account_text">Don\'t you have an account? Signup</string>
 </resources>
