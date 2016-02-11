@@ -78,11 +78,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Rimozione dell'ActionBar
         try {
             getSupportActionBar().hide();
         } catch (Exception e) {
             Log.e(LOG_TAG, "onCreateError", e);
         }
+        
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();

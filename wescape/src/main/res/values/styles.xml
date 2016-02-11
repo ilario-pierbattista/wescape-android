@@ -10,8 +10,6 @@
 
 
     <style name="RedTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:editTextStyle">@style/RedThemeEditText</item>
-
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/regularRed</item>
         <item name="colorPrimaryDark">@color/darkRed</item>
@@ -28,7 +26,8 @@
         <item name="android:textColorTertiaryInverse">@color/white</item>
     </style>
 
-    <style name="RedThemeEditText">
+    <style name="RedTheme.NoActionBar" parent="RedTheme">
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 
