@@ -4,10 +4,9 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
 
@@ -21,7 +20,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
-import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -67,6 +65,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     // UI references.
     private AutoCompleteTextView mEmailView;
+    private TextInputLayout mEmailTextInputLayout;
+    private TextInputLayout mPasswordInputLayout;
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
@@ -91,10 +91,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
         
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.login_email_text_input);
         populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mEmailTextInputLayout = (TextInputLayout) findViewById(R.id.login_email_text_input_layout);
+
+        mPasswordView = (EditText) findViewById(R.id.login_password_text_input);
+        mPasswordInputLayout = (TextInputLayout) findViewById(R.id.login_password_text_input_layout);
         // Impogo il font dell'hinting a font di default @TODO remove
         // mPasswordView.setTypeface(Typeface.DEFAULT);
         // mPasswordView.setTransformationMethod(new PasswordTransformationMethod());
@@ -145,8 +148,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         }
 
         // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
+        mEmailTextInputLayout.setError(null);
+        mPasswordInputLayout.setError(null);
 
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
@@ -157,7 +160,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
+            mPasswordInputLayout.setError(getString(R.string.error_invalid_password));
             focusView = mPasswordView;
             cancel = true;
         }
@@ -168,7 +171,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             focusView = mEmailView;
             cancel = true;
         } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
+            mEmailTextInputLayout.setError(getResources().getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
         }
