@@ -2,6 +2,7 @@ package com.dii.ids.application.main.authentication;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 
@@ -13,7 +14,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 /**
  * A login screen that offers login via email/password.
  */
-public class AuthenticationActivity extends AppCompatActivity {
+public class AuthenticationActivity extends AppCompatActivity implements SignupFragment.OnFragmentInteractionListener{
 
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
 
@@ -37,6 +38,14 @@ public class AuthenticationActivity extends AppCompatActivity {
         // Va richiamato dopo aver impostato il contenuto
         // @TODO Bisogna pensare ad una soluzione per ripristinarla negli altri fragment
         getSupportActionBar().hide();
+
+        if(savedInstanceState == null) {
+            LoginFragment loginFragment = new LoginFragment();
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.authentication_content_pane, loginFragment)
+                    .commit();
+        }
 
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -82,5 +91,10 @@ public class AuthenticationActivity extends AppCompatActivity {
         );
         AppIndex.AppIndexApi.end(client, viewAction);
         client.disconnect();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+        // @TODO vedere se deve fare qualcosa
     }
 }

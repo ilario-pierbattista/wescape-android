@@ -14,6 +14,8 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -294,7 +296,19 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
      * @param v Oggetto TextView clickato
      */
     public void signupClicked(View v) {
-        Log.i(LOG_TAG, "SignupTextView clicked!");
+        openSignupFragment();
+    }
+
+    /**
+     * Sostituisce al fragment attuale quello di registrazione
+     */
+    private void openSignupFragment() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        Fragment fragment = new SignupFragment();
+        fragmentTransaction.replace(R.id.authentication_content_pane, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
