@@ -51,6 +51,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
     };
+
     /**
      * Id to identity READ_CONTACTS permission request.
      */
