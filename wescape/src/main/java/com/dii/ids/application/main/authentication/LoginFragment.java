@@ -93,7 +93,6 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         holder.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Log.i(LOG_TAG, "Login attempted");
                 attemptLogin();
             }
         });
