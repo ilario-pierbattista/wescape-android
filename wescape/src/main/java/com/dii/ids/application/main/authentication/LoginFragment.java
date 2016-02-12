@@ -310,6 +310,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = new SignupFragment();
         fragmentTransaction.replace(R.id.authentication_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
     }
