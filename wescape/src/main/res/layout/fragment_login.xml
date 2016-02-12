@@ -97,7 +97,6 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20dp"
                 android:clickable="true"
-                android:onClick="signupClicked"
                 android:text="@string/create_account_text"/>
 
             <TextView
@@ -107,7 +106,6 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="15dp"
                 android:clickable="true"
-                android:onClick="resetPasswdClicked"
                 android:text="@string/reset_password_text"/>
 
         </LinearLayout>

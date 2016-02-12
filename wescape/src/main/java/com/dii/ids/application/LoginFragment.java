@@ -14,7 +14,9 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
-import android.text.Layout;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -30,10 +32,8 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
+import com.dii.ids.application.validators.EmailValidator;
+import com.dii.ids.application.validators.PasswordValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,13 +67,6 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Rimozione dell'ActionBar
-        try {
-            getActivity().getActionBar().hide();
-        } catch (Exception e) {
-            Log.e(LOG_TAG, "onCreateError", e);
-        }
     }
 
     @Override
@@ -101,6 +94,21 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             @Override
             public void onClick(View view) {
                 attemptLogin();
+            }
+        });
+
+
+        holder.signupTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signupClicked(v);
+            }
+        });
+
+        holder.resetPasswdTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetPasswdClicked(v);
             }
         });
 
@@ -147,7 +155,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+        if (!(new PasswordValidator().isValid(password))) {
             holder.passwordFieldLayout.setError(getString(R.string.error_invalid_password));
             focusView = holder.passwordField;
             cancel = true;
@@ -158,7 +166,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             holder.emailFieldLayout.setError(getString(R.string.error_field_required));
             focusView = holder.emailField;
             cancel = true;
-        } else if (!isEmailValid(email)) {
+        } else if (!(new EmailValidator().isValid(email))) {
             holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
             focusView = holder.emailField;
             cancel = true;
@@ -282,32 +290,6 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     /**
-     * Validazione della password
-     *
-     * @param password
-     * @return
-     *
-     * @TODO modificare
-     */
-    private boolean isPasswordValid(String password) {
-        //TODO: Replace this with your own logic
-        return password.length() > 4;
-    }
-
-    /**
-     * Validatore della email
-     *
-     * @param email
-     * @return
-     *
-     * @TODO modificare
-     */
-    private boolean isEmailValid(String email) {
-        //TODO: Replace this with your own logic
-        return email.contains("@");
-    }
-
-    /**
      * Listener del TextView per la registrazione
      *
      * @param v Oggetto TextView clickato
@@ -392,6 +374,8 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         public final Button loginButton;
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
+        public final TextView signupTextView;
+        public final TextView resetPasswdTextView;
 
         public ViewHolder(View view) {
             emailField = (AutoCompleteTextView) view.findViewById(R.id.login_email_text_input);
@@ -401,6 +385,8 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             loginButton = (Button) view.findViewById(R.id.login_signin_button);
             progressBar = (ProgressBar) view.findViewById(R.id.login_progress);
             scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
+            signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
+            resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
         }
     }
 
