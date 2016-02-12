@@ -18,6 +18,6 @@
     <string name="action_signup">Signup</string>
     <string name="prompt_password_confirm">Confirm Password</string>
     <string name="action_signup_short" translatable="false">Signup</string>
-    <string name="authentication_title_bar" translatable="false">Home</string>
+    <string name="authentication_title_bar" translatable="false">Login</string>
 
 </resources>
