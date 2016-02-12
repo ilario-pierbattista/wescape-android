@@ -19,6 +19,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -78,6 +79,9 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
+
+        // Si nasconde la action bar
+        ((AuthenticationActivity) getActivity()).hideActionBar();
 
         populateAutoComplete();
 

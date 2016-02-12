@@ -14,7 +14,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 /**
  * A login screen that offers login via email/password.
  */
-public class AuthenticationActivity extends AppCompatActivity implements SignupFragment.OnFragmentInteractionListener{
+public class AuthenticationActivity extends AppCompatActivity implements SignupFragment.OnFragmentInteractionListener {
 
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
 
@@ -29,24 +29,17 @@ public class AuthenticationActivity extends AppCompatActivity implements SignupF
         // Mi assicuro di avere a disposizione l'action bar
         // Va richiamato prima di tutto
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
-        assert getSupportActionBar() != null;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
 
-        // Nascondo l'action bar
-        // Va richiamato dopo aver impostato il contenuto
-        // @TODO Bisogna pensare ad una soluzione per ripristinarla negli altri fragment
-        getSupportActionBar().hide();
-
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             LoginFragment loginFragment = new LoginFragment();
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.authentication_content_pane, loginFragment)
                     .commit();
         }
-
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -96,5 +89,20 @@ public class AuthenticationActivity extends AppCompatActivity implements SignupF
     @Override
     public void onFragmentInteraction(Uri uri) {
         // @TODO vedere se deve fare qualcosa
+    }
+
+    public void hideActionBar() {
+        assert getSupportActionBar() != null;
+        getSupportActionBar().hide();
+    }
+
+    public void showActionBar(String title) {
+        assert getSupportActionBar() != null;
+        if(title == null) {
+            getSupportActionBar().show();
+        } else {
+            getSupportActionBar().setTitle(title);
+            getSupportActionBar().show();
+        }
     }
 }
