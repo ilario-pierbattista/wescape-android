@@ -42,8 +42,8 @@ import static android.Manifest.permission.READ_CONTACTS;
 
 public class LoginFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     /**
-     * A dummy authentication store containing known user names and passwords. TODO: remove after connecting to a real
-     * authentication system.
+     * A dummy authentication store containing known user names and passwords. TODO: remove after
+     * connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
             "foo@example.com:hello", "bar@example.com:world"
@@ -110,24 +110,25 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
         return new CursorLoader(getActivity(),
-                                // Retrieve data rows for the device user's 'profile' contact.
-                                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                                                     ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
-                                ProfileQuery.PROJECTION,
+                // Retrieve data rows for the device user's 'profile' contact.
+                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
+                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
+                ProfileQuery.PROJECTION,
 
-                                // Select only email addresses.
-                                ContactsContract.Contacts.Data.MIMETYPE +
-                                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
+                // Select only email addresses.
+                ContactsContract.Contacts.Data.MIMETYPE +
+                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
                 .CONTENT_ITEM_TYPE},
 
-                                // Show primary email addresses first. Note that there won't be
-                                // a primary email address if the user hasn't specified one.
-                                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
+                // Show primary email addresses first. Note that there won't be
+                // a primary email address if the user hasn't specified one.
+                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
     }
 
     /**
-     * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email,
-     * missing fields, etc.), the errors are presented and no actual login attempt is made.
+     * Attempts to sign in or register the account specified by the login form. If there are form
+     * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
+     * attempt is made.
      */
     private void attemptLogin() {
         if (mAuthTask != null) {
@@ -275,7 +276,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter;
         adapter = new ArrayAdapter<String>(getContext(),
-                           android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+                android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         holder.emailField.setAdapter(adapter);
     }
