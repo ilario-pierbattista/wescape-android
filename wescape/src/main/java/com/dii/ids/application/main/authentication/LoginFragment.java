@@ -1,4 +1,4 @@
-package com.dii.ids.application;
+package com.dii.ids.application.main.authentication;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.dii.ids.application.R;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
@@ -73,8 +74,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = LayoutInflater.from(getContext())
-                .inflate(R.layout.fragment_login, container, false);
+        View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
 
         populateAutoComplete();
@@ -93,10 +93,10 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         holder.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.i(LOG_TAG, "Login attempted");
                 attemptLogin();
             }
         });
-
 
         holder.signupTextView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +112,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             }
         });
 
-        return inflater.inflate(R.layout.fragment_login, container, false);
+        return view;
     }
 
     @Override
@@ -304,7 +304,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
      * @param v Oggetto TextView clickato
      */
     public void resetPasswdClicked(View v) {
-        Log.i(LOG_TAG, "ResetPasswdClicked");
+        Log.i(LOG_TAG, "ResetPasswdText clicked!");
     }
 
     /**

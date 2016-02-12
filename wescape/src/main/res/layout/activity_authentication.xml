@@ -1,7 +1,7 @@
 <fragment android:id="@+id/fragment_login"
-          android:name="com.dii.ids.application.LoginFragment"
+          android:name="com.dii.ids.application.main.authentication.LoginFragment"
           xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          tools:context="com.dii.ids.application.AuthenticationActivity"/>
+          tools:context=".main.authentication.AuthenticationActivity"/>
