@@ -15,4 +15,8 @@
     </string>
     <string name="reset_password_text">Forgot the password? Restore it</string>
     <string name="create_account_text">Don\'t you have an account? Signup</string>
+    <string name="action_signup">Signup</string>
+    <string name="prompt_password_confirm">Confirm Password</string>
+    <string name="action_signup_short" translatable="false">Signup</string>
+
 </resources>

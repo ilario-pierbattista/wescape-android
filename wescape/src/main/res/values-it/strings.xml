@@ -7,4 +7,6 @@
     <string name="permission_rationale">Sono necessari i permessi per accedere ai contatti per fornire l\'email</string>
     <string name="reset_password_text">Hai dimenticato la password? Reimpostala</string>
     <string name="create_account_text">Non hai un account? Crealo</string>
+    <string name="action_signup">Registrati</string>
+    <string name="prompt_password_confirm">Conferma Password</string>
 </resources>
