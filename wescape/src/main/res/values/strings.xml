@@ -19,5 +19,6 @@
     <string name="prompt_password_confirm">Confirm Password</string>
     <string name="action_signup_short" translatable="false">Signup</string>
     <string name="authentication_title_bar" translatable="false">Login</string>
+    <string name="error_incorrect_password_confirm">The confirm password does not match</string>
 
 </resources>

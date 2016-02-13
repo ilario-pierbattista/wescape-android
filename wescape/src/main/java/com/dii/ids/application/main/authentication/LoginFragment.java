@@ -27,6 +27,7 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
@@ -38,6 +39,7 @@ public class LoginFragment extends Fragment {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
+    private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -55,6 +57,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
+        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
@@ -142,46 +145,10 @@ public class LoginFragment extends Fragment {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+            showProgressAnimation.showProgress(true);
             mAuthTask = new UserLoginTask(email, password)
                     .inject(this, holder);
             mAuthTask.execute((Void) null);
-        }
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
-            holder.scrollView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            holder.progressBar.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -220,7 +187,7 @@ public class LoginFragment extends Fragment {
 
     public void wipeAsyncTask() {
         mAuthTask = null;
-        showProgress(false);
+        showProgressAnimation.showProgress(false);
     }
 
     /**

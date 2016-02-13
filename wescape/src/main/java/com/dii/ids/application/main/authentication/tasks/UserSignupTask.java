@@ -3,12 +3,12 @@ package com.dii.ids.application.main.authentication.tasks;
 import android.os.AsyncTask;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.authentication.LoginFragment;
+import com.dii.ids.application.main.authentication.SignupFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
     /**
      * A dummy authentication store containing known user names and passwords. TODO: remove after
      * connecting to a real authentication system.
@@ -19,15 +19,15 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     private final String email;
     private final String password;
-    private LoginFragment fragment;
-    private LoginFragment.ViewHolder holder;
+    private SignupFragment fragment;
+    private SignupFragment.ViewHolder holder;
 
-    public UserLoginTask(String email, String password) {
+    public UserSignupTask(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    public UserLoginTask inject(LoginFragment fragment, LoginFragment.ViewHolder holder) {
+    public UserSignupTask inject(SignupFragment fragment, SignupFragment.ViewHolder holder) {
         this.fragment = fragment;
         this.holder = holder;
         return this;
@@ -61,7 +61,8 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         fragment.wipeAsyncTask();
 
         if (success) {
-            fragment.getActivity().finish();
+            // @TODO Sostituire con altra roba
+            fragment.wipeAsyncTask();
         } else {
             holder.passwordField.setError(fragment.getString(R.string.error_incorrect_password));
             holder.passwordField.requestFocus();
