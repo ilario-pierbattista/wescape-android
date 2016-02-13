@@ -11,7 +11,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -34,14 +33,13 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.dii.ids.application.EmailAutocompleter;
 import com.dii.ids.application.R;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.Manifest.permission.READ_CONTACTS;
 
 public class LoginFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
     /**
@@ -52,16 +50,13 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             "foo@example.com:hello", "bar@example.com:world"
     };
     /**
-     * Id to identity READ_CONTACTS permission request.
-     */
-    private static final int REQUEST_READ_CONTACTS = 0;
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
 
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     private ViewHolder holder;
+    private EmailAutocompleter emailAutocompleter;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -78,11 +73,12 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
+        emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
 
-        populateAutoComplete();
+        emailAutocompleter.populateAutoComplete();
 
         holder.passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -105,7 +101,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         holder.signupTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signupClicked(v);
+                openSignupFragment(v);
             }
         });
 
@@ -125,7 +121,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
                 // Retrieve data rows for the device user's 'profile' contact.
                 Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
                         ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
-                ProfileQuery.PROJECTION,
+                EmailAutocompleter.ProfileQuery.PROJECTION,
 
                 // Select only email addresses.
                 ContactsContract.Contacts.Data.MIMETYPE +
@@ -231,11 +227,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
+        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -243,7 +235,7 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
         List<String> emails = new ArrayList<>();
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
+            emails.add(cursor.getString(EmailAutocompleter.ProfileQuery.ADDRESS));
             cursor.moveToNext();
         }
 
@@ -252,36 +244,6 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
-    }
-
-    private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (getActivity().checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(holder.emailField, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
-        } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-        }
-        return false;
     }
 
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
@@ -294,18 +256,11 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
     }
 
     /**
-     * Listener del TextView per la registrazione
+     * Sostituisce al fragment attuale quello di registrazione
      *
      * @param v Oggetto TextView clickato
      */
-    public void signupClicked(View v) {
-        openSignupFragment();
-    }
-
-    /**
-     * Sostituisce al fragment attuale quello di registrazione
-     */
-    private void openSignupFragment() {
+    private void openSignupFragment(View v) {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         Fragment fragment = new SignupFragment();
@@ -405,15 +360,5 @@ public class LoginFragment extends Fragment implements LoaderManager.LoaderCallb
             signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
             resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
         }
-    }
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 }

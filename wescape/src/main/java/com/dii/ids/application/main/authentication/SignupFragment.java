@@ -3,11 +3,18 @@ package com.dii.ids.application.main.authentication;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 
+import com.dii.ids.application.EmailAutocompleter;
 import com.dii.ids.application.R;
 
 /**
@@ -24,6 +31,9 @@ public class SignupFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private ViewHolder holder;
+    private EmailAutocompleter emailAutocompleter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,6 +75,11 @@ public class SignupFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_signup, container, false);
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
+        holder = new ViewHolder(view);
+        emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
+
+        emailAutocompleter.populateAutoComplete();
+
         return view;
     }
 
@@ -103,5 +118,29 @@ public class SignupFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public static class ViewHolder {
+        public final ProgressBar progressBar;
+        public final ScrollView scrollView;
+        public final AutoCompleteTextView emailField;
+        public final TextInputLayout emailFieldLayout;
+        public final EditText passwordField;
+        public final TextInputLayout passwordFieldLayout;
+        public final EditText passwordConfirmField;
+        public final TextInputLayout passwordConfirmFieldLayout;
+        public final Button signupButton;
+
+        public ViewHolder(View v) {
+            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
+            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
+            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
+            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
+            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
+            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
+            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
+            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
+            signupButton = (Button) v.findViewById(R.id.signup_button);
+        }
     }
 }

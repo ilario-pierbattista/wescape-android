@@ -3,6 +3,8 @@ package com.dii.ids.application;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
@@ -15,7 +17,7 @@ public class EmailAutocompleter {
     /**
      * Id to identity READ_CONTACTS permission request.
      */
-    private static final int REQUEST_READ_CONTACTS = 0;
+    public static final int REQUEST_READ_CONTACTS = 0;
     private Fragment fragment;
     private AutoCompleteTextView autoCompleteTextView;
 
@@ -54,4 +56,22 @@ public class EmailAutocompleter {
         return false;
     }
 
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions,
+                                     @NonNull int[] grantResults) {
+        if (requestCode == EmailAutocompleter.REQUEST_READ_CONTACTS) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                populateAutoComplete();
+            }
+        }
+    }
+
+    public interface ProfileQuery {
+        String[] PROJECTION = {
+                ContactsContract.CommonDataKinds.Email.ADDRESS,
+                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
+        };
+
+        int ADDRESS = 0;
+        int IS_PRIMARY = 1;
+    }
 }
