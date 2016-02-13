@@ -4,6 +4,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.Window;
 
 import com.dii.ids.application.R;
@@ -35,7 +37,7 @@ public class AuthenticationActivity extends AppCompatActivity implements SignupF
 
         if (savedInstanceState == null) {
             LoginFragment loginFragment = new LoginFragment();
-            FragmentManager fm = getSupportFragmentManager();
+            android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.authentication_content_pane, loginFragment)
                     .commit();
@@ -44,6 +46,19 @@ public class AuthenticationActivity extends AppCompatActivity implements SignupF
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                FragmentManager fm = getSupportFragmentManager();
+                fm.popBackStack();
+
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -102,6 +117,8 @@ public class AuthenticationActivity extends AppCompatActivity implements SignupF
             getSupportActionBar().show();
         } else {
             getSupportActionBar().setTitle(title);
+            getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().show();
         }
     }
