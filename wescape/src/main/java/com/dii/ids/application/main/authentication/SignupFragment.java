@@ -14,7 +14,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
-import com.dii.ids.application.EmailAutocompleter;
+import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.R;
 
 /**

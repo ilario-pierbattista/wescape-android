@@ -1,4 +1,4 @@
-package com.dii.ids.application;
+package com.dii.ids.application.main.authentication.utils;
 
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
@@ -16,6 +16,8 @@ import android.support.v4.content.Loader;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+
+import com.dii.ids.application.R;
 
 import java.util.ArrayList;
 import java.util.List;
