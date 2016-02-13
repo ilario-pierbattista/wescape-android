@@ -17,14 +17,14 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
             "foo@example.com:hello", "bar@example.com:world"
     };
 
-    private final String email;
-    private final String password;
+    private final String mEmail;
+    private final String mPassword;
     private LoginFragment fragment;
     private LoginFragment.ViewHolder holder;
 
     public UserLoginTask(String email, String password) {
-        this.email = email;
-        this.password = password;
+        mEmail = email;
+        mPassword = password;
     }
 
     public UserLoginTask inject(LoginFragment fragment, LoginFragment.ViewHolder holder) {
@@ -46,9 +46,9 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
         for (String credential : DUMMY_CREDENTIALS) {
             String[] pieces = credential.split(":");
-            if (pieces[0].equals(email)) {
+            if (pieces[0].equals(mEmail)) {
                 // Account exists, return true if the password matches.
-                return pieces[1].equals(password);
+                return pieces[1].equals(mPassword);
             }
         }
 
