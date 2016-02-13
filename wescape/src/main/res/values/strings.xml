@@ -19,7 +19,9 @@
     <string name="prompt_password_confirm">Confirm Password</string>
     <string name="action_signup_short" translatable="false">Signup</string>
     <string name="authentication_title_bar" translatable="false">Login</string>
-    <string name="title_activity_navigation">Home</string>
+    <string name="title_activity_navigation" translatable="false">Home</string>
     <string name="action_settings">Settings</string>
+    <string name="error_incorrect_password_confirm">The confirm password doesn\'t match</string>
+    <string name="action_emergency">Emergency</string>
 
 </resources>
