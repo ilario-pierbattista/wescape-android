@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
-                app:errorTextAppearance="@style/ErrorText">
+                app:errorTextAppearance="@style/Wescape.RedTheme.ErrorText">
 
                 <AutoCompleteTextView
                     android:id="@+id/signup_email_text_input"
@@ -53,7 +53,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
-                app:errorTextAppearance="@style/ErrorText">
+                app:errorTextAppearance="@style/Wescape.RedTheme.ErrorText">
 
 
                 <EditText
@@ -77,7 +77,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:errorEnabled="true"
-                app:errorTextAppearance="@style/ErrorText">
+                app:errorTextAppearance="@style/Wescape.RedTheme.ErrorText">
 
 
                 <EditText

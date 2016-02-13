@@ -1,12 +1,14 @@
 <resources>
 
     <!-- Wescape Custom Theme -->
-    <style name="RedTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Wescape" parent="Theme.AppCompat.Light.DarkActionBar"/>
+
+    <!-- Wescape Red Theme -->
+    <style name="Wescape.RedTheme">
         <!-- Dropdown -->
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewLight</item>
         <item name="android:dropDownItemStyle">@style/Widget.DropDownItemLight</item>
 
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/regularRed</item>
         <item name="colorPrimaryDark">@color/darkRed</item>
         <item name="android:windowBackground">@color/lightRed</item>
@@ -20,21 +22,37 @@
         <item name="android:textColorPrimaryInverse">@color/black</item>
         <item name="android:textColorSecondaryInverse">@color/white</item>
         <item name="android:textColorTertiaryInverse">@color/white</item>
-
     </style>
 
-    <style name="RedTheme.NoActionBar">
+    <style name="Wescape.RedTheme.ErrorText" parent="@android:style/TextAppearance.Material">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="Wescape.RedTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="Wescape.RedTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="Wescape.RedTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="RedTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
-    <style name="RedTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
-    <style name="ErrorText" parent="@android:style/TextAppearance.Material">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
+    <!-- Wescape Blue Theme -->
+    <style name="Wescape.BlueTheme">
+        <item name="colorPrimary">@color/regularBlue</item>
+        <item name="colorPrimaryDark">@color/darkBlue</item>
+        <item name="colorAccent">@color/white</item>
     </style>
+
+    <style name="Wescape.BlueTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+    <style name="Wescape.BlueTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+    <style name="Wescape.BlueTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
+    <!-- General purpose styles -->
 
     <!-- Questi stili impostano il colore del testo delle dropdown a nero -->
     <style name="AutoCompleteTextViewLight" parent="@android:style/Widget.AutoCompleteTextView">
@@ -44,6 +62,5 @@
     <style name="Widget.DropDownItemLight" parent="@android:style/Widget.DropDownItem">
         <item name="android:textColor">@android:color/primary_text_light</item>
     </style>
-
 
 </resources>
