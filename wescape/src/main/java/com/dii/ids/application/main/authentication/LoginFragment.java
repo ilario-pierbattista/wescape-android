@@ -3,6 +3,7 @@ package com.dii.ids.application.main.authentication;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,6 +28,7 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
@@ -90,6 +92,16 @@ public class LoginFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 resetPasswdClicked(v);
+            }
+        });
+
+
+        //@TODO: forza il passaggio alla home finche non viene implementato il login
+        holder.homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -232,6 +244,7 @@ public class LoginFragment extends Fragment {
         public final TextInputLayout passwordFieldLayout;
         public final EditText passwordField;
         public final Button loginButton;
+        public final Button homeButton;
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
         public final TextView signupTextView;
@@ -247,6 +260,8 @@ public class LoginFragment extends Fragment {
             scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
             signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
             resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
+
+            homeButton = (Button) view.findViewById(R.id.login_home_button);
         }
     }
 }
