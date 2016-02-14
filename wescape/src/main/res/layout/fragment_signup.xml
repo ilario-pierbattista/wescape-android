@@ -3,7 +3,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:gravity="center_horizontal"
+              android:gravity="center"
               android:orientation="vertical"
               tools:context="com.dii.ids.application.main.authentication.SignupFragment">
 
@@ -45,6 +45,7 @@
                     android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true"
+                    android:imeOptions="actionNext"
                     />
 
             </android.support.design.widget.TextInputLayout>
@@ -63,9 +64,7 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
                     android:hint="@string/prompt_password"
-                    android:imeActionId="@+id/signup"
-                    android:imeActionLabel="@string/action_sign_in_short"
-                    android:imeOptions="actionUnspecified"
+                    android:imeOptions="actionNext"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true"/>
@@ -89,7 +88,7 @@
                     android:hint="@string/prompt_password_confirm"
                     android:imeActionId="@+id/signup"
                     android:imeActionLabel="@string/action_signup_short"
-                    android:imeOptions="actionUnspecified"
+                    android:imeOptions="actionDone"
                     android:inputType="textPassword"
                     android:maxLines="1"
                     android:singleLine="true"/>

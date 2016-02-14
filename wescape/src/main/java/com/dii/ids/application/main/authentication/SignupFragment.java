@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -77,7 +78,7 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_signup, container, false);
+        final View view = inflater.inflate(R.layout.fragment_signup, container, false);
 
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
@@ -93,10 +94,14 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
             holder.emailField.setText(email);
         }
 
-        holder.passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        holder.passwordConfirmField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == R.id.signup || id == EditorInfo.IME_NULL) {
+                    // Nasconde la tastiera
+                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
                     attempSignup();
                     return true;
                 }
