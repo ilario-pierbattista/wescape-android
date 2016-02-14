@@ -2,7 +2,6 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.SignupFragment;
 
 /**
@@ -20,16 +19,14 @@ public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
     private final String email;
     private final String password;
     private SignupFragment fragment;
-    private SignupFragment.ViewHolder holder;
 
     public UserSignupTask(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    public UserSignupTask inject(SignupFragment fragment, SignupFragment.ViewHolder holder) {
+    public UserSignupTask inject(SignupFragment fragment) {
         this.fragment = fragment;
-        this.holder = holder;
         return this;
     }
 
@@ -58,19 +55,15 @@ public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        fragment.wipeAsyncTask();
-
         if (success) {
-            // @TODO Sostituire con altra roba
-            fragment.wipeAsyncTask();
+            fragment.onTaskSuccess(this);
         } else {
-            holder.passwordField.setError(fragment.getString(R.string.error_incorrect_password));
-            holder.passwordField.requestFocus();
+            fragment.onTaskError(this);
         }
     }
 
     @Override
     protected void onCancelled() {
-        fragment.wipeAsyncTask();
+        fragment.onTaskCancelled(this);
     }
 }

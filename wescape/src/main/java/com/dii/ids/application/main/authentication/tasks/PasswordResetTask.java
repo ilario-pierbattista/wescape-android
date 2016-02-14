@@ -2,14 +2,12 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.R;
-import com.dii.ids.application.main.authentication.RequestResetFragment;
-import com.dii.ids.application.main.authentication.SignupFragment;
+import com.dii.ids.application.main.authentication.ResetPasswordFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
+public class PasswordResetTask extends AsyncTask<Void, Void, Boolean> {
     /**
      * A dummy authentication store containing known user names and passwords. TODO: remove after
      * connecting to a real authentication system.
@@ -19,16 +17,20 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
     };
 
     private final String email;
-    private RequestResetFragment fragment;
-    private RequestResetFragment.ViewHolder holder;
+    private final String secretCode;
+    private final String password;
+    private final String passwordConfirm;
+    private ResetPasswordFragment fragment;
 
-    public PasswordResetRequestTask(String email) {
+    public PasswordResetTask(String email, String secretCode, String password, String passwordConfirm) {
         this.email = email;
+        this.secretCode = secretCode;
+        this.password = password;
+        this.passwordConfirm = passwordConfirm;
     }
 
-    public PasswordResetRequestTask inject(RequestResetFragment fragment, RequestResetFragment.ViewHolder holder) {
+    public PasswordResetTask inject(ResetPasswordFragment fragment) {
         this.fragment = fragment;
-        this.holder = holder;
         return this;
     }
 
@@ -43,8 +45,8 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
 
-        for(String e : DUMMY_CREDENTIALS) {
-            if(email.equals(e)) {
+        for (String e : DUMMY_CREDENTIALS) {
+            if (email.equals(e)) {
                 return true;
             }
         }
@@ -55,19 +57,15 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        fragment.wipeAsyncTask();
-
         if (success) {
-            // @TODO Sostituire con altra roba
-            fragment.wipeAsyncTask();
+            fragment.onTaskSuccess(this);
         } else {
-            // @TODO Aggiungere gestione dell'errore
-            fragment.wipeAsyncTask();
+            fragment.onTaskError(this);
         }
     }
 
     @Override
     protected void onCancelled() {
-        fragment.wipeAsyncTask();
+        fragment.onTaskCancelled(this);
     }
 }

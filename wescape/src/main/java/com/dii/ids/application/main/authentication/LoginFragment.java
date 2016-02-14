@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
@@ -22,6 +21,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
@@ -29,18 +30,27 @@ import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
+    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
         // Required empty public constructor
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -52,7 +62,7 @@ public class LoginFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_login, container, false);
+        final View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
@@ -66,6 +76,7 @@ public class LoginFragment extends Fragment {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    hideKeyboard(view);
                     attemptLogin();
                     return true;
                 }
@@ -76,6 +87,7 @@ public class LoginFragment extends Fragment {
         holder.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 attemptLogin();
             }
         });
@@ -153,18 +165,9 @@ public class LoginFragment extends Fragment {
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
             mAuthTask = new UserLoginTask(email, password)
-                    .inject(this, holder);
+                    .inject(this);
             mAuthTask.execute((Void) null);
         }
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -175,6 +178,7 @@ public class LoginFragment extends Fragment {
     private void openSignupFragment(View v) {
         SignupFragment signupFragment;
 
+        hideKeyboard(v);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         signupFragment = SignupFragment.newInstance(getValidEmailFromView());
@@ -191,19 +195,16 @@ public class LoginFragment extends Fragment {
      * @param v Oggetto TextView clickato
      */
     private void openResetRequestFragment(View v) {
-        RequestResetFragment resetFragment;
+        ResetRequestFragment resetFragment;
+
+        hideKeyboard(v);
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
                 .beginTransaction();
-        resetFragment = RequestResetFragment.newInstance(getValidEmailFromView());
+        resetFragment = ResetRequestFragment.newInstance(getValidEmailFromView());
         fragmentTransaction.replace(R.id.authentication_content_pane, resetFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    public void wipeAsyncTask() {
-        mAuthTask = null;
-        showProgressAnimation.showProgress(false);
     }
 
     /**
@@ -219,6 +220,29 @@ public class LoginFragment extends Fragment {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void onTaskSuccess(UserLoginTask asyncTask) {
+        wipeAsyncTask();
+        this.getActivity().finish();
+    }
+
+    private void wipeAsyncTask() {
+        mAuthTask = null;
+        showProgressAnimation.showProgress(false);
+    }
+
+    @Override
+    public void onTaskError(UserLoginTask userLoginTask) {
+        wipeAsyncTask();
+        holder.passwordField.setError(getString(R.string.error_incorrect_password));
+        holder.passwordField.requestFocus();
+    }
+
+    @Override
+    public void onTaskCancelled(UserLoginTask userLoginTask) {
+        wipeAsyncTask();
     }
 
     /**

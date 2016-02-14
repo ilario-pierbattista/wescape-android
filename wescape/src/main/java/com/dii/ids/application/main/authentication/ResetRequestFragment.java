@@ -3,32 +3,39 @@ package com.dii.ids.application.main.authentication;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.authentication.tasks.PasswordResetRequestTask;
-import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
+import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.main.authentication.tasks.ResetRequestTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
-import com.dii.ids.application.validators.PasswordValidator;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link RequestResetFragment.OnFragmentInteractionListener} interface to handle interaction
- * events. Use the {@link RequestResetFragment#newInstance} factory method to create an instance of
+ * {@link ResetRequestFragment.OnFragmentInteractionListener} interface to handle interaction
+ * events. Use the {@link ResetRequestFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class RequestResetFragment extends Fragment {
+public class ResetRequestFragment extends BaseFragment
+        implements AsyncTaskCallbacksInterface<ResetRequestTask> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
@@ -37,12 +44,12 @@ public class RequestResetFragment extends Fragment {
     private String email;
     private ViewHolder holder;
     private EmailAutocompleter autocompleter;
-    private PasswordResetRequestTask asyncTask;
+    private ResetRequestTask asyncTask;
     private ShowProgressAnimation showProgressAnimation;
 
     private OnFragmentInteractionListener mListener;
 
-    public RequestResetFragment() {
+    public ResetRequestFragment() {
         // Required empty public constructor
     }
 
@@ -51,15 +58,35 @@ public class RequestResetFragment extends Fragment {
      * parameters.
      *
      * @param email Parameter 1.
-     * @return A new instance of fragment RequestResetFragment.
+     * @return A new instance of fragment ResetRequestFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static RequestResetFragment newInstance(String email) {
-        RequestResetFragment fragment = new RequestResetFragment();
+    public static ResetRequestFragment newInstance(String email) {
+        ResetRequestFragment fragment = new ResetRequestFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, email);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        autocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -74,7 +101,7 @@ public class RequestResetFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_request_reset, container, false);
+        final View view = inflater.inflate(R.layout.fragment_request_reset, container, false);
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
@@ -82,13 +109,27 @@ public class RequestResetFragment extends Fragment {
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 
-        if(email != null) {
+        if (email != null) {
             holder.emailField.setText(email);
         }
+
+        holder.emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.request || id == EditorInfo.IME_NULL) {
+                    hideKeyboard(view);
+
+                    requestReset();
+                    return true;
+                }
+                return false;
+            }
+        });
 
         holder.resetRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 requestReset();
             }
         });
@@ -106,7 +147,6 @@ public class RequestResetFragment extends Fragment {
             return;
         }
 
-        PasswordValidator passwordValidator = new PasswordValidator();
         EmailValidator emailValidator = new EmailValidator();
 
         // Reset errors.
@@ -137,9 +177,54 @@ public class RequestResetFragment extends Fragment {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
-            asyncTask = new PasswordResetRequestTask(email)
+            asyncTask = new ResetRequestTask(email)
                     .inject(this, holder);
             asyncTask.execute((Void) null);
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onTaskSuccess(ResetRequestTask asyncTask) {
+        wipeAsyncTask();
+        ResetPasswordFragment fragment;
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
+
+        transaction.replace(R.id.authentication_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onTaskError(ResetRequestTask resetRequestTask) {
+        wipeAsyncTask();
+    }
+
+    @Override
+    public void onTaskCancelled(ResetRequestTask resetRequestTask) {
+        wipeAsyncTask();
+    }
+
+    private void wipeAsyncTask() {
+        showProgressAnimation.showProgress(false);
+        asyncTask = null;
+    }
+
+    @Nullable
+    private String getValidEmailAddress() {
+        String email = holder.emailField.getText().toString();
+        if (new EmailValidator().isValid(email)) {
+            return email;
+        } else {
+            return null;
         }
     }
 
@@ -148,28 +233,6 @@ public class RequestResetFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
-    }
-
-    public void wipeAsyncTask() {
-        showProgressAnimation.showProgress(false);
-        asyncTask = null;
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**

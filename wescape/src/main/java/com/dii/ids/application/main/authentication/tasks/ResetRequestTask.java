@@ -2,31 +2,31 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.main.authentication.LoginFragment;
+import com.dii.ids.application.main.authentication.ResetRequestFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+public class ResetRequestTask extends AsyncTask<Void, Void, Boolean> {
     /**
      * A dummy authentication store containing known user names and passwords. TODO: remove after
      * connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "foo@example.com", "bar@example.com"
     };
 
     private final String email;
-    private final String password;
-    private LoginFragment fragment;
+    private ResetRequestFragment fragment;
+    private ResetRequestFragment.ViewHolder holder;
 
-    public UserLoginTask(String email, String password) {
+    public ResetRequestTask(String email) {
         this.email = email;
-        this.password = password;
     }
 
-    public UserLoginTask inject(LoginFragment fragment) {
+    public ResetRequestTask inject(ResetRequestFragment fragment, ResetRequestFragment.ViewHolder holder) {
         this.fragment = fragment;
+        this.holder = holder;
         return this;
     }
 
@@ -41,11 +41,9 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
 
-        for (String credential : DUMMY_CREDENTIALS) {
-            String[] pieces = credential.split(":");
-            if (pieces[0].equals(email)) {
-                // Account exists, return true if the password matches.
-                return pieces[1].equals(password);
+        for (String e : DUMMY_CREDENTIALS) {
+            if (email.equals(e)) {
+                return true;
             }
         }
 
@@ -58,7 +56,7 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
         if (success) {
             fragment.onTaskSuccess(this);
         } else {
-            fragment.onTaskCancelled(this);
+            fragment.onTaskError(this);
         }
     }
 

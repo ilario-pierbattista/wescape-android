@@ -9,11 +9,18 @@
     <string name="create_account_text">Non hai un account? Crealo</string>
     <string name="action_signup">Registrati</string>
     <string name="prompt_password_confirm">Conferma Password</string>
+    <string name="error_mismatching_password_confirm">La password di conferma non corrisponde</string>
     <string name="action_settings" translatable="false">Impostazioni</string>
     <string name="action_emergency">Emergenza</string>
     <string name="error_incorrect_password_confirm">La password di conferma non corrisponde</string>
     <string name="description_request_reset">Inserisci l\'indirizzo email utilizzato in fase di registrazione e ti spediremo le istruzioni per ripristinare la password</string>
     <string name="action_reset_request">Ripristina Password</string>
+    <string name="prompt_secretcode">Codice Segreto</string>
+    <string name="action_reset_passwd">Conferma Password</string>
+    <string name="description_reset_password">Inserisci una nuova password nei campi sottostanti (ti abbiamo inviato un\'email con il codice segreto)</string>
+    <string name="error_invalid_secretcode">Questo codice segreto non è valido</string>
+    <string name="accessibility_logo_description">Il logo Wescape</string>
+    <string name="action_send_short">Invia</string>
     <string name="starting_from">da</string>
     <string name="going_to">a</string>
 </resources>
