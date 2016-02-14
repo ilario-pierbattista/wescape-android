@@ -19,10 +19,14 @@
     <string name="prompt_password_confirm">Confirm Password</string>
     <string name="action_signup_short" translatable="false">Signup</string>
     <string name="authentication_title_bar" translatable="false">Login</string>
-    <string name="error_incorrect_password_confirm">The confirm password does not match</string>
+    <string name="error_mismatching_password_confirm">The confirm password does not match</string>
     <string name="title_activity_navigation">Home</string>
     <string name="action_settings">Settings</string>
     <string name="description_request_reset">Insert the email address used at signup time and we\'ll send you the instructions to reset your old password</string>
     <string name="action_reset_request">Reset Password</string>
+    <string name="prompt_secretcode">Secret Code</string>
+    <string name="action_reset_passwd">Confirm Password</string>
+    <string name="description_reset_password">Insert a new password in the fields below (we\'ve sent you an email with the secret code)</string>
+    <string name="error_invalid_secretcode">This secret code is invalid</string>
 
 </resources>

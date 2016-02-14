@@ -3,8 +3,12 @@ package com.dii.ids.application.main.authentication;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.PasswordResetRequestTask;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
@@ -28,7 +33,8 @@ import com.dii.ids.application.validators.PasswordValidator;
  * events. Use the {@link RequestResetFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class RequestResetFragment extends Fragment {
+public class RequestResetFragment extends Fragment
+        implements AsyncTaskCallbacksInterface<PasswordResetRequestTask> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
@@ -62,6 +68,39 @@ public class RequestResetFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        autocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onTaskSuccess(PasswordResetRequestTask asyncTask) {
+        wipeAsyncTask();
+        ResetPasswordFragment fragment;
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
+
+        transaction.replace(R.id.authentication_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onTaskError(PasswordResetRequestTask passwordResetRequestTask) {
+        wipeAsyncTask();
+    }
+
+    @Override
+    public void onTaskCancelled(PasswordResetRequestTask passwordResetRequestTask) {
+        wipeAsyncTask();
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,7 +121,7 @@ public class RequestResetFragment extends Fragment {
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 
-        if(email != null) {
+        if (email != null) {
             holder.emailField.setText(email);
         }
 
@@ -106,7 +145,6 @@ public class RequestResetFragment extends Fragment {
             return;
         }
 
-        PasswordValidator passwordValidator = new PasswordValidator();
         EmailValidator emailValidator = new EmailValidator();
 
         // Reset errors.
@@ -150,9 +188,19 @@ public class RequestResetFragment extends Fragment {
         }
     }
 
-    public void wipeAsyncTask() {
+    private void wipeAsyncTask() {
         showProgressAnimation.showProgress(false);
         asyncTask = null;
+    }
+
+    @Nullable
+    private String getValidEmailAddress() {
+        String email = holder.emailField.getText().toString();
+        if (new EmailValidator().isValid(email)) {
+            return email;
+        } else {
+            return null;
+        }
     }
 
     @Override

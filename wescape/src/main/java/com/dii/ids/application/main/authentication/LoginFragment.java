@@ -21,24 +21,34 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-public class LoginFragment extends Fragment {
+public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
+    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
-    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
         // Required empty public constructor
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -143,18 +153,9 @@ public class LoginFragment extends Fragment {
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
             mAuthTask = new UserLoginTask(email, password)
-                    .inject(this, holder);
+                    .inject(this);
             mAuthTask.execute((Void) null);
         }
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -191,11 +192,6 @@ public class LoginFragment extends Fragment {
                 .commit();
     }
 
-    public void wipeAsyncTask() {
-        mAuthTask = null;
-        showProgressAnimation.showProgress(false);
-    }
-
     /**
      * Estrae dalla vista un eventuale indirizzo email valido immesso
      *
@@ -209,6 +205,29 @@ public class LoginFragment extends Fragment {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void onTaskSuccess(UserLoginTask asyncTask) {
+        wipeAsyncTask();
+        this.getActivity().finish();
+    }
+
+    private void wipeAsyncTask() {
+        mAuthTask = null;
+        showProgressAnimation.showProgress(false);
+    }
+
+    @Override
+    public void onTaskError(UserLoginTask userLoginTask) {
+        wipeAsyncTask();
+        holder.passwordField.setError(getString(R.string.error_incorrect_password));
+        holder.passwordField.requestFocus();
+    }
+
+    @Override
+    public void onTaskCancelled(UserLoginTask userLoginTask) {
+        wipeAsyncTask();
     }
 
     /**

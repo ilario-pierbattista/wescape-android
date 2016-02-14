@@ -18,7 +18,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
  */
 public class AuthenticationActivity extends AppCompatActivity
         implements SignupFragment.OnFragmentInteractionListener,
-        RequestResetFragment.OnFragmentInteractionListener {
+        RequestResetFragment.OnFragmentInteractionListener,
+        ResetPasswordFragment.OnFragmentInteractionListener {
 
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
 

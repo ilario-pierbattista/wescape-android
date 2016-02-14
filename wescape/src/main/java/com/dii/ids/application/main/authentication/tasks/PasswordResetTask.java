@@ -2,31 +2,35 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.R;
-import com.dii.ids.application.main.authentication.SignupFragment;
+import com.dii.ids.application.main.authentication.RequestResetFragment;
+import com.dii.ids.application.main.authentication.ResetPasswordFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
+public class PasswordResetTask extends AsyncTask<Void, Void, Boolean> {
     /**
      * A dummy authentication store containing known user names and passwords. TODO: remove after
      * connecting to a real authentication system.
      */
     private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
+            "foo@example.com", "bar@example.com"
     };
 
     private final String email;
+    private final String secretCode;
     private final String password;
-    private SignupFragment fragment;
+    private final String passwordConfirm;
+    private ResetPasswordFragment fragment;
 
-    public UserSignupTask(String email, String password) {
+    public PasswordResetTask(String email, String secretCode, String password, String passwordConfirm) {
         this.email = email;
+        this.secretCode = secretCode;
         this.password = password;
+        this.passwordConfirm = passwordConfirm;
     }
 
-    public UserSignupTask inject(SignupFragment fragment) {
+    public PasswordResetTask inject(ResetPasswordFragment fragment) {
         this.fragment = fragment;
         return this;
     }
@@ -42,11 +46,9 @@ public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
 
-        for (String credential : DUMMY_CREDENTIALS) {
-            String[] pieces = credential.split(":");
-            if (pieces[0].equals(email)) {
-                // Account exists, return true if the password matches.
-                return pieces[1].equals(password);
+        for(String e : DUMMY_CREDENTIALS) {
+            if(email.equals(e)) {
+                return true;
             }
         }
 

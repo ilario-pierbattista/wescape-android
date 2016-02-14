@@ -3,49 +3,44 @@ package com.dii.ids.application.main.authentication;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
-import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
-import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.authentication.tasks.PasswordResetTask;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
-import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
+import com.dii.ids.application.validators.SecretCodeValidator;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link SignupFragment.OnFragmentInteractionListener} interface to handle interaction events. Use
- * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
+ * {@link ResetPasswordFragment.OnFragmentInteractionListener} interface to handle interaction
+ * events. Use the {@link ResetPasswordFragment#newInstance} factory method to create an instance of
+ * this fragment.
  */
-public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterface<UserSignupTask> {
+public class ResetPasswordFragment extends Fragment implements AsyncTaskCallbacksInterface<PasswordResetTask> {
+    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
 
+    // TODO: Rename and change types of parameters
     private String email;
-
-    private UserSignupTask signupTask;
     private ViewHolder holder;
-    private EmailAutocompleter emailAutocompleter;
-    private ShowProgressAnimation showProgressAnimation;
+    private ShowProgressAnimation animation;
+    private PasswordResetTask asyncTask;
 
     private OnFragmentInteractionListener mListener;
 
-    public SignupFragment() {
+    public ResetPasswordFragment() {
         // Required empty public constructor
     }
 
@@ -54,11 +49,11 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
      * parameters.
      *
      * @param email Parameter 1.
-     * @return A new instance of fragment SignupFragment.
+     * @return A new instance of fragment ResetPasswordFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SignupFragment newInstance(String email) {
-        SignupFragment fragment = new SignupFragment();
+    public static ResetPasswordFragment newInstance(String email) {
+        ResetPasswordFragment fragment = new ResetPasswordFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, email);
         fragment.setArguments(args);
@@ -77,37 +72,16 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_signup, container, false);
-
+        View view = inflater.inflate(R.layout.fragment_reset_password, container, false);
         ((AuthenticationActivity) getActivity())
-                .showActionBar(getString(R.string.authentication_title_bar));
+                .showActionBar(getString(R.string.action_reset_request));
         holder = new ViewHolder(view);
-        emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
+        animation = new ShowProgressAnimation(this, holder.scrollView, holder.progress);
 
-        emailAutocompleter.populateAutoComplete();
-
-        // Se in fase di login è stata immessa un'email valida, questa viene propagata
-        // alla fase di signup
-        if(email != null) {
-            holder.emailField.setText(email);
-        }
-
-        holder.passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attempSignup();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        holder.signupButton.setOnClickListener(new View.OnClickListener() {
+        holder.resetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                attempSignup();
+                resetPassword();
             }
         });
 
@@ -132,32 +106,26 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         }
     }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form. If there are form
      * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
      * attempt is made.
      */
-    private void attempSignup() {
-        if (signupTask != null) {
+    private void resetPassword() {
+        if (asyncTask != null) {
             return;
         }
 
         PasswordValidator passwordValidator = new PasswordValidator();
-        EmailValidator emailValidator = new EmailValidator();
+        SecretCodeValidator secretCodeValidator = new SecretCodeValidator();
 
         // Reset errors.
-        holder.emailFieldLayout.setError(null);
+        holder.secretCodeFieldLayout.setError(null);
         holder.passwordFieldLayout.setError(null);
         holder.passwordConfirmFieldLayout.setError(null);
 
         // Store values at the time of the login attempt.
-        String email = holder.emailField.getText().toString();
+        String secretCode = holder.secretCodeField.getText().toString();
         String password = holder.passwordField.getText().toString();
         String passwordConfirm = holder.passwordConfirmField.getText().toString();
 
@@ -179,13 +147,13 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            holder.emailFieldLayout.setError(getString(R.string.error_field_required));
-            focusView = holder.emailField;
+        if (TextUtils.isEmpty(secretCode)) {
+            holder.secretCodeFieldLayout.setError(getString(R.string.error_field_required));
+            focusView = holder.secretCodeField;
             cancel = true;
-        } else if (!emailValidator.isValid(email)) {
-            holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
-            focusView = holder.emailField;
+        } else if (!secretCodeValidator.isValid(secretCode)) {
+            holder.secretCodeFieldLayout.setError(getString(R.string.error_invalid_secretcode));
+            focusView = holder.secretCodeField;
             cancel = true;
         }
 
@@ -196,42 +164,37 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgressAnimation.showProgress(true);
-            signupTask = new UserSignupTask(email, password)
+            animation.showProgress(true);
+            asyncTask = new PasswordResetTask(this.email, secretCode, password, passwordConfirm)
                     .inject(this);
-            signupTask.execute((Void) null);
+            asyncTask.execute((Void) null);
         }
     }
 
-    public void wipeAsyncTask() {
-        showProgressAnimation.showProgress(false);
-        signupTask = null;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     @Override
-    public void onTaskSuccess(UserSignupTask asyncTask) {
+    public void onTaskSuccess(PasswordResetTask asyncTask) {
         wipeAsyncTask();
     }
 
     @Override
-    public void onTaskError(UserSignupTask userSignupTask) {
+    public void onTaskError(PasswordResetTask passwordResetTask) {
         wipeAsyncTask();
-        holder.passwordField.setError(getString(R.string.error_incorrect_password));
-        holder.passwordField.requestFocus();
     }
 
     @Override
-    public void onTaskCancelled(UserSignupTask userSignupTask) {
+    public void onTaskCancelled(PasswordResetTask passwordResetTask) {
         wipeAsyncTask();
+    }
+
+    private void wipeAsyncTask() {
+        asyncTask = null;
+        animation.showProgress(false);
     }
 
     /**
@@ -247,27 +210,27 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         void onFragmentInteraction(Uri uri);
     }
 
-    public static class ViewHolder {
-        public final ProgressBar progressBar;
+    public class ViewHolder {
+        public final ProgressBar progress;
         public final ScrollView scrollView;
-        public final AutoCompleteTextView emailField;
-        public final TextInputLayout emailFieldLayout;
+        public final EditText secretCodeField;
+        public final TextInputLayout secretCodeFieldLayout;
         public final EditText passwordField;
         public final TextInputLayout passwordFieldLayout;
         public final EditText passwordConfirmField;
         public final TextInputLayout passwordConfirmFieldLayout;
-        public final Button signupButton;
+        public final Button resetPasswordButton;
 
         public ViewHolder(View v) {
-            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
-            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
-            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
-            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
-            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
-            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
-            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
-            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
-            signupButton = (Button) v.findViewById(R.id.signup_button);
+            progress = (ProgressBar) v.findViewById(R.id.reset_passwd_progress);
+            scrollView = (ScrollView) v.findViewById(R.id.reset_passwd_scroll_view);
+            secretCodeField = (EditText) v.findViewById(R.id.reset_passwd_secretcode_text_input);
+            secretCodeFieldLayout = (TextInputLayout) v.findViewById(R.id.reset_passwd_secretcode_text_input_layout);
+            passwordField = (EditText) v.findViewById(R.id.reset_passwd_password_text_input);
+            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.reset_passwd_password_text_input_layout);
+            passwordConfirmField = (EditText) v.findViewById(R.id.reset_passwd_password_confirm_text_input);
+            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.reset_passwd_password_confirm_text_input_layout);
+            resetPasswordButton = (Button) v.findViewById(R.id.reset_passwd_button);
         }
     }
 }

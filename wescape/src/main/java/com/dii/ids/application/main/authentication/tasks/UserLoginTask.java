@@ -20,16 +20,14 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private final String email;
     private final String password;
     private LoginFragment fragment;
-    private LoginFragment.ViewHolder holder;
 
     public UserLoginTask(String email, String password) {
         this.email = email;
         this.password = password;
     }
 
-    public UserLoginTask inject(LoginFragment fragment, LoginFragment.ViewHolder holder) {
+    public UserLoginTask inject(LoginFragment fragment) {
         this.fragment = fragment;
-        this.holder = holder;
         return this;
     }
 
@@ -58,18 +56,15 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        fragment.wipeAsyncTask();
-
         if (success) {
-            fragment.getActivity().finish();
+            fragment.onTaskSuccess(this);
         } else {
-            holder.passwordField.setError(fragment.getString(R.string.error_incorrect_password));
-            holder.passwordField.requestFocus();
+            fragment.onTaskCancelled(this);
         }
     }
 
     @Override
     protected void onCancelled() {
-        fragment.wipeAsyncTask();
+        fragment.onTaskCancelled(this);
     }
 }

@@ -55,19 +55,15 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        fragment.wipeAsyncTask();
-
         if (success) {
-            // @TODO Sostituire con altra roba
-            fragment.wipeAsyncTask();
+            fragment.onTaskSuccess(this);
         } else {
-            // @TODO Aggiungere gestione dell'errore
-            fragment.wipeAsyncTask();
+            fragment.onTaskError(this);
         }
     }
 
     @Override
     protected void onCancelled() {
-        fragment.wipeAsyncTask();
+        fragment.onTaskCancelled(this);
     }
 }
