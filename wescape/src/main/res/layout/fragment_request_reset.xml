@@ -3,7 +3,7 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:gravity="center_horizontal"
+              android:gravity="center"
               android:orientation="vertical"
               tools:context="com.dii.ids.application.main.authentication.RequestResetFragment">
 
@@ -52,6 +52,9 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
                     android:inputType="textEmailAddress"
+                    android:imeActionId="@+id/request"
+                    android:imeActionLabel="@string/action_send_short"
+                    android:imeOptions="actionDone"
                     android:maxLines="1"
                     android:singleLine="true"
                     />

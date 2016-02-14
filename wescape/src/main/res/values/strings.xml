@@ -29,5 +29,6 @@
     <string name="description_reset_password">Insert a new password in the fields below (we\'ve sent you an email with the secret code)</string>
     <string name="error_invalid_secretcode">This secret code is invalid</string>
     <string name="accessibility_logo_description">Wescape Logo</string>
+    <string name="action_send_short">Send</string>
 
 </resources>

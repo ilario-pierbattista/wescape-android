@@ -17,4 +17,5 @@
     <string name="description_reset_password">Inserisci una nuova password nei campi sottostanti (ti abbiamo inviato un\'email con il codice segreto)</string>
     <string name="error_invalid_secretcode">Questo codice segreto non è valido</string>
     <string name="accessibility_logo_description">Il logo Wescape</string>
+    <string name="action_send_short">Invia</string>
 </resources>
