@@ -50,6 +50,10 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="Wescape.BlueTheme.NoActionBar.TranslucentStatusBar">
+        <item name="android:windowTranslucentStatus">true</item>
+    </style>
+
 
 
     <!-- General purpose styles -->

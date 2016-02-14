@@ -5,21 +5,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     tools:context="com.dii.ids.application.main.navigation.NavigationActivity">
+
+    <!-- Helper views to achieve animation -->
+    <View
+        android:id="@+id/revealBackground"
+        android:layout_width="match_parent"
+        android:layout_height="184dp"
+        android:background="@color/regularBlue"
+        android:elevation="1dp">
+    </View>
+
+    <View
+        android:id="@+id/reveal"
+        android:layout_width="match_parent"
+        android:layout_height="184dp"
+        android:background="@color/regularBlue"
+        android:elevation="1dp">
+    </View>
+    <!-- End helper views -->
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="-4dp"
+        android:layout_marginEnd="-4dp"
+        android:background="@android:color/transparent"
+        android:elevation="1dp"
+        android:paddingTop="@dimen/status_bar_height"
         android:theme="@style/Wescape.BlueTheme.AppBarOverlay">
+
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/navigation_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@android:color/transparent"
             android:gravity="top"
-            android:minHeight="?attr/actionBarSize"
             android:title="@string/title_activity_navigation"
             app:popupTheme="@style/Wescape.BlueTheme.PopupOverlay">
 
@@ -33,11 +55,13 @@
 
         </android.support.v7.widget.Toolbar>
 
-        <include layout="@layout/navigation_input"
-                 android:id="@+id/navigation_input_origin"/>
+        <include
+            android:id="@+id/navigation_input_origin"
+            layout="@layout/navigation_input"/>
 
-        <include layout="@layout/navigation_input"
-                 android:id="@+id/navigation_input_destination"/>
+        <include
+            android:id="@+id/navigation_input_destination"
+            layout="@layout/navigation_input"/>
 
 
     </android.support.design.widget.AppBarLayout>
