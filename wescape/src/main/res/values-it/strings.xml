@@ -10,6 +10,10 @@
     <string name="action_signup">Registrati</string>
     <string name="prompt_password_confirm">Conferma Password</string>
     <string name="action_settings" translatable="false">Impostazioni</string>
-    <string name="error_incorrect_password_confirm">La password di conferma non corrisponde</string>
     <string name="action_emergency">Emergenza</string>
+    <string name="error_incorrect_password_confirm">La password di conferma non corrisponde</string>
+    <string name="description_request_reset">Inserisci l\'indirizzo email utilizzato in fase di registrazione e ti spediremo le istruzioni per ripristinare la password</string>
+    <string name="action_reset_request">Ripristina Password</string>
+    <string name="starting_from">da</string>
+    <string name="going_to">a</string>
 </resources>

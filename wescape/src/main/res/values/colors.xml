@@ -5,6 +5,7 @@
     <color name="darkRed">#B72D2A</color>
     <color name="regularBlue">#0092E6</color>
     <color name="darkBlue">#2D7EB6</color>
+    <color name="transparentWhite">#46ffffff</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 </resources>

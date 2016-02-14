@@ -3,9 +3,10 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:gravity="center_horizontal"
+              android:orientation="vertical"
               tools:context="com.dii.ids.application.main.authentication.SignupFragment">
 
-    <!-- @TODO Da valutare l'utilità di avere una progress bar qui -->
     <ProgressBar
         android:id="@+id/signup_progress"
         style="?android:attr/progressBarStyleLarge"

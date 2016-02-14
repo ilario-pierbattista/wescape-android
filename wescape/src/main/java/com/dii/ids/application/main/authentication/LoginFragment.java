@@ -1,18 +1,14 @@
 package com.dii.ids.application.main.authentication;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +24,7 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
@@ -40,6 +37,7 @@ public class LoginFragment extends Fragment {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
+    private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
         // Required empty public constructor
@@ -57,6 +55,7 @@ public class LoginFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
+        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
@@ -81,6 +80,14 @@ public class LoginFragment extends Fragment {
             }
         });
 
+        holder.homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                startActivity(intent);
+            }
+        });
+
         holder.signupTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -91,17 +98,7 @@ public class LoginFragment extends Fragment {
         holder.resetPasswdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetPasswdClicked(v);
-            }
-        });
-
-
-        //@TODO: forza il passaggio alla home finche non viene implementato il login
-        holder.homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), NavigationActivity.class);
-                startActivity(intent);
+                openResetRequestFragment(v);
             }
         });
 
@@ -154,46 +151,10 @@ public class LoginFragment extends Fragment {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgress(true);
+            showProgressAnimation.showProgress(true);
             mAuthTask = new UserLoginTask(email, password)
                     .inject(this, holder);
             mAuthTask.execute((Void) null);
-        }
-    }
-
-    /**
-     * Shows the progress UI and hides the login form.
-     */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-    private void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
-            holder.scrollView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            holder.progressBar.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
-        } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            holder.progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            holder.scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 
@@ -212,27 +173,52 @@ public class LoginFragment extends Fragment {
      * @param v Oggetto TextView clickato
      */
     private void openSignupFragment(View v) {
+        SignupFragment signupFragment;
+
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Fragment fragment = new SignupFragment();
-        fragmentTransaction.replace(R.id.authentication_content_pane, fragment)
+        signupFragment = SignupFragment.newInstance(getValidEmailFromView());
+
+        fragmentTransaction.replace(R.id.authentication_content_pane, signupFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
     }
 
     /**
-     * Listener del TextView per il reset della password
+     * Sostituisce il fragment attuale con quello di richiesta di reset della password
      *
      * @param v Oggetto TextView clickato
      */
-    public void resetPasswdClicked(View v) {
-        Log.i(LOG_TAG, "ResetPasswdText clicked!");
+    private void openResetRequestFragment(View v) {
+        RequestResetFragment resetFragment;
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
+        resetFragment = RequestResetFragment.newInstance(getValidEmailFromView());
+        fragmentTransaction.replace(R.id.authentication_content_pane, resetFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     public void wipeAsyncTask() {
         mAuthTask = null;
-        showProgress(false);
+        showProgressAnimation.showProgress(false);
+    }
+
+    /**
+     * Estrae dalla vista un eventuale indirizzo email valido immesso
+     *
+     * @return Stringa con l'indirizzo, se presente e valido, null altrimenti
+     */
+    @Nullable
+    private String getValidEmailFromView() {
+        String email = holder.emailField.getText().toString();
+        if (new EmailValidator().isValid(email)) {
+            return email;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -260,7 +246,6 @@ public class LoginFragment extends Fragment {
             scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
             signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
             resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
-
             homeButton = (Button) view.findViewById(R.id.login_home_button);
         }
     }

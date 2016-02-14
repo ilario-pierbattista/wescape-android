@@ -33,21 +33,12 @@
 
         </android.support.v7.widget.Toolbar>
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:hint=""/>
+        <include layout="@layout/navigation_input"
+                 android:id="@+id/navigation_input_origin"/>
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp"
-            android:hint=""/>
+        <include layout="@layout/navigation_input"
+                 android:id="@+id/navigation_input_destination"/>
+
 
     </android.support.design.widget.AppBarLayout>
 
