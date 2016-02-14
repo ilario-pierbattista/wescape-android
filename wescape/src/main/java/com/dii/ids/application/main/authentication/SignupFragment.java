@@ -182,7 +182,7 @@ public class SignupFragment extends Fragment {
             holder.emailFieldLayout.setError(getString(R.string.error_field_required));
             focusView = holder.emailField;
             cancel = true;
-        } else if (!(new EmailValidator().isValid(email))) {
+        } else if (!emailValidator.isValid(email)) {
             holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
             focusView = holder.emailField;
             cancel = true;

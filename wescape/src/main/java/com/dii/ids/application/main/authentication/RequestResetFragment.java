@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,12 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.authentication.tasks.PasswordResetRequestTask;
+import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
+import com.dii.ids.application.validators.EmailValidator;
+import com.dii.ids.application.validators.PasswordValidator;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
@@ -31,6 +37,8 @@ public class RequestResetFragment extends Fragment {
     private String email;
     private ViewHolder holder;
     private EmailAutocompleter autocompleter;
+    private PasswordResetRequestTask asyncTask;
+    private ShowProgressAnimation showProgressAnimation;
 
     private OnFragmentInteractionListener mListener;
 
@@ -70,6 +78,7 @@ public class RequestResetFragment extends Fragment {
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
+        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 
@@ -77,7 +86,61 @@ public class RequestResetFragment extends Fragment {
             holder.emailField.setText(email);
         }
 
+        holder.resetRequestButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                requestReset();
+            }
+        });
+
         return view;
+    }
+
+    /**
+     * Attempts to sign in or register the account specified by the login form. If there are form
+     * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
+     * attempt is made.
+     */
+    private void requestReset() {
+        if (asyncTask != null) {
+            return;
+        }
+
+        PasswordValidator passwordValidator = new PasswordValidator();
+        EmailValidator emailValidator = new EmailValidator();
+
+        // Reset errors.
+        holder.emailFieldLayout.setError(null);
+
+        // Store values at the time of the login attempt.
+        String email = holder.emailField.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            holder.emailFieldLayout.setError(getString(R.string.error_field_required));
+            focusView = holder.emailField;
+            cancel = true;
+        } else if (!emailValidator.isValid(email)) {
+            holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
+            focusView = holder.emailField;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgressAnimation.showProgress(true);
+            asyncTask = new PasswordResetRequestTask(email)
+                    .inject(this, holder);
+            asyncTask.execute((Void) null);
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -85,6 +148,11 @@ public class RequestResetFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
         }
+    }
+
+    public void wipeAsyncTask() {
+        showProgressAnimation.showProgress(false);
+        asyncTask = null;
     }
 
     @Override
@@ -97,8 +165,6 @@ public class RequestResetFragment extends Fragment {
                     + " must implement OnFragmentInteractionListener");
         }
     }
-
-
 
     @Override
     public void onDetach() {
