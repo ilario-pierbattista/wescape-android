@@ -16,7 +16,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 /**
  * A login screen that offers login via email/password.
  */
-public class AuthenticationActivity extends AppCompatActivity implements SignupFragment.OnFragmentInteractionListener {
+public class AuthenticationActivity extends AppCompatActivity
+        implements SignupFragment.OnFragmentInteractionListener,
+        RequestResetFragment.OnFragmentInteractionListener {
 
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
 

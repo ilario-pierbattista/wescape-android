@@ -2,12 +2,12 @@ package com.dii.ids.application.main.authentication;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,7 +88,7 @@ public class LoginFragment extends Fragment {
         holder.resetPasswdTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetPasswdClicked(v);
+                openResetRequestFragment(v);
             }
         });
 
@@ -165,15 +165,9 @@ public class LoginFragment extends Fragment {
     private void openSignupFragment(View v) {
         SignupFragment signupFragment;
 
-        String email = holder.emailField.getText().toString();
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        if(new EmailValidator().isValid(email)) {
-            signupFragment = SignupFragment.newInstance(email);
-        } else {
-            signupFragment = SignupFragment.newInstance(null);
-        }
+        signupFragment = SignupFragment.newInstance(getValidEmailFromView());
 
         fragmentTransaction.replace(R.id.authentication_content_pane, signupFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -182,17 +176,39 @@ public class LoginFragment extends Fragment {
     }
 
     /**
-     * Listener del TextView per il reset della password
+     * Sostituisce il fragment attuale con quello di richiesta di reset della password
      *
      * @param v Oggetto TextView clickato
      */
-    public void resetPasswdClicked(View v) {
-        Log.i(LOG_TAG, "ResetPasswdText clicked!");
+    private void openResetRequestFragment(View v) {
+        RequestResetFragment resetFragment;
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
+        resetFragment = RequestResetFragment.newInstance(getValidEmailFromView());
+        fragmentTransaction.replace(R.id.authentication_content_pane, resetFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     public void wipeAsyncTask() {
         mAuthTask = null;
         showProgressAnimation.showProgress(false);
+    }
+
+    /**
+     * Estrae dalla vista un eventuale indirizzo email valido immesso
+     *
+     * @return Stringa con l'indirizzo, se presente e valido, null altrimenti
+     */
+    @Nullable
+    private String getValidEmailFromView() {
+        String email = holder.emailField.getText().toString();
+        if (new EmailValidator().isValid(email)) {
+            return email;
+        } else {
+            return null;
+        }
     }
 
     /**
