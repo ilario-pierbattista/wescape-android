@@ -163,10 +163,19 @@ public class LoginFragment extends Fragment {
      * @param v Oggetto TextView clickato
      */
     private void openSignupFragment(View v) {
+        SignupFragment signupFragment;
+
+        String email = holder.emailField.getText().toString();
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        Fragment fragment = new SignupFragment();
-        fragmentTransaction.replace(R.id.authentication_content_pane, fragment)
+
+        if(new EmailValidator().isValid(email)) {
+            signupFragment = SignupFragment.newInstance(email);
+        } else {
+            signupFragment = SignupFragment.newInstance(null);
+        }
+
+        fragmentTransaction.replace(R.id.authentication_content_pane, signupFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();

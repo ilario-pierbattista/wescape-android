@@ -32,14 +32,10 @@ import com.dii.ids.application.validators.PasswordValidator;
  * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class SignupFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_PARAM1 = "email";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String email;
 
     private UserSignupTask signupTask;
     private ViewHolder holder;
@@ -56,16 +52,14 @@ public class SignupFragment extends Fragment {
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param email Parameter 1.
      * @return A new instance of fragment SignupFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static SignupFragment newInstance(String param1, String param2) {
+    public static SignupFragment newInstance(String email) {
         SignupFragment fragment = new SignupFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_PARAM1, email);
         fragment.setArguments(args);
         return fragment;
     }
@@ -74,8 +68,7 @@ public class SignupFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            email = getArguments().getString(ARG_PARAM1);
         }
     }
 
@@ -92,6 +85,12 @@ public class SignupFragment extends Fragment {
         showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
 
         emailAutocompleter.populateAutoComplete();
+
+        // Se in fase di login è stata immessa un'email valida, questa viene propagata
+        // alla fase di signup
+        if(email != null) {
+            holder.emailField.setText(email);
+        }
 
         holder.passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
