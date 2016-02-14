@@ -21,6 +21,8 @@
     <string name="error_invalid_secretcode">Questo codice segreto non è valido</string>
     <string name="accessibility_logo_description">Il logo Wescape</string>
     <string name="action_send_short">Invia</string>
-    <string name="starting_from">da</string>
-    <string name="going_to">a</string>
+    <string name="navigation_starting_from">da</string>
+    <string name="navigation_going_to">a</string>
+    <string name="navigation_select_origin">Seleziona origine</string>
+    <string name="navigation_select_destination">Seleziona destinazione</string>
 </resources>

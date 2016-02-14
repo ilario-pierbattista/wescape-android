@@ -32,7 +32,9 @@
     <string name="action_send_short">Send</string>
     <string name="error_incorrect_password_confirm">The confirm password doesn\'t match</string>
     <string name="action_emergency">Emergency</string>
-    <string name="starting_from">from</string>
-    <string name="going_to">to</string>
+    <string name="navigation_starting_from">from</string>
+    <string name="navigation_going_to">to</string>
+    <string name="navigation_select_origin">Select origin</string>
+    <string name="navigation_select_destination">Select destination</string>
 
 </resources>

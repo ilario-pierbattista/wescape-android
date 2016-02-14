@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:text="@string/starting_from"/>
+        android:text="@string/navigation_starting_from"/>
 
     <TextView
         android:id="@+id/text"
