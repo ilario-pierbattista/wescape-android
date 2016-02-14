@@ -38,6 +38,55 @@ public class EmailAutocompleter implements LoaderManager.LoaderCallbacks<Cursor>
         this.autoCompleteTextView = autoCompleteTextView;
     }
 
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(fragment.getActivity(),
+                // Retrieve data rows for the device user's 'profile' contact.
+                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
+                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
+                EmailAutocompleter.ProfileQuery.PROJECTION,
+
+                // Select only email addresses.
+                ContactsContract.Contacts.Data.MIMETYPE +
+                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
+                .CONTENT_ITEM_TYPE},
+
+                // Show primary email addresses first. Note that there won't be
+                // a primary email address if the user hasn't specified one.
+                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
+    }
+
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        List<String> emails = new ArrayList<>();
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            emails.add(cursor.getString(EmailAutocompleter.ProfileQuery.ADDRESS));
+            cursor.moveToNext();
+        }
+
+        addToAutoComplete(emails);
+    }
+
+    public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    private void addToAutoComplete(List<String> emailAddressCollection) {
+        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
+        ArrayAdapter<String> adapter;
+        adapter = new ArrayAdapter<String>(fragment.getContext(),
+                android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+
+        autoCompleteTextView.setAdapter(adapter);
+    }
+
+    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions,
+                                          @NonNull int[] grantResults) {
+        if (requestCode == EmailAutocompleter.REQUEST_READ_CONTACTS) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                populateAutoComplete();
+            }
+        }
+    }
+
     public void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
@@ -65,55 +114,6 @@ public class EmailAutocompleter implements LoaderManager.LoaderCallbacks<Cursor>
             fragment.requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
         }
         return false;
-    }
-
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(fragment.getActivity(),
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY),
-                EmailAutocompleter.ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    public void onRequestPermissionResult(int requestCode, @NonNull String[] permissions,
-                                          @NonNull int[] grantResults) {
-        if (requestCode == EmailAutocompleter.REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
-    }
-
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(EmailAutocompleter.ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addToAutoComplete(emails);
-    }
-
-    public void onLoaderReset(Loader<Cursor> loader) {
-    }
-
-    private void addToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter;
-        adapter = new ArrayAdapter<String>(fragment.getContext(),
-                android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        autoCompleteTextView.setAdapter(adapter);
     }
 
     public interface ProfileQuery {

@@ -7,15 +7,19 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.PasswordResetTask;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
@@ -28,10 +32,10 @@ import com.dii.ids.application.validators.SecretCodeValidator;
  * events. Use the {@link ResetPasswordFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class ResetPasswordFragment extends Fragment implements AsyncTaskCallbacksInterface<PasswordResetTask> {
+public class ResetPasswordFragment extends BaseFragment implements AsyncTaskCallbacksInterface<PasswordResetTask> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "email";
+    private static final String EMAIL = "email";
 
     // TODO: Rename and change types of parameters
     private String email;
@@ -56,37 +60,9 @@ public class ResetPasswordFragment extends Fragment implements AsyncTaskCallback
     public static ResetPasswordFragment newInstance(String email) {
         ResetPasswordFragment fragment = new ResetPasswordFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, email);
+        args.putString(EMAIL, email);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            email = getArguments().getString(ARG_PARAM1);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_reset_password, container, false);
-        ((AuthenticationActivity) getActivity())
-                .showActionBar(getString(R.string.action_reset_request));
-        holder = new ViewHolder(view);
-        animation = new ShowProgressAnimation(this, holder.scrollView, holder.progress);
-
-        holder.resetPasswordButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                resetPassword();
-            }
-        });
-
-        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -105,6 +81,48 @@ public class ResetPasswordFragment extends Fragment implements AsyncTaskCallback
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            email = getArguments().getString(EMAIL);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        final View view = inflater.inflate(R.layout.fragment_reset_password, container, false);
+        ((AuthenticationActivity) getActivity())
+                .showActionBar(getString(R.string.action_reset_request));
+        holder = new ViewHolder(view);
+        animation = new ShowProgressAnimation(this, holder.scrollView, holder.progress);
+
+        holder.passwordConfirmField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                if (id == R.id.reset || id == EditorInfo.IME_NULL) {
+                    hideKeyboard(view);
+
+                    resetPassword();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        holder.resetPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideKeyboard(view);
+                resetPassword();
+            }
+        });
+
+        return view;
     }
 
     /**

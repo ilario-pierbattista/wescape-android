@@ -1,11 +1,9 @@
 package com.dii.ids.application.main.authentication;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
@@ -14,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -23,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
@@ -30,7 +28,7 @@ import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
+public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
@@ -76,10 +74,7 @@ public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterfa
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    // Nasconde la tastiera
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
+                    hideKeyboard(view);
                     attemptLogin();
                     return true;
                 }
@@ -90,6 +85,7 @@ public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterfa
         holder.loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 attemptLogin();
             }
         });
@@ -172,6 +168,7 @@ public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterfa
     private void openSignupFragment(View v) {
         SignupFragment signupFragment;
 
+        hideKeyboard(v);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         signupFragment = SignupFragment.newInstance(getValidEmailFromView());
@@ -188,10 +185,12 @@ public class LoginFragment extends Fragment implements AsyncTaskCallbacksInterfa
      * @param v Oggetto TextView clickato
      */
     private void openResetRequestFragment(View v) {
-        RequestResetFragment resetFragment;
+        ResetRequestFragment resetFragment;
+
+        hideKeyboard(v);
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
                 .beginTransaction();
-        resetFragment = RequestResetFragment.newInstance(getValidEmailFromView());
+        resetFragment = ResetRequestFragment.newInstance(getValidEmailFromView());
         fragmentTransaction.replace(R.id.authentication_content_pane, resetFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)

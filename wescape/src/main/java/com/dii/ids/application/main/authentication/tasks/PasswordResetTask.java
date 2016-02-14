@@ -2,7 +2,6 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.main.authentication.RequestResetFragment;
 import com.dii.ids.application.main.authentication.ResetPasswordFragment;
 
 /**
@@ -46,8 +45,8 @@ public class PasswordResetTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
 
-        for(String e : DUMMY_CREDENTIALS) {
-            if(email.equals(e)) {
+        for (String e : DUMMY_CREDENTIALS) {
+            if (email.equals(e)) {
                 return true;
             }
         }

@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -22,20 +21,21 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
-import com.dii.ids.application.main.authentication.tasks.PasswordResetRequestTask;
+import com.dii.ids.application.main.authentication.tasks.ResetRequestTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link RequestResetFragment.OnFragmentInteractionListener} interface to handle interaction
- * events. Use the {@link RequestResetFragment#newInstance} factory method to create an instance of
+ * {@link ResetRequestFragment.OnFragmentInteractionListener} interface to handle interaction
+ * events. Use the {@link ResetRequestFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class RequestResetFragment extends Fragment
-        implements AsyncTaskCallbacksInterface<PasswordResetRequestTask> {
+public class ResetRequestFragment extends BaseFragment
+        implements AsyncTaskCallbacksInterface<ResetRequestTask> {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
@@ -44,12 +44,12 @@ public class RequestResetFragment extends Fragment
     private String email;
     private ViewHolder holder;
     private EmailAutocompleter autocompleter;
-    private PasswordResetRequestTask asyncTask;
+    private ResetRequestTask asyncTask;
     private ShowProgressAnimation showProgressAnimation;
 
     private OnFragmentInteractionListener mListener;
 
-    public RequestResetFragment() {
+    public ResetRequestFragment() {
         // Required empty public constructor
     }
 
@@ -58,11 +58,11 @@ public class RequestResetFragment extends Fragment
      * parameters.
      *
      * @param email Parameter 1.
-     * @return A new instance of fragment RequestResetFragment.
+     * @return A new instance of fragment ResetRequestFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static RequestResetFragment newInstance(String email) {
-        RequestResetFragment fragment = new RequestResetFragment();
+    public static ResetRequestFragment newInstance(String email) {
+        ResetRequestFragment fragment = new ResetRequestFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, email);
         fragment.setArguments(args);
@@ -79,27 +79,14 @@ public class RequestResetFragment extends Fragment
     }
 
     @Override
-    public void onTaskSuccess(PasswordResetRequestTask asyncTask) {
-        wipeAsyncTask();
-        ResetPasswordFragment fragment;
-
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
-
-        transaction.replace(R.id.authentication_content_pane, fragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    @Override
-    public void onTaskError(PasswordResetRequestTask passwordResetRequestTask) {
-        wipeAsyncTask();
-    }
-
-    @Override
-    public void onTaskCancelled(PasswordResetRequestTask passwordResetRequestTask) {
-        wipeAsyncTask();
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
     }
 
     @Override
@@ -130,9 +117,7 @@ public class RequestResetFragment extends Fragment
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.request || id == EditorInfo.IME_NULL) {
-                    // Nasconde la tastiera
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    hideKeyboard(view);
 
                     requestReset();
                     return true;
@@ -144,6 +129,7 @@ public class RequestResetFragment extends Fragment
         holder.resetRequestButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 requestReset();
             }
         });
@@ -191,17 +177,40 @@ public class RequestResetFragment extends Fragment
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
-            asyncTask = new PasswordResetRequestTask(email)
+            asyncTask = new ResetRequestTask(email)
                     .inject(this, holder);
             asyncTask.execute((Void) null);
         }
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    @Override
+    public void onTaskSuccess(ResetRequestTask asyncTask) {
+        wipeAsyncTask();
+        ResetPasswordFragment fragment;
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
+
+        transaction.replace(R.id.authentication_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onTaskError(ResetRequestTask resetRequestTask) {
+        wipeAsyncTask();
+    }
+
+    @Override
+    public void onTaskCancelled(ResetRequestTask resetRequestTask) {
+        wipeAsyncTask();
     }
 
     private void wipeAsyncTask() {
@@ -219,21 +228,11 @@ public class RequestResetFragment extends Fragment
         }
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
         }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**

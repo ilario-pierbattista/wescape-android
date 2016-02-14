@@ -2,14 +2,12 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.R;
-import com.dii.ids.application.main.authentication.RequestResetFragment;
-import com.dii.ids.application.main.authentication.SignupFragment;
+import com.dii.ids.application.main.authentication.ResetRequestFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
+public class ResetRequestTask extends AsyncTask<Void, Void, Boolean> {
     /**
      * A dummy authentication store containing known user names and passwords. TODO: remove after
      * connecting to a real authentication system.
@@ -19,14 +17,14 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
     };
 
     private final String email;
-    private RequestResetFragment fragment;
-    private RequestResetFragment.ViewHolder holder;
+    private ResetRequestFragment fragment;
+    private ResetRequestFragment.ViewHolder holder;
 
-    public PasswordResetRequestTask(String email) {
+    public ResetRequestTask(String email) {
         this.email = email;
     }
 
-    public PasswordResetRequestTask inject(RequestResetFragment fragment, RequestResetFragment.ViewHolder holder) {
+    public ResetRequestTask inject(ResetRequestFragment fragment, ResetRequestFragment.ViewHolder holder) {
         this.fragment = fragment;
         this.holder = holder;
         return this;
@@ -43,8 +41,8 @@ public class PasswordResetRequestTask extends AsyncTask<Void, Void, Boolean> {
             return false;
         }
 
-        for(String e : DUMMY_CREDENTIALS) {
-            if(email.equals(e)) {
+        for (String e : DUMMY_CREDENTIALS) {
+            if (email.equals(e)) {
                 return true;
             }
         }

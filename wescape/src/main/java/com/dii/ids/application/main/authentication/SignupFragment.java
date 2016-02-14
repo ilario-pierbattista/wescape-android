@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,6 +20,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
@@ -33,7 +33,7 @@ import com.dii.ids.application.validators.PasswordValidator;
  * {@link SignupFragment.OnFragmentInteractionListener} interface to handle interaction events. Use
  * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterface<UserSignupTask> {
+public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserSignupTask> {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
 
@@ -66,6 +66,33 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         return fragment;
     }
 
+    // TODO: Rename method, update argument and hook method into UI event
+    public void onButtonPressed(Uri uri) {
+        if (mListener != null) {
+            mListener.onFragmentInteraction(uri);
+        }
+    }
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +117,7 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
 
         // Se in fase di login è stata immessa un'email valida, questa viene propagata
         // alla fase di signup
-        if(email != null) {
+        if (email != null) {
             holder.emailField.setText(email);
         }
 
@@ -98,10 +125,7 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.signup || id == EditorInfo.IME_NULL) {
-                    // Nasconde la tastiera
-                    InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-
+                    hideKeyboard(view);
                     attempSignup();
                     return true;
                 }
@@ -112,29 +136,12 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         holder.signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                hideKeyboard(view);
                 attempSignup();
             }
         });
 
         return view;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
     }
 
     @Override
@@ -208,23 +215,14 @@ public class SignupFragment extends Fragment implements AsyncTaskCallbacksInterf
         }
     }
 
-    public void wipeAsyncTask() {
-        showProgressAnimation.showProgress(false);
-        signupTask = null;
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        emailAutocompleter.onRequestPermissionResult(requestCode, permissions, grantResults);
-    }
-
     @Override
     public void onTaskSuccess(UserSignupTask asyncTask) {
         wipeAsyncTask();
+    }
+
+    public void wipeAsyncTask() {
+        showProgressAnimation.showProgress(false);
+        signupTask = null;
     }
 
     @Override

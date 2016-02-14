@@ -2,7 +2,6 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
 
-import com.dii.ids.application.R;
 import com.dii.ids.application.main.authentication.LoginFragment;
 
 /**
