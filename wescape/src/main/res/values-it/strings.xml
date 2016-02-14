@@ -9,4 +9,5 @@
     <string name="create_account_text">Non hai un account? Crealo</string>
     <string name="action_signup">Registrati</string>
     <string name="prompt_password_confirm">Conferma Password</string>
+    <string name="error_incorrect_password_confirm">La password di conferma non corrisponde</string>
 </resources>
