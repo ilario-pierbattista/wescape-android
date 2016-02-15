@@ -2,7 +2,6 @@ package com.dii.ids.application.main.navigation;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,6 +11,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
@@ -21,13 +24,11 @@ public class NavigationActivity extends AppCompatActivity {
     private ViewHolder holder;
     private boolean emergency = false;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_navigation);
         holder = new ViewHolder(findViewById(android.R.id.content));
-
 
         // Set the Toolbar as the ActionBar
         setSupportActionBar(holder.toolbar);
@@ -49,7 +50,6 @@ public class NavigationActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -65,7 +65,7 @@ public class NavigationActivity extends AppCompatActivity {
                 return true;
             case R.id.action_emergency:
                 toogleEmergency();
-                return  true;
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -75,15 +75,18 @@ public class NavigationActivity extends AppCompatActivity {
      * Update view for normal/emergency state
      */
     private void toogleEmergency() {
+        int red = R.color.regularRed;
+        int blue = R.color.regularBlue;
+
         if (!emergency) {
-            animateAppAndStatusBar(R.color.regularBlue, R.color.regularRed);
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.regularRed)));
+            animateAppAndStatusBar(blue, red);
+            animateFab(holder.startFabButton, red);
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText("La destinazione verrà impostata automaticamente");
             emergency = true;
         } else {
-            animateAppAndStatusBar(R.color.regularRed, R.color.regularBlue);
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.regularBlue)));
+            animateAppAndStatusBar(red, blue);
+            animateFab(holder.startFabButton, blue);
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
             emergency = false;
@@ -94,7 +97,7 @@ public class NavigationActivity extends AppCompatActivity {
      * Change Toolbar and StatusBar color using a nice animation
      *
      * @param fromColor Starting color
-     * @param toColor Arriving color
+     * @param toColor   Arriving color
      */
     private void animateAppAndStatusBar(int fromColor, final int toColor) {
         Animator animator = ViewAnimationUtils.createCircularReveal(
@@ -111,10 +114,51 @@ public class NavigationActivity extends AppCompatActivity {
         });
 
         holder.revealBackgroundView.setBackgroundColor(getResources().getColor(fromColor));
-        animator.setStartDelay(50);
+        animator.setStartDelay(70);
         animator.setDuration(125);
         animator.start();
         holder.revealView.setVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Change FloatingActionButton color using a nice animation
+     *
+     * @param fab     FloatingActionButton
+     * @param toColor Arriving color
+     */
+    protected void animateFab(final FloatingActionButton fab, final int toColor) {
+        fab.clearAnimation();
+        // Scale down animation
+        ScaleAnimation shrink = new ScaleAnimation(1f, 0.2f, 1f, 0.2f, Animation.RELATIVE_TO_SELF, 0.5f,
+                                                   Animation.RELATIVE_TO_SELF, 0.5f);
+        shrink.setDuration(150);     // animation duration in milliseconds
+        shrink.setInterpolator(new DecelerateInterpolator());
+        shrink.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                // Change FAB color and icon
+                fab.setBackgroundTintList(getResources().getColorStateList(toColor));
+                //fab.setImageDrawable(getResources().getDrawable(iconIntArray[position], null));
+
+                // Scale up animation
+                ScaleAnimation expand = new ScaleAnimation(0.2f, 1f, 0.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f,
+                                                           Animation.RELATIVE_TO_SELF, 0.5f);
+                expand.setDuration(100);     // animation duration in milliseconds
+                expand.setInterpolator(new AccelerateInterpolator());
+                fab.startAnimation(expand);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        fab.startAnimation(shrink);
     }
 
     /**
@@ -132,7 +176,6 @@ public class NavigationActivity extends AppCompatActivity {
         public final TextView originViewText;
         public final TextView destinationViewPlaceholder;
         public final TextView originViewPlaceholder;
-
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
