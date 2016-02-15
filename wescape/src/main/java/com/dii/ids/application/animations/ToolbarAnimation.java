@@ -7,6 +7,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
+/**
+ * Classe per la realizzazione delle animazioni della toolbar
+ */
 public class ToolbarAnimation {
 
     private Fragment fragment;

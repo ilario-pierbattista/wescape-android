@@ -1,12 +1,8 @@
 package com.dii.ids.application.main.navigation;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -14,22 +10,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.ScaleAnimation;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.main.BaseFragment;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     private ViewHolder holder;
     private boolean emergency = false;
@@ -68,6 +60,7 @@ public class HomeFragment extends Fragment {
         // Set the Toolbar as the ActionBar
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(holder.toolbar);
+        assert activity.getSupportActionBar() != null;
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
     }
@@ -101,15 +94,15 @@ public class HomeFragment extends Fragment {
         int blue = R.color.regularBlue;
         FabAnimation fabAnimation = new FabAnimation(this);
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(this,
-                                                                 holder.revealView,
-                                                                 holder.revealBackgroundView,
-                                                                 holder.toolbar);
+                holder.revealView,
+                holder.revealBackgroundView,
+                holder.toolbar);
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(blue, red);
             fabAnimation.animateFab(holder.startFabButton, red);
             holder.toolbarTitle.setText(R.string.action_emergency);
-            holder.destinationViewText.setText("La destinazione verrà impostata automaticamente");
+            holder.destinationViewText.setText(R.string.description_destination_emergency);
             emergency = true;
         } else {
             toolbarAnimation.animateAppAndStatusBar(red, blue);

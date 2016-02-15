@@ -24,7 +24,7 @@ import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
-import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
+import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
