@@ -16,6 +16,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
@@ -125,7 +127,7 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
         Bitmap image = mapsDownloaderTask.getImage();
         mapsDownloaderTask = null;
 
-        holder.mapImage.setImageBitmap(image);
+        holder.mapImage.setImage(ImageSource.bitmap(image));
     }
 
     @Override
@@ -155,7 +157,7 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
         public final TextView originViewText;
         public final TextView destinationViewPlaceholder;
         public final TextView originViewPlaceholder;
-        public final ImageView mapImage;
+        public final SubsamplingScaleImageView mapImage;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -163,7 +165,7 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
-            mapImage = (ImageView) view.findViewById(R.id.navigation_map_image);
+            mapImage = (SubsamplingScaleImageView) view.findViewById(R.id.navigation_map_image);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
