@@ -26,9 +26,6 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private boolean emergency = false;
 
-    public HomeFragment() {
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
