@@ -12,9 +12,7 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
 
-/**
- * A simple {@link Fragment} subclass.
- */
+
 public class SelectionFragment extends BaseFragment {
 
     private NavigationActivity mActivity;
@@ -35,16 +33,23 @@ public class SelectionFragment extends BaseFragment {
         holder.toolbarTitle.setText(getArguments().getString(BaseFragment.TOOLBAR_TITLE));
 
         // Setup static actions table
-        String[] staticActionsText = {getString(R.string.navigation_select_from_map), getString(
-                R.string.navigation_select_from_qr)};
-        int[] staticActionImages = {android.R.drawable.ic_dialog_map, R.drawable.ws_camera};
-        holder.staticListview.setAdapter(new CustomAdapter(getContext(),staticActionsText, staticActionImages));
+        String[] staticActionsText = {
+                getString(R.string.navigation_select_from_map),
+                getString(R.string.navigation_select_from_qr)
+        };
 
-
+        int[] staticActionImages = {
+                android.R.drawable.ic_dialog_map,
+                R.drawable.ws_camera
+        };
+        holder.staticListview.setAdapter(new StaticListAdapter(getContext(), staticActionsText, staticActionImages));
 
         return view;
     }
 
+    /**
+     * UI elements wrapper class
+     */
     public static class ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;

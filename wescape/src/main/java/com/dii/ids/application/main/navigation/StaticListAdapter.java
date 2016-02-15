@@ -10,14 +10,15 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 
-public class CustomAdapter extends BaseAdapter {
+public class StaticListAdapter extends BaseAdapter {
 
-    private String[] textstrings;
+    private String[] texts;
     private int[] images;
     private Context context;
 
-    public CustomAdapter(Context context, String[] textStrings, int[] images) {
-        this.textstrings = textStrings;
+
+    public StaticListAdapter(Context context, String[] texts, int[] images) {
+        this.texts = texts;
         this.images = images;
         this.context = context;
     }
@@ -34,7 +35,7 @@ public class CustomAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return textstrings.length;
+        return texts.length;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class CustomAdapter extends BaseAdapter {
         View view = LayoutInflater.from(context).inflate(R.layout.navigation_list_item, parent, false);
 
         ViewHolder holder = new ViewHolder(view);
-        holder.actionText.setText(textstrings[position]);
+        holder.actionText.setText(texts[position]);
         holder.iconView.setImageResource(images[position]);
 
         return view;

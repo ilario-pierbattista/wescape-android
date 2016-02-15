@@ -16,7 +16,6 @@
             android:layout_gravity="center"
             android:layout_width="24dp"
             android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_dialog_map"
             android:tint="@color/listItemIcon"/>
 
     </FrameLayout>
