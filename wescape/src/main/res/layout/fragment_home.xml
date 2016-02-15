@@ -80,4 +80,5 @@
         android:src="@android:drawable/ic_dialog_map"
         app:backgroundTint="@color/regularBlue"/>
 
+
 </android.support.design.widget.CoordinatorLayout>

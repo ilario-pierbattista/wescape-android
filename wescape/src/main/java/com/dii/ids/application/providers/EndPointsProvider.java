@@ -18,10 +18,20 @@ public class EndPointsProvider {
                 .authority(AUTHORITY);
     }
 
-    public URL downloadMaps() {
-        // @TODO far scaricare tutto il pacchetto di mappe
+    public URL downloadMapsZip() {
         builder.appendPath("maps")
-                .appendPath("145.jpg");
+                .appendPath("get_images.php");
+        try {
+            return new URL(builder.build().toString());
+        } catch (MalformedURLException e) {
+            Log.d(LOG_TAG, "Url Error:", e);
+            return null;
+        }
+    }
+
+    public URL downloadMap(int floor) {
+        builder.appendPath("maps")
+                .appendPath(Integer.toString(floor).concat(".jpg"));
         try {
             return new URL(builder.build().toString());
         } catch (MalformedURLException e) {

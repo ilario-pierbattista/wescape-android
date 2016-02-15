@@ -20,7 +20,7 @@ import java.net.URL;
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
+public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     private HomeFragment fragment;
     private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
     private static final String CACHE_SUBDIR = "wescape_maps";
@@ -37,9 +37,10 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground(Integer... params) {
         EndPointsProvider endPoints = new EndPointsProvider();
         HttpURLConnection connection;
+        int floor = params[0];
 
         if(imageCache == null) {
             try {
@@ -51,7 +52,7 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         // Generazione dell'url
-        URL url = endPoints.downloadMaps();
+        URL url = endPoints.downloadMap(floor);
         if (url == null) {
             Log.e(LOG_TAG, "Url malformato");
             return false;
