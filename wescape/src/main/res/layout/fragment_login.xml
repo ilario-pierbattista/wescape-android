@@ -121,7 +121,12 @@
                 android:layout_marginTop="16dp"
                 android:text="Vai Home"
                 android:textStyle="bold"/> -->
-
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/scan_btn"
+                android:text="Scan QR"/>
         </LinearLayout>
+
     </ScrollView>
 </LinearLayout>
