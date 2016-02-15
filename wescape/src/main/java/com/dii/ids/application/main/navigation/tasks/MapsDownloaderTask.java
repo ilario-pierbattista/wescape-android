@@ -3,13 +3,17 @@ package com.dii.ids.application.main.navigation.tasks;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dii.ids.application.main.navigation.HomeFragment;
 import com.dii.ids.application.providers.EndPointsProvider;
+import com.dii.ids.application.utils.io.SimpleDiskCache;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -19,7 +23,10 @@ import java.net.URL;
 public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
     private HomeFragment fragment;
     private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
+    private static final String CACHE_SUBDIR = "wescape_maps";
+    private static final int CACHE_SIZE = 1024 * 1024 * 10;
     private Bitmap image;
+    private static SimpleDiskCache imageCache = null;
 
     public MapsDownloaderTask() {
     }
@@ -34,6 +41,15 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
         EndPointsProvider endPoints = new EndPointsProvider();
         HttpURLConnection connection;
 
+        if(imageCache == null) {
+            try {
+                imageCache = initCache();
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Errore", e);
+                return false;
+            }
+        }
+
         // Generazione dell'url
         URL url = endPoints.downloadMaps();
         if (url == null) {
@@ -42,8 +58,15 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
         }
 
         try {
-            connection = (HttpURLConnection) url.openConnection();
-            image = BitmapFactory.decodeStream(connection.getInputStream());
+            image = getBitmapFromMemCache(url.toString());
+            if (image == null) {
+                connection = (HttpURLConnection) url.openConnection();
+                image = BitmapFactory.decodeStream(connection.getInputStream());
+                addBitmapToMemoryCache(url.toString(), image);
+                Log.i(LOG_TAG, "FROM INTERNET");
+            } else {
+                Log.i(LOG_TAG, "FROM CACHE");
+            }
         } catch (IOException e) {
             return false;
         }
@@ -54,7 +77,7 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPostExecute(final Boolean success) {
-        if(success) {
+        if (success) {
             fragment.onTaskSuccess(this);
         } else {
             fragment.onTaskError(this);
@@ -68,5 +91,35 @@ public class MapsDownloaderTask extends AsyncTask<Void, Void, Boolean> {
 
     public Bitmap getImage() {
         return image;
+    }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            try {
+                OutputStream outputStream = imageCache.openStream(key);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                outputStream.close();
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error", e);
+            }
+        }
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        try {
+            SimpleDiskCache.BitmapEntry entry = imageCache.getBitmap(key);
+            if(entry != null) {
+                return entry.getBitmap();
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private SimpleDiskCache initCache() throws IOException {
+        File cacheDir = new File(fragment.getContext().getCacheDir(), CACHE_SUBDIR);
+        return SimpleDiskCache.open(cacheDir, 0, CACHE_SIZE);
     }
 }
