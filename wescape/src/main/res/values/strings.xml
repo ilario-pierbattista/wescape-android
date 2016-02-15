@@ -20,7 +20,7 @@
     <string name="action_signup_short" translatable="false">Signup</string>
     <string name="authentication_title_bar" translatable="false">Login</string>
     <string name="error_mismatching_password_confirm">The confirm password does not match</string>
-    <string name="title_activity_navigation">Home</string>
+    <string name="title_activity_navigation" translatable="false">Home</string>
     <string name="action_settings">Settings</string>
     <string name="description_request_reset">Insert the email address used at signup time and we\'ll send you the instructions to reset your old password</string>
     <string name="action_reset_request">Reset Password</string>
@@ -30,5 +30,12 @@
     <string name="error_invalid_secretcode">This secret code is invalid</string>
     <string name="accessibility_logo_description">Wescape Logo</string>
     <string name="action_send_short">Send</string>
+    <string name="error_incorrect_password_confirm">The confirm password doesn\'t match</string>
+    <string name="action_emergency">Emergency</string>
+    <string name="navigation_starting_from">from</string>
+    <string name="navigation_going_to">to</string>
+    <string name="navigation_select_origin">Select origin</string>
+    <string name="navigation_select_destination">Select destination</string>
+    <string name="description_destination_emergency">The destination will be automatically selected</string>
 
 </resources>

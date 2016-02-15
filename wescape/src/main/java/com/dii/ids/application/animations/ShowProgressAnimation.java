@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.authentication.utils;
+package com.dii.ids.application.animations;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

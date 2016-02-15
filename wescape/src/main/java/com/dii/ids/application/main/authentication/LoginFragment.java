@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.authentication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,6 +8,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,15 +20,19 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
-import com.dii.ids.application.main.authentication.utils.ShowProgressAnimation;
+import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
@@ -90,6 +96,14 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             }
         });
 
+        holder.homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                startActivity(intent);
+            }
+        });
+
         holder.signupTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,7 +118,26 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             }
         });
 
+        holder.scanBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                qrScannerListener(v);
+            }
+        });
+
         return view;
+    }
+
+    /**
+     * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire
+     * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment
+     * senza passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
+     *
+     * @param v Oggetto View
+     */
+    private void qrScannerListener(View v) {
+        IntentIntegrator intent = IntentIntegrator.forSupportFragment(this);
+        intent.initiateScan();
     }
 
     /**
@@ -236,6 +269,28 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     }
 
     /**
+     * Metodo che viene richiamato quando si chiude l'intent della fotocamera. Avendo creato
+     * l'oggetto IntentResult a partire da un fragment possiamo riprendere le informazioni senza
+     * ripassare dalla rispettiva activity.
+     *
+     * @param requestCode Request code dell'intent
+     * @param resultCode Result code dell'intent
+     * @param intent Oggetto intent
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+
+        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanResult != null) {
+            String re = scanResult.getContents();
+            if (re != null) {
+                Log.d(LOG_TAG, re);
+                Toast.makeText(getActivity(), re, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
+    /**
      * Classe wrapper degli elementi della vista
      */
     public static class ViewHolder {
@@ -244,10 +299,12 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final TextInputLayout passwordFieldLayout;
         public final EditText passwordField;
         public final Button loginButton;
+        public final Button homeButton;
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
         public final TextView signupTextView;
         public final TextView resetPasswdTextView;
+        public final Button scanBtn;
 
         public ViewHolder(View view) {
             emailField = (AutoCompleteTextView) view.findViewById(R.id.login_email_text_input);
@@ -259,6 +316,9 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
             signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
             resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
+            homeButton = (Button) view.findViewById(R.id.login_home_button);
+            scanBtn = (Button) view.findViewById(R.id.scan_btn);
         }
     }
+
 }
