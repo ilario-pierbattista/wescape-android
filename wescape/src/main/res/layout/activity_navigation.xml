@@ -1,80 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<FrameLayout
+    android:id="@+id/navigation_content_pane"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.dii.ids.application.main.navigation.NavigationActivity">
-
-    <!-- Helper views to achieve animation -->
-    <View
-        android:id="@+id/reveal_background_view"
-        android:layout_width="match_parent"
-        android:layout_height="184dp"
-        android:background="@color/regularBlue"
-        android:elevation="1dp">
-    </View>
-
-    <View
-        android:id="@+id/reveal_view"
-        android:layout_width="match_parent"
-        android:layout_height="184dp"
-        android:background="@color/regularBlue"
-        android:elevation="1dp">
-    </View>
-    <!-- End helper views -->
-
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="-4dp"
-        android:layout_marginEnd="-4dp"
-        android:background="@android:color/transparent"
-        android:elevation="1dp"
-        android:paddingTop="@dimen/status_bar_height"
-        android:theme="@style/Wescape.BlueTheme.AppBarOverlay">
-
-
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/navigation_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
-            android:gravity="top"
-            android:title="@string/title_activity_navigation"
-            app:popupTheme="@style/Wescape.BlueTheme.PopupOverlay">
-
-            <TextView
-                android:id="@+id/navigation_toolbar_textview_title"
-                style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/title_activity_navigation"
-                android:textColor="@android:color/white"/>
-
-        </android.support.v7.widget.Toolbar>
-
-        <include
-            android:id="@+id/navigation_input_origin"
-            layout="@layout/navigation_input"/>
-
-        <include
-            android:id="@+id/navigation_input_destination"
-            layout="@layout/navigation_input"/>
-
-
-    </android.support.design.widget.AppBarLayout>
-
-    <include layout="@layout/content_navigation"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/navigation_fab_start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        android:src="@android:drawable/ic_dialog_map"
-        app:backgroundTint="@color/regularBlue"/>
-
-</android.support.design.widget.CoordinatorLayout>
+    tools:context=".main.authentication.NavigationActivity">
+</FrameLayout>
