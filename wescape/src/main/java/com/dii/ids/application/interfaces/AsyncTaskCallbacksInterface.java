@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.authentication.interfaces;
+package com.dii.ids.application.interfaces;
 
 /**
  * @param <AsyncTaskType>

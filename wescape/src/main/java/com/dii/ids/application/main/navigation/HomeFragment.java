@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,20 +12,25 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HomeFragment extends BaseFragment {
+public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInterface<MapsDownloaderTask> {
 
     private ViewHolder holder;
     private boolean emergency = false;
+    private MapsDownloaderTask mapsDownloaderTask;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,6 +52,10 @@ public class HomeFragment extends BaseFragment {
                         .setAction("Action", null).show();
             }
         });
+
+        mapsDownloaderTask = new MapsDownloaderTask()
+                .inject(this);
+        mapsDownloaderTask.execute();
 
         return view;
     }
@@ -110,6 +120,26 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
+        Bitmap image = mapsDownloaderTask.getImage();
+        mapsDownloaderTask = null;
+
+        holder.mapImage.setImageBitmap(image);
+    }
+
+    @Override
+    public void onTaskError(MapsDownloaderTask mapsDownloaderTask) {
+        mapsDownloaderTask = null;
+        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void onTaskCancelled(MapsDownloaderTask mapsDownloaderTask) {
+        mapsDownloaderTask = null;
+    }
+
     /**
      * Classe wrapper degli elementi della vista
      */
@@ -125,6 +155,7 @@ public class HomeFragment extends BaseFragment {
         public final TextView originViewText;
         public final TextView destinationViewPlaceholder;
         public final TextView originViewPlaceholder;
+        public final ImageView mapImage;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -132,6 +163,7 @@ public class HomeFragment extends BaseFragment {
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
+            mapImage = (ImageView) view.findViewById(R.id.navigation_map_image);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
@@ -139,7 +171,6 @@ public class HomeFragment extends BaseFragment {
             originView = view.findViewById(R.id.navigation_input_origin);
             originViewText = (TextView) originView.findViewById(R.id.text);
             originViewPlaceholder = (TextView) originView.findViewById(R.id.placeholder);
-
         }
     }
 }

@@ -26,4 +26,5 @@
     <string name="navigation_select_destination">Seleziona destinazione</string>
     <string name="description_destination_emergency">La destinazione verrà selezionata automaticamente</string>
     <string name="action_settings">Impostazioni</string>
+    <string name="error_network_download_image">Ci sono stati degli errori durante il download delle mappe</string>
 </resources>

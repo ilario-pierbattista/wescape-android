@@ -20,7 +20,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.PasswordResetTask;
 import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.validators.PasswordValidator;
