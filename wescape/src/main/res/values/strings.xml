@@ -38,4 +38,7 @@
     <string name="navigation_select_destination">Select destination</string>
     <string name="description_destination_emergency">The destination will be automatically selected</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
