@@ -3,6 +3,7 @@ package com.dii.ids.application.main.navigation;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
 
 import com.dii.ids.application.R;
 

@@ -67,6 +67,7 @@ public class HomeFragment extends Fragment {
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         activity.setSupportActionBar(holder.toolbar);
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+        setHasOptionsMenu(true);
     }
 
     @Override
