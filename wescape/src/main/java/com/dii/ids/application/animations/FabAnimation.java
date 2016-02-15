@@ -22,8 +22,9 @@ public class FabAnimation {
      *
      * @param fab     FloatingActionButton
      * @param toColor Arriving color
+     * @param toIcon  Arriving icon
      */
-    protected void animateFab(final FloatingActionButton fab, final int toColor) {
+    public void animateFab(final FloatingActionButton fab, final int toColor, final int toIcon) {
         fab.clearAnimation();
         // Scale down animation
         ScaleAnimation shrink = new ScaleAnimation(1f, 0.2f, 1f, 0.2f, Animation.RELATIVE_TO_SELF, 0.5f,
@@ -40,7 +41,9 @@ public class FabAnimation {
             public void onAnimationEnd(Animation animation) {
                 // Change FAB color and icon
                 fab.setBackgroundTintList(fragment.getResources().getColorStateList(toColor));
-                //fab.setImageDrawable(getResources().getDrawable(iconIntArray[position], null));
+                if (toIcon >= 0) {
+                    fab.setImageDrawable(fragment.getResources().getDrawable(toIcon, null));
+                }
 
                 // Scale up animation
                 ScaleAnimation expand = new ScaleAnimation(0.2f, 1f, 0.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f,
@@ -56,5 +59,10 @@ public class FabAnimation {
             }
         });
         fab.startAnimation(shrink);
+    }
+
+
+    public void animateFab(final FloatingActionButton fab, final int toColor) {
+        animateFab(fab, toColor, -1);
     }
 }
