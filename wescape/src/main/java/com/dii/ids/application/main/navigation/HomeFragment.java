@@ -1,12 +1,12 @@
 package com.dii.ids.application.main.navigation;
 
-import android.gesture.Gesture;
 import android.graphics.Bitmap;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.GestureDetector;
@@ -17,7 +17,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +40,7 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,7 +53,22 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
         holder.originViewText.setText(R.string.navigation_select_origin);
         holder.destinationViewText.setText(R.string.navigation_select_destination);
 
-        // Set the Fab button
+
+        // Setup listeners
+        holder.originView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSelectionFragment(getString(R.string.navigation_select_origin));
+            }
+        });
+
+        holder.destinationView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSelectionFragment(getString(R.string.navigation_select_destination));
+            }
+        });
+
         holder.startFabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -121,14 +136,33 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
             fabAnimation.animateFab(holder.startFabButton, red);
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
+            holder.destinationView.setClickable(false);
             emergency = true;
         } else {
             toolbarAnimation.animateAppAndStatusBar(red, blue);
             fabAnimation.animateFab(holder.startFabButton, blue);
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
+            holder.destinationView.setClickable(true);
             emergency = false;
         }
+    }
+
+    private void openSelectionFragment(String message) {
+        SelectionFragment selectionFragment = new SelectionFragment();
+
+        // Set parameters to pass
+        Bundle args = new Bundle();
+        args.putString(BaseFragment.TOOLBAR_TITLE, message);
+        selectionFragment.setArguments(args);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
