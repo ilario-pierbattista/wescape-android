@@ -32,4 +32,5 @@
     <string name="action_back">Indietro</string>
     <string name="action_submit"></string>
     <string name="action_confirm">Conferma</string>
+    <string name="title_navigator">Indicazioni</string>
 </resources>

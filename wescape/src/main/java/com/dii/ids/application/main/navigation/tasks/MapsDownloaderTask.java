@@ -62,9 +62,6 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
                 connection = (HttpURLConnection) url.openConnection();
                 image = BitmapFactory.decodeStream(connection.getInputStream());
                 addBitmapToMemoryCache(url.toString(), image);
-                Log.i(LOG_TAG, "FROM INTERNET");
-            } else {
-                Log.i(LOG_TAG, "FROM CACHE");
             }
         } catch (IOException e) {
             return false;
