@@ -37,6 +37,7 @@
     <string name="navigation_select_origin">Select origin</string>
     <string name="navigation_select_destination">Select destination</string>
     <string name="description_destination_emergency">The destination will be automatically selected</string>
+    <string name="error_network_download_image">Some errors occurred while downloading maps</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

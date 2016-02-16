@@ -26,7 +26,7 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginStart="-4dp"
         android:layout_marginEnd="-4dp"
         android:background="@android:color/transparent"
@@ -62,10 +62,14 @@
             android:id="@+id/navigation_input_destination"
             layout="@layout/navigation_input"/>
 
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:id="@+id/navigation_map_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/wescape_logo"/>
 
     </android.support.design.widget.AppBarLayout>
-
-
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/navigation_fab_start"
@@ -76,5 +80,6 @@
         android:src="@drawable/ic_directions"
         android:tint="@color/white"
         app:backgroundTint="@color/regularBlue"/>
+
 
 </android.support.design.widget.CoordinatorLayout>

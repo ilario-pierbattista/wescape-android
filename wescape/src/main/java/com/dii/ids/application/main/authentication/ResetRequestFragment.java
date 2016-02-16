@@ -22,7 +22,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.ResetRequestTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.animations.ShowProgressAnimation;
@@ -204,12 +204,12 @@ public class ResetRequestFragment extends BaseFragment
     }
 
     @Override
-    public void onTaskError(ResetRequestTask resetRequestTask) {
+    public void onTaskError(ResetRequestTask asyncTask) {
         wipeAsyncTask();
     }
 
     @Override
-    public void onTaskCancelled(ResetRequestTask resetRequestTask) {
+    public void onTaskCancelled(ResetRequestTask asyncTask) {
         wipeAsyncTask();
     }
 
