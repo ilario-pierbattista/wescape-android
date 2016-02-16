@@ -9,6 +9,6 @@
     <color name="white">#FFFFFF</color>
     <color name="lightGreyBackground">#EEEEEE</color>
     <color name="dividerGrey">#DDDDDD</color>
-    <color name="listItemIcon">#D1D2D1</color>
+    <color name="listItemIcon">#868686</color>
     <color name="black">#000000</color>
 </resources>

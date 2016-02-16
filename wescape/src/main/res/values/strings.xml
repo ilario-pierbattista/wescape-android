@@ -43,5 +43,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="navigation_select_from_map">Select from the map</string>
     <string name="navigation_select_from_qr">Scan QR code</string>
+    <string name="action_back">Back</string>
+    <string name="action_confirm">Confirm</string>
 
 </resources>

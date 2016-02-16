@@ -14,17 +14,15 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
 public class SelectionFromMapFragment extends MapFragment {
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
-    private ViewHolder holder;
     private MapsDownloaderTask mapsTask;
+    private ViewHolder holder;
 
     /**
-     * Use this factory method to create a new instance of this fragment using the provided
-     * parameters.
+     * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
      * @param selection Parameter 1.
      * @return A new instance of fragment ResetPasswordFragment.
@@ -64,6 +62,14 @@ public class SelectionFromMapFragment extends MapFragment {
             @Override
             public void onClick(View v) {
                 flootButtonListener(v);
+            }
+        });
+
+        // Setup back button
+        holder.backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
             }
         });
 
@@ -131,12 +137,16 @@ public class SelectionFromMapFragment extends MapFragment {
         public final Button floor155Button;
         public final Button floor150Button;
         public final Button floor145Button;
+        public final View actionButtonsContainer;
+        public final Button backButton;
 
         public ViewHolder(View v) {
             mapView = (SubsamplingScaleImageView) v.findViewById(R.id.navigation_map_image);
-            floor155Button = (Button) v.findViewById(R.id.floot_button_155);
-            floor150Button = (Button) v.findViewById(R.id.floot_button_150);
-            floor145Button = (Button) v.findViewById(R.id.floot_button_145);
+            floor155Button = (Button) v.findViewById(R.id.floor_button_155);
+            floor150Button = (Button) v.findViewById(R.id.floor_button_150);
+            floor145Button = (Button) v.findViewById(R.id.floor_button_145);
+            actionButtonsContainer = v.findViewById(R.id.action_buttons_container);
+            backButton = (Button) actionButtonsContainer.findViewById(R.id.back_button);
         }
     }
 }
