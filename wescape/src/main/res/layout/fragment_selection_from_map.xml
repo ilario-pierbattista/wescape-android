@@ -82,19 +82,32 @@
             android:orientation="vertical">
 
             <Button
-                style="?android:attr/borderlessButtonStyle"
+                android:background="@drawable/borderless_white_button"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="155"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
+
             <Button
-                style="?android:attr/borderlessButtonStyle"
+                android:background="@drawable/borderless_white_button"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="150"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
             <Button
-                style="?android:attr/borderlessButtonStyle"
+                android:background="@drawable/borderless_white_button"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -109,7 +122,7 @@
     <RelativeLayout
         android:id="@+id/action_buttons_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="46dp"
         android:layout_alignParentBottom="true"
         android:background="@color/white"
         android:elevation="@dimen/standard_elevation"
@@ -117,16 +130,18 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:clipChildren="true"
             android:orientation="horizontal">
 
             <Button
                 android:id="@+id/back_button"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:background="@drawable/borderless_white_button"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="INDIETRO"/>
+                android:textAllCaps="true"
+                android:text="indietro"/>
 
             <!-- Divider -->
             <View
@@ -136,11 +151,12 @@
 
             <Button
                 android:id="@+id/submit_button"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:background="@drawable/borderless_white_button"
                 android:layout_weight="1"
-                android:text="CONFERMA"
+                android:textAllCaps="true"
+                android:text="conferma"
                 android:textColor="@android:color/holo_blue_light"/>
         </LinearLayout>
 

@@ -9,3 +9,7 @@
 ## Material Design Header: Toolbar
     Per creare una Action Bar come nel Material Design si deve utilizzare il componente Toolbar e non più la ActionBar.
     Seguire questo tutorial: http://www.android4devs.com/2014/12/how-to-make-material-design-app.html
+
+## Material Desgin Buttons:
+    Bottoni che non occupano tutto lo spazio:
+    http://stackoverflow.com/questions/34989961/how-to-remove-extra-padding-or-margin-in-material-design-button
