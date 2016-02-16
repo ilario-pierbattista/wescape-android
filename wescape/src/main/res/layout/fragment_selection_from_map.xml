@@ -7,6 +7,7 @@
                 tools:context="com.dii.ids.application.main.navigation.SelectionFromMapFragment">
 
     <android.support.design.widget.AppBarLayout
+        android:id="@+id/toolbar_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/regularBlue"
@@ -66,6 +67,21 @@
     </android.support.design.widget.AppBarLayout>
 
     <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar_container">
+
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:id="@+id/navigation_map_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/wescape_logo"/>
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
         android:id="@+id/floor_buttons_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -82,18 +98,21 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/floot_button_155"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="155"/>
             <Button
+                android:id="@+id/floot_button_150"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="150"/>
             <Button
+                android:id="@+id/floot_button_145"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
@@ -103,7 +122,6 @@
         </LinearLayout>
 
     </RelativeLayout>
-
 
     <!-- Buttons container -->
     <RelativeLayout
