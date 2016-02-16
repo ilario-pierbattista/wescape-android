@@ -44,5 +44,6 @@
     <string name="navigation_select_from_qr">Scan QR code</string>
     <string name="action_back">Back</string>
     <string name="action_confirm">Confirm</string>
+    <string name="title_navigator">Indications</string>
 
 </resources>

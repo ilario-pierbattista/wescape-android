@@ -30,6 +30,8 @@ repositories {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
+
+    // Zxing libraries
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.google.android.gms:play-services-appindexing:8.1.0'
@@ -37,8 +39,6 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.0'
     compile 'com.android.support:cardview-v7:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
-    
-    // Zxing libraries
     compile 'com.embarkmobile:zxing-android-minimal:2.0.0@aar'
     compile 'com.embarkmobile:zxing-android-integration:2.0.0@aar'
     compile 'com.google.zxing:core:3.0.1'

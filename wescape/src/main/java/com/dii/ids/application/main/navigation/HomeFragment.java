@@ -62,8 +62,7 @@ public class HomeFragment extends BaseFragment {
         holder.startFabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                openNavigatorFragment();
             }
         });
 
@@ -139,6 +138,17 @@ public class HomeFragment extends BaseFragment {
         selectionFragment = SelectionFragment.newInstance(message);
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment = new NavigatorFragment();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment )
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();

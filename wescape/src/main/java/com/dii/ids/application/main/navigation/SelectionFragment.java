@@ -4,20 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -65,8 +61,8 @@ public class SelectionFragment extends BaseFragment {
         };
 
         int[] staticActionImages = {
-                android.R.drawable.ic_dialog_map,
-                R.drawable.ws_camera
+                R.drawable.ic_map,
+                R.drawable.ic_camera_alt
         };
         staticListAdapter = new StaticListAdapter(getContext(), staticActionsText, staticActionImages);
         holder.staticListview.setAdapter(staticListAdapter);
