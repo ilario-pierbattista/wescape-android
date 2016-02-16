@@ -86,6 +86,7 @@ public class HomeFragment extends MapFragment {
                     openSelectionFragment(getString(R.string.navigation_select_destination));
                 }
             });
+            holder.destinationView.setClickable(true);
         }
         mapsDownloaderTask = new MapsDownloaderTask()
                 .inject(this);
@@ -120,7 +121,7 @@ public class HomeFragment extends MapFragment {
             case R.id.action_settings:
                 return true;
             case R.id.action_emergency:
-                toogleEmergency();
+                toggleEmergency();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -130,7 +131,7 @@ public class HomeFragment extends MapFragment {
     /**
      * Update view for normal/emergency state
      */
-    private void toogleEmergency() {
+    private void toggleEmergency() {
         int red = R.color.regularRed;
         int blue = R.color.regularBlue;
         FabAnimation fabAnimation = new FabAnimation(this);
@@ -152,6 +153,12 @@ public class HomeFragment extends MapFragment {
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
             holder.destinationView.setClickable(true);
+            holder.destinationView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openSelectionFragment(getString(R.string.navigation_select_destination));
+                }
+            });
             emergency = false;
         }
     }
