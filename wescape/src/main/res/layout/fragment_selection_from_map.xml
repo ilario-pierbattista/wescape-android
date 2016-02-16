@@ -141,7 +141,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textAllCaps="true"
-                android:text="indietro"/>
+                android:text="@string/action_back"/>
 
             <!-- Divider -->
             <View
@@ -156,7 +156,7 @@
                 android:background="@drawable/borderless_white_button"
                 android:layout_weight="1"
                 android:textAllCaps="true"
-                android:text="conferma"
+                android:text="@string/action_confirm"
                 android:textColor="@android:color/holo_blue_light"/>
         </LinearLayout>
 

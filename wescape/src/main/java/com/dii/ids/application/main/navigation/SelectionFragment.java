@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,7 @@ public class SelectionFragment extends BaseFragment {
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         holder.toolbarTitle.setText(getArguments().getString(TOOLBAR_TITLE));
+
 
         // Setup static actions table
         String[] staticActionsText = {
@@ -136,10 +139,12 @@ public class SelectionFragment extends BaseFragment {
         public final TextView toolbarTitle;
         public final ListView staticListview;
 
+
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
             toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
             staticListview = (ListView) view.findViewById((R.id.selection_static_listview));
+
         }
     }
 
