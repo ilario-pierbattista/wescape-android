@@ -146,9 +146,9 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
                 if(holder.mapImage.isReady()) {
                     PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
                     Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                        Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_LONG).show();
+                        Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
