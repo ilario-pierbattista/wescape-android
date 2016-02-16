@@ -118,26 +118,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             }
         });
 
-        holder.scanBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                qrScannerListener(v);
-            }
-        });
-
         return view;
-    }
-
-    /**
-     * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire
-     * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment
-     * senza passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
-     *
-     * @param v Oggetto View
-     */
-    private void qrScannerListener(View v) {
-        IntentIntegrator intent = IntentIntegrator.forSupportFragment(this);
-        intent.initiateScan();
     }
 
     /**
@@ -269,28 +250,6 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     }
 
     /**
-     * Metodo che viene richiamato quando si chiude l'intent della fotocamera. Avendo creato
-     * l'oggetto IntentResult a partire da un fragment possiamo riprendere le informazioni senza
-     * ripassare dalla rispettiva activity.
-     *
-     * @param requestCode Request code dell'intent
-     * @param resultCode Result code dell'intent
-     * @param intent Oggetto intent
-     */
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
-            String re = scanResult.getContents();
-            if (re != null) {
-                Log.d(LOG_TAG, re);
-                Toast.makeText(getActivity(), re, Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-
-    /**
      * Classe wrapper degli elementi della vista
      */
     public static class ViewHolder {
@@ -304,7 +263,6 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final ScrollView scrollView;
         public final TextView signupTextView;
         public final TextView resetPasswdTextView;
-        public final Button scanBtn;
 
         public ViewHolder(View view) {
             emailField = (AutoCompleteTextView) view.findViewById(R.id.login_email_text_input);
@@ -317,7 +275,6 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
             resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
             homeButton = (Button) view.findViewById(R.id.login_home_button);
-            scanBtn = (Button) view.findViewById(R.id.scan_btn);
         }
     }
 
