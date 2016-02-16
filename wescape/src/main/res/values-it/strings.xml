@@ -26,4 +26,6 @@
     <string name="navigation_select_destination">Seleziona destinazione</string>
     <string name="description_destination_emergency">La destinazione verrà selezionata automaticamente</string>
     <string name="action_settings">Impostazioni</string>
+    <string name="navigation_select_from_map">Seleziona dalla mappa</string>
+    <string name="navigation_select_from_qr">Scansiona codice QR</string>
 </resources>

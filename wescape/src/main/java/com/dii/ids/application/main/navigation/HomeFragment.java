@@ -1,8 +1,11 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -17,6 +20,7 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.SignupFragment;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -25,6 +29,7 @@ public class HomeFragment extends BaseFragment {
 
     private ViewHolder holder;
     private boolean emergency = false;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -38,7 +43,22 @@ public class HomeFragment extends BaseFragment {
         holder.originViewText.setText(R.string.navigation_select_origin);
         holder.destinationViewText.setText(R.string.navigation_select_destination);
 
-        // Set the Fab button
+
+        // Setup listeners
+        holder.originView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSelectionFragment(getString(R.string.navigation_select_origin));
+            }
+        });
+
+        holder.destinationView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSelectionFragment(getString(R.string.navigation_select_destination));
+            }
+        });
+
         holder.startFabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,14 +120,33 @@ public class HomeFragment extends BaseFragment {
             fabAnimation.animateFab(holder.startFabButton, red);
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
+            holder.destinationView.setClickable(false);
             emergency = true;
         } else {
             toolbarAnimation.animateAppAndStatusBar(red, blue);
             fabAnimation.animateFab(holder.startFabButton, blue);
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
+            holder.destinationView.setClickable(true);
             emergency = false;
         }
+    }
+
+    private void openSelectionFragment(String message) {
+        SelectionFragment selectionFragment = new SelectionFragment();
+
+        // Set parameters to pass
+        Bundle args = new Bundle();
+        args.putString(BaseFragment.TOOLBAR_TITLE, message);
+        selectionFragment.setArguments(args);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
