@@ -39,7 +39,6 @@ public class HomeFragment extends BaseFragment {
 
         setupViewUI();
 
-
         return view;
     }
 
@@ -81,6 +80,7 @@ public class HomeFragment extends BaseFragment {
             });
         }
     }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
