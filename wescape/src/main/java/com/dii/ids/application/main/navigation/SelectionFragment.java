@@ -14,8 +14,6 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 
 public class SelectionFragment extends BaseFragment {
@@ -88,8 +86,8 @@ public class SelectionFragment extends BaseFragment {
      * @param v Oggetto View
      */
     private void qrScannerListener(View v) {
-        IntentIntegrator intent = IntentIntegrator.forSupportFragment(this);
-        intent.initiateScan();
+        Intent intent = new Intent(getActivity(), DecoderActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -115,7 +113,7 @@ public class SelectionFragment extends BaseFragment {
      * @param requestCode Request code dell'intent
      * @param resultCode Result code dell'intent
      * @param intent Oggetto intent
-     */
+     *
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -125,7 +123,7 @@ public class SelectionFragment extends BaseFragment {
                 Toast.makeText(getActivity(), re, Toast.LENGTH_LONG).show();
             }
         }
-    }
+    }*/
 
     /**
      * UI elements wrapper class
