@@ -1,6 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -20,7 +20,6 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.SignupFragment;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -38,24 +37,23 @@ public class HomeFragment extends BaseFragment {
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         holder = new ViewHolder(view);
 
-        // Setup textview text
-        holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
-        holder.originViewText.setText(R.string.navigation_select_origin);
-        holder.destinationViewText.setText(R.string.navigation_select_destination);
+        setupViewUI();
 
+
+        return view;
+    }
+
+    private void setupViewUI() {
+        holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
+        holder.originViewText.setText(R.string.navigation_select_origin);
+        holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
+        holder.destinationViewText.setText(R.string.navigation_select_destination);
 
         // Setup listeners
         holder.originView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openSelectionFragment(getString(R.string.navigation_select_origin));
-            }
-        });
-
-        holder.destinationView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSelectionFragment(getString(R.string.navigation_select_destination));
             }
         });
 
@@ -67,9 +65,22 @@ public class HomeFragment extends BaseFragment {
             }
         });
 
-        return view;
+        if (emergency) {
+            holder.revealView.setBackgroundColor(getResources().getColor(R.color.regularRed));
+            holder.revealBackgroundView.setBackgroundColor(getResources().getColor(R.color.regularRed));
+            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.regularRed)));
+            holder.toolbarTitle.setText(R.string.action_emergency);
+            holder.destinationViewText.setText(R.string.description_destination_emergency);
+            holder.destinationView.setClickable(false);
+        } else {
+            holder.destinationView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openSelectionFragment(getString(R.string.navigation_select_destination));
+                }
+            });
+        }
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
