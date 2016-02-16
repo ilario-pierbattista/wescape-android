@@ -8,6 +8,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
@@ -29,6 +31,8 @@ import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
@@ -273,4 +277,5 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             homeButton = (Button) view.findViewById(R.id.login_home_button);
         }
     }
+
 }
