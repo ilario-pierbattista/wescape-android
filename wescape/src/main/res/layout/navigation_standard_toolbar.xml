@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/toolbar_standard_height"
     android:background="@color/regularBlue"
-    android:elevation="4dp"
+    android:elevation="@dimen/standard_elevation"
     android:gravity="top"
     android:paddingTop="@dimen/status_bar_height"
     android:title="@string/title_activity_navigation"

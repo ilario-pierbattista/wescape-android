@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.authentication.interfaces;
+package com.dii.ids.application.interfaces;
 
 /**
  * @param <AsyncTaskType>
@@ -15,14 +15,14 @@ public interface AsyncTaskCallbacksInterface<AsyncTaskType> {
     /**
      * Callback da chiamare nel caso in cui il task asincrono non sia andato a buon fine
      *
-     * @param asyncTaskType Task a cui è riferita la callback
+     * @param asyncTask Task a cui è riferita la callback
      */
-    void onTaskError(AsyncTaskType asyncTaskType);
+    void onTaskError(AsyncTaskType asyncTask);
 
     /**
      * Callback da chiamare nel caso in cui il task asincrono sia stato cancellato
      *
-     * @param asyncTaskType Task a cui è riferita la callback
+     * @param asyncTask Task a cui è riferita la callback
      */
-    void onTaskCancelled(AsyncTaskType asyncTaskType);
+    void onTaskCancelled(AsyncTaskType asyncTask);
 }

@@ -24,7 +24,7 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.animations.ShowProgressAnimation;
@@ -228,8 +228,9 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
 
     @Override
     public void onTaskSuccess(UserLoginTask asyncTask) {
+        Intent intent = new Intent(getActivity(), NavigationActivity.class);
+        startActivity(intent);
         wipeAsyncTask();
-        this.getActivity().finish();
     }
 
     private void wipeAsyncTask() {
@@ -238,14 +239,14 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     }
 
     @Override
-    public void onTaskError(UserLoginTask userLoginTask) {
+    public void onTaskError(UserLoginTask asyncTask) {
         wipeAsyncTask();
         holder.passwordField.setError(getString(R.string.error_incorrect_password));
         holder.passwordField.requestFocus();
     }
 
     @Override
-    public void onTaskCancelled(UserLoginTask userLoginTask) {
+    public void onTaskCancelled(UserLoginTask asyncTask) {
         wipeAsyncTask();
     }
 

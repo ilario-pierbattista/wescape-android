@@ -21,7 +21,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.animations.ShowProgressAnimation;
@@ -226,14 +226,14 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
     }
 
     @Override
-    public void onTaskError(UserSignupTask userSignupTask) {
+    public void onTaskError(UserSignupTask asyncTask) {
         wipeAsyncTask();
         holder.passwordField.setError(getString(R.string.error_incorrect_password));
         holder.passwordField.requestFocus();
     }
 
     @Override
-    public void onTaskCancelled(UserSignupTask userSignupTask) {
+    public void onTaskCancelled(UserSignupTask asyncTask) {
         wipeAsyncTask();
     }
 

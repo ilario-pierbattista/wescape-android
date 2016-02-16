@@ -2,8 +2,8 @@ package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,21 +14,34 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 
 public class SelectionFragment extends BaseFragment {
-
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
 
+    /**
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters.
+     *
+     * @param selection Parameter 1.
+     * @return A new instance of fragment ResetPasswordFragment.
+     */
+    public static SelectionFragment newInstance(String selection) {
+        SelectionFragment fragment = new SelectionFragment();
+        Bundle args = new Bundle();
+        args.putString(TOOLBAR_TITLE, selection);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                             final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_selection, container, false);
         holder = new ViewHolder(view);
 
@@ -38,7 +51,8 @@ public class SelectionFragment extends BaseFragment {
         assert mActivity.getSupportActionBar() != null;
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        holder.toolbarTitle.setText(getArguments().getString(BaseFragment.TOOLBAR_TITLE));
+        holder.toolbarTitle.setText(getArguments().getString(TOOLBAR_TITLE));
+
 
         // Setup static actions table
         String[] staticActionsText = {
@@ -47,8 +61,8 @@ public class SelectionFragment extends BaseFragment {
         };
 
         int[] staticActionImages = {
-                android.R.drawable.ic_dialog_map,
-                R.drawable.ws_camera
+                R.drawable.ic_map,
+                R.drawable.ic_camera_alt
         };
         staticListAdapter = new StaticListAdapter(getContext(), staticActionsText, staticActionImages);
         holder.staticListview.setAdapter(staticListAdapter);
@@ -57,7 +71,7 @@ public class SelectionFragment extends BaseFragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int posizione = (int) staticListAdapter.getItem(position);
                 if(posizione == 0) {
-                    // TODO: 16/02/16 Implementare l'activity che deve essere richiamata
+                    openSelectionFromMap(view);
                 }else {
                     qrScannerListener(view);
                 }
@@ -76,6 +90,21 @@ public class SelectionFragment extends BaseFragment {
     private void qrScannerListener(View v) {
         IntentIntegrator intent = IntentIntegrator.forSupportFragment(this);
         intent.initiateScan();
+    }
+
+    /**
+     * Listener per aprire la vista per la selezione della posizione su mappa
+     * @param v Oggetto view
+     */
+    private void openSelectionFromMap(View v) {
+        SelectionFromMapFragment fragment;
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragment = SelectionFromMapFragment.newInstance(getArguments().getString(TOOLBAR_TITLE));
+        transaction.replace(R.id.navigation_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     /**
@@ -106,10 +135,12 @@ public class SelectionFragment extends BaseFragment {
         public final TextView toolbarTitle;
         public final ListView staticListview;
 
+
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
             toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
             staticListview = (ListView) view.findViewById((R.id.selection_static_listview));
+
         }
     }
 

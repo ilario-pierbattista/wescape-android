@@ -1,33 +1,42 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+
+import java.util.Random;
 
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HomeFragment extends BaseFragment {
+public class HomeFragment extends MapFragment {
 
     private ViewHolder holder;
     private boolean emergency = false;
+    private MapsDownloaderTask mapsDownloaderTask;
 
 
     @Override
@@ -59,8 +68,7 @@ public class HomeFragment extends BaseFragment {
         holder.startFabButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                openNavigatorFragment();
             }
         });
 
@@ -79,6 +87,11 @@ public class HomeFragment extends BaseFragment {
                 }
             });
         }
+        mapsDownloaderTask = new MapsDownloaderTask()
+                .inject(this);
+        int floors[] = {145, 150, 155};
+        int idx = new Random().nextInt(floors.length);
+        mapsDownloaderTask.execute(floors[idx]);
     }
 
     @Override
@@ -144,20 +157,68 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openSelectionFragment(String message) {
-        SelectionFragment selectionFragment = new SelectionFragment();
-
-        // Set parameters to pass
-        Bundle args = new Bundle();
-        args.putString(BaseFragment.TOOLBAR_TITLE, message);
-        selectionFragment.setArguments(args);
-
+        SelectionFragment selectionFragment;
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        selectionFragment = SelectionFragment.newInstance(message);
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment = new NavigatorFragment();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment )
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    @Override
+    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
+        final Bitmap image = mapsDownloaderTask.getImage();
+        this.mapsDownloaderTask = null;
+
+        holder.mapImage.setImage(ImageSource.bitmap(image));
+        holder.mapImage.setMinimumDpi(40);
+
+        // @TODO Spostare il gestore della gesture nel fragment di competenza
+        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if(holder.mapImage.isReady()) {
+                    PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
+                    Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                        Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+        });
+
+        holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+    }
+
+    @Override
+    public void onTaskError(MapsDownloaderTask asyncTask) {
+        this.mapsDownloaderTask = null;
+        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
+        this.mapsDownloaderTask = null;
     }
 
     /**
@@ -175,6 +236,7 @@ public class HomeFragment extends BaseFragment {
         public final TextView originViewText;
         public final TextView destinationViewPlaceholder;
         public final TextView originViewPlaceholder;
+        public final SubsamplingScaleImageView mapImage;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -182,6 +244,7 @@ public class HomeFragment extends BaseFragment {
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
+            mapImage = (SubsamplingScaleImageView) view.findViewById(R.id.navigation_map_image);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
@@ -189,7 +252,6 @@ public class HomeFragment extends BaseFragment {
             originView = view.findViewById(R.id.navigation_input_origin);
             originViewText = (TextView) originView.findViewById(R.id.text);
             originViewPlaceholder = (TextView) originView.findViewById(R.id.placeholder);
-
         }
     }
 }

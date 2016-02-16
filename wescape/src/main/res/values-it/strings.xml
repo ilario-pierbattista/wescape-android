@@ -26,6 +26,11 @@
     <string name="navigation_select_destination">Seleziona destinazione</string>
     <string name="description_destination_emergency">La destinazione verrà selezionata automaticamente</string>
     <string name="action_settings">Impostazioni</string>
+    <string name="error_network_download_image">Ci sono stati degli errori durante il download delle mappe</string>
     <string name="navigation_select_from_map">Seleziona dalla mappa</string>
     <string name="navigation_select_from_qr">Scansiona codice QR</string>
+    <string name="action_back">Indietro</string>
+    <string name="action_submit"></string>
+    <string name="action_confirm">Conferma</string>
+    <string name="title_navigator">Indicazioni</string>
 </resources>
