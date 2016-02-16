@@ -1,15 +1,20 @@
 package com.dii.ids.application.main.navigation;
 
+import android.gesture.Gesture;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -128,10 +133,33 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
 
     @Override
     public void onTaskSuccess(MapsDownloaderTask asyncTask) {
-        Bitmap image = mapsDownloaderTask.getImage();
+        final Bitmap image = mapsDownloaderTask.getImage();
         mapsDownloaderTask = null;
 
         holder.mapImage.setImage(ImageSource.bitmap(image));
+        holder.mapImage.setMinimumDpi(40);
+
+        // @TODO Spostare il gestore della gesture nel fragment di competenza
+        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if(holder.mapImage.isReady()) {
+                    PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
+                    Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                        Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_LONG).show();
+                }
+                return true;
+            }
+        });
+
+        holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
     }
 
     @Override
