@@ -10,7 +10,20 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
 
 public class SelectionFromMapFragment extends BaseFragment {
-
+    /**
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters.
+     *
+     * @param selection Parameter 1.
+     * @return A new instance of fragment ResetPasswordFragment.
+     */
+    public static SelectionFromMapFragment newInstance(String selection) {
+        SelectionFromMapFragment fragment = new SelectionFromMapFragment();
+        Bundle args = new Bundle();
+        args.putString(TOOLBAR_TITLE, selection);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

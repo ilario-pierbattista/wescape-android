@@ -133,15 +133,10 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openSelectionFragment(String message) {
-        SelectionFragment selectionFragment = new SelectionFragment();
-
-        // Set parameters to pass
-        Bundle args = new Bundle();
-        args.putString(BaseFragment.TOOLBAR_TITLE, message);
-        selectionFragment.setArguments(args);
-
+        SelectionFragment selectionFragment;
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        selectionFragment = SelectionFragment.newInstance(message);
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)

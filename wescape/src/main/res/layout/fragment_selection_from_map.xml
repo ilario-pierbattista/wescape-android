@@ -3,6 +3,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:fitsSystemWindows="true"
+                android:background="@color/lightGreyBackground"
                 tools:context="com.dii.ids.application.main.navigation.SelectionFromMapFragment">
 
     <android.support.design.widget.AppBarLayout
@@ -71,6 +72,7 @@
         android:layout_alignBottom="@+id/action_buttons_container"
         android:layout_marginBottom="70dp"
         android:layout_marginStart="16dp"
+        android:background="@color/white"
         android:elevation="@dimen/standard_elevation"
         android:orientation="horizontal">
 
@@ -109,6 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="@color/white"
         android:elevation="@dimen/standard_elevation"
         android:orientation="horizontal">
 
