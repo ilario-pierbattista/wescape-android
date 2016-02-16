@@ -10,7 +10,6 @@
     <item
         android:id="@+id/action_emergency"
         android:icon="@drawable/ic_report"
-        android:tint="@color/white"
         android:orderInCategory="200"
         android:title="@string/action_emergency"
         app:showAsAction="ifRoom"/>
