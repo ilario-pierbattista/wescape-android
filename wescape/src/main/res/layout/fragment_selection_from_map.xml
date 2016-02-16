@@ -68,13 +68,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar_container">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar_container"
+        android:layout_above="@+id/action_buttons_container">
 
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/navigation_map_image"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:src="@drawable/wescape_logo"/>
 
@@ -82,7 +83,6 @@
 
 
     <RelativeLayout
-        android:id="@+id/floor_buttons_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/action_buttons_container"

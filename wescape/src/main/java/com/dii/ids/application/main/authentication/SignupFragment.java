@@ -226,14 +226,14 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
     }
 
     @Override
-    public void onTaskError(UserSignupTask userSignupTask) {
+    public void onTaskError(UserSignupTask asyncTask) {
         wipeAsyncTask();
         holder.passwordField.setError(getString(R.string.error_incorrect_password));
         holder.passwordField.requestFocus();
     }
 
     @Override
-    public void onTaskCancelled(UserSignupTask userSignupTask) {
+    public void onTaskCancelled(UserSignupTask asyncTask) {
         wipeAsyncTask();
     }
 

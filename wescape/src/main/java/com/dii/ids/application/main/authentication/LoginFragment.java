@@ -239,14 +239,14 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     }
 
     @Override
-    public void onTaskError(UserLoginTask userLoginTask) {
+    public void onTaskError(UserLoginTask asyncTask) {
         wipeAsyncTask();
         holder.passwordField.setError(getString(R.string.error_incorrect_password));
         holder.passwordField.requestFocus();
     }
 
     @Override
-    public void onTaskCancelled(UserLoginTask userLoginTask) {
+    public void onTaskCancelled(UserLoginTask asyncTask) {
         wipeAsyncTask();
     }
 

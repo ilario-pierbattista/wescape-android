@@ -206,12 +206,12 @@ public class ResetPasswordFragment extends BaseFragment implements AsyncTaskCall
     }
 
     @Override
-    public void onTaskError(PasswordResetTask passwordResetTask) {
+    public void onTaskError(PasswordResetTask asyncTask) {
         wipeAsyncTask();
     }
 
     @Override
-    public void onTaskCancelled(PasswordResetTask passwordResetTask) {
+    public void onTaskCancelled(PasswordResetTask asyncTask) {
         wipeAsyncTask();
     }
 

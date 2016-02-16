@@ -3,16 +3,14 @@ package com.dii.ids.application.main.navigation.tasks;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 
-import com.dii.ids.application.main.navigation.HomeFragment;
+import com.dii.ids.application.main.navigation.MapFragment;
 import com.dii.ids.application.providers.EndPointsProvider;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -21,7 +19,7 @@ import java.net.URL;
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
 public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
-    private HomeFragment fragment;
+    private MapFragment fragment;
     private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
@@ -31,7 +29,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     public MapsDownloaderTask() {
     }
 
-    public MapsDownloaderTask inject(HomeFragment fragment) {
+    public MapsDownloaderTask inject(MapFragment fragment) {
         this.fragment = fragment;
         return this;
     }

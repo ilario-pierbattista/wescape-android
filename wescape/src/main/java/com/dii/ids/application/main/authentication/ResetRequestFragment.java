@@ -204,12 +204,12 @@ public class ResetRequestFragment extends BaseFragment
     }
 
     @Override
-    public void onTaskError(ResetRequestTask resetRequestTask) {
+    public void onTaskError(ResetRequestTask asyncTask) {
         wipeAsyncTask();
     }
 
     @Override
-    public void onTaskCancelled(ResetRequestTask resetRequestTask) {
+    public void onTaskCancelled(ResetRequestTask asyncTask) {
         wipeAsyncTask();
     }
 

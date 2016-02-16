@@ -25,8 +25,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
-import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
 import java.util.Random;
@@ -34,7 +32,7 @@ import java.util.Random;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInterface<MapsDownloaderTask> {
+public class HomeFragment extends MapFragment {
 
     private ViewHolder holder;
     private boolean emergency = false;
@@ -163,7 +161,7 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
     @Override
     public void onTaskSuccess(MapsDownloaderTask asyncTask) {
         final Bitmap image = mapsDownloaderTask.getImage();
-        mapsDownloaderTask = null;
+        this.mapsDownloaderTask = null;
 
         holder.mapImage.setImage(ImageSource.bitmap(image));
         holder.mapImage.setMinimumDpi(40);
@@ -192,15 +190,14 @@ public class HomeFragment extends BaseFragment implements AsyncTaskCallbacksInte
     }
 
     @Override
-    public void onTaskError(MapsDownloaderTask mapsDownloaderTask) {
-        mapsDownloaderTask = null;
+    public void onTaskError(MapsDownloaderTask asyncTask) {
+        this.mapsDownloaderTask = null;
         Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
-
     }
 
     @Override
-    public void onTaskCancelled(MapsDownloaderTask mapsDownloaderTask) {
-        mapsDownloaderTask = null;
+    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
+        this.mapsDownloaderTask = null;
     }
 
     /**
