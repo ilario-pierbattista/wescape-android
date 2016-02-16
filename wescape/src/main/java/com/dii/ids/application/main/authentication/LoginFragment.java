@@ -228,8 +228,9 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
 
     @Override
     public void onTaskSuccess(UserLoginTask asyncTask) {
+        Intent intent = new Intent(getActivity(), NavigationActivity.class);
+        startActivity(intent);
         wipeAsyncTask();
-        this.getActivity().finish();
     }
 
     private void wipeAsyncTask() {
