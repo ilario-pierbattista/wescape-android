@@ -1,11 +1,13 @@
 package com.dii.ids.application.main.navigation;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.LightingColorFilter;
 import android.graphics.PointF;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,6 +27,7 @@ public class SelectionFromMapFragment extends MapFragment  {
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private OnPositionSelectedListener callBack;
+    private PointF mCoordinates;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
@@ -46,8 +49,9 @@ public class SelectionFromMapFragment extends MapFragment  {
         View view = inflater.inflate(R.layout.fragment_selection_from_map, container, false);
         holder = new ViewHolder(view);
 
-        mapsTask = new MapsDownloaderTask()
-                .inject(this);
+        toogleConfirmButtonState();
+
+        mapsTask = new MapsDownloaderTask().inject(this);
         mapsTask.execute(155);
 
         // @TODO trovare una soluzione più elegante per questi listeners
@@ -78,6 +82,13 @@ public class SelectionFromMapFragment extends MapFragment  {
             }
         });
 
+        holder.confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                callBack.onPositionConfirm(mCoordinates);
+            }
+        });
+
         return view;
     }
 
@@ -89,19 +100,20 @@ public class SelectionFromMapFragment extends MapFragment  {
         holder.mapView.setImage(ImageSource.bitmap(image));
         holder.mapView.setMinimumDpi(40);
 
-        // @TODO Spostare il gestore della gesture nel fragment di competenza
         final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if(holder.mapView.isReady()) {
-                    PointF sCoord = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
-                    callBack.onPositionSelected(sCoord);
+                    mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+                    toogleConfirmButtonState();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
         });
+
+
 
         holder.mapView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -150,6 +162,16 @@ public class SelectionFromMapFragment extends MapFragment  {
         }
     }
 
+    private void toogleConfirmButtonState() {
+        if (mCoordinates == null) {
+            holder.confirmButton.setEnabled(false);
+            holder.confirmButton.setTextColor(getResources().getColor(R.color.disabledText));
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(getResources().getColor(R.color.linkText));
+        }
+    }
+
 
     public class ViewHolder {
         public final SubsamplingScaleImageView mapView;
@@ -158,6 +180,7 @@ public class SelectionFromMapFragment extends MapFragment  {
         public final Button floor145Button;
         public final View actionButtonsContainer;
         public final Button backButton;
+        public final Button confirmButton;
 
         public ViewHolder(View v) {
             mapView = (SubsamplingScaleImageView) v.findViewById(R.id.navigation_map_image);
@@ -166,6 +189,7 @@ public class SelectionFromMapFragment extends MapFragment  {
             floor145Button = (Button) v.findViewById(R.id.floor_button_145);
             actionButtonsContainer = v.findViewById(R.id.action_buttons_container);
             backButton = (Button) actionButtonsContainer.findViewById(R.id.back_button);
+            confirmButton = (Button) actionButtonsContainer.findViewById(R.id.confirm_button);
         }
     }
 }
