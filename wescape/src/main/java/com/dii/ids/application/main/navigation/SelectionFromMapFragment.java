@@ -1,9 +1,10 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -16,18 +17,22 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
-import com.dii.ids.application.interfaces.OnPositionSelectedListener;
+import com.dii.ids.application.entities.Position;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 public class SelectionFromMapFragment extends MapFragment {
+    public static final String FRAGMENT_TAG = SelectionFromMapFragment.class.getSimpleName();
     public static final int STARTING_FLOOR = 155;
+    public static final int POSITION_ACQUIRED = 1;
+    public static final int POSITION_NOT_ACQUIRED = 0;
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
-    private OnPositionSelectedListener callBack;
     private PointF mCoordinates;
-    private int mFloor = STARTING_FLOOR;
-    private int mFloorSelected;
+    private int displayedFloor = STARTING_FLOOR;
+    private int selectedFloor;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -55,7 +60,7 @@ public class SelectionFromMapFragment extends MapFragment {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (holder.mapView.isReady()) {
                     mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
-                    mFloorSelected = mFloor;
+                    selectedFloor = displayedFloor;
                     toogleConfirmButtonState();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
@@ -84,31 +89,19 @@ public class SelectionFromMapFragment extends MapFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
-        try {
-            callBack = (OnPositionSelectedListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
-        }
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.navigation_selection_from_map_fragment, container, false);
         holder = new ViewHolder(view);
 
-        if (HomeFragment.getType() == HomeFragment.TYPE_ORIGINE) {
-            holder.toolbarTitle.setText(R.string.navigation_select_origin);
-        } else {
-            holder.toolbarTitle.setText(R.string.navigation_select_destination);
+        switch (getTargetRequestCode()) {
+            case ORIGIN_SELECTION_REQUEST_CODE:
+                holder.toolbarTitle.setText(R.string.navigation_select_origin);
+                break;
+            case DESTINATION_SELECTION_REQUEST_CODE:
+                holder.toolbarTitle.setText(R.string.navigation_select_destination);
+                break;
         }
-        mFloorSelected = -1;
 
         toogleConfirmButtonState();
 
@@ -147,11 +140,21 @@ public class SelectionFromMapFragment extends MapFragment {
         holder.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callBack.onPositionConfirm(mCoordinates, mFloorSelected, HomeFragment.getType());
+                onPositionConfirm(mCoordinates, selectedFloor);
             }
         });
 
         return view;
+    }
+
+    public void onPositionConfirm(PointF coordinates, int floor) {
+        Intent data = new Intent();
+        Position position = new Position(coordinates.x, coordinates.y, floor);
+        data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(position));
+        getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        fm.popBackStack();
+        fm.popBackStack();
     }
 
     private void toogleConfirmButtonState() {
@@ -171,7 +174,7 @@ public class SelectionFromMapFragment extends MapFragment {
         holder.floor145Button.setTextColor(color(R.color.black));
         button.setTextColor(color(R.color.linkText));
         int floor = Integer.parseInt(button.getText().toString());
-        mFloor = floor;
+        displayedFloor = floor;
         if (mapsTask == null) {
             mapsTask = new MapsDownloaderTask()
                     .inject(this);
@@ -198,7 +201,6 @@ public class SelectionFromMapFragment extends MapFragment {
             backButton = (Button) actionButtonsContainer.findViewById(R.id.back_button);
             confirmButton = (Button) actionButtonsContainer.findViewById(R.id.confirm_button);
             toolbarTitle = (TextView) v.findViewById(R.id.toolbar_title);
-
         }
     }
 }

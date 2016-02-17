@@ -20,7 +20,8 @@ import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
 
 public class SelectionFragment extends BaseFragment {
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
-    private static final int DIALOG_REQUEST_CODE = 100;
+    public static final String FRAGMENT_TAG = SelectionFragment.class.getSimpleName();
+    private static final String SELECTION_REQUEST_CODE = "selection_request_code";
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
@@ -31,9 +32,10 @@ public class SelectionFragment extends BaseFragment {
      *
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFragment newInstance() {
+    public static SelectionFragment newInstance(int requestCode) {
         SelectionFragment fragment = new SelectionFragment();
         Bundle args = new Bundle();
+        args.putInt(SELECTION_REQUEST_CODE, requestCode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,10 +59,13 @@ public class SelectionFragment extends BaseFragment {
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        if (HomeFragment.getType() == HomeFragment.TYPE_ORIGINE) {
-            holder.toolbarTitle.setText(R.string.navigation_select_origin);
-        } else {
-            holder.toolbarTitle.setText(R.string.navigation_select_destination);
+        switch (getArguments().getInt(SELECTION_REQUEST_CODE)) {
+            case ORIGIN_SELECTION_REQUEST_CODE:
+                holder.toolbarTitle.setText(R.string.navigation_select_origin);
+                break;
+            case DESTINATION_SELECTION_REQUEST_CODE:
+                holder.toolbarTitle.setText(R.string.navigation_select_destination);
+                break;
         }
 
         // Setup static actions table
@@ -96,10 +101,17 @@ public class SelectionFragment extends BaseFragment {
      */
     private void openSelectionFromMap(View v) {
         SelectionFromMapFragment fragment;
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        // Il fragment di selezione dalla mappa dovrà tornare un risultato al fragment home
+        HomeFragment homeFragment = (HomeFragment) fragmentManager
+                .findFragmentByTag(HomeFragment.FRAGMENT_TAG);
+
         fragment = SelectionFromMapFragment.newInstance();
-        transaction.replace(R.id.navigation_content_pane, fragment)
+        fragment.setTargetFragment(homeFragment, getArguments().getInt(SELECTION_REQUEST_CODE));
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.navigation_content_pane, fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
@@ -119,7 +131,7 @@ public class SelectionFragment extends BaseFragment {
             fm.beginTransaction().remove(fragment).commit();
         }
         QRDialogFragment dialogFragment = new QRDialogFragment();
-        dialogFragment.setTargetFragment(this, DIALOG_REQUEST_CODE);
+        dialogFragment.setTargetFragment(this, QR_READER_DIALOG_REQUEST_CODE);
         dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
     }
 

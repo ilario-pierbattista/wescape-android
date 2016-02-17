@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -9,6 +10,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,7 +27,10 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.entities.Position;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.Random;
 
@@ -34,12 +39,11 @@ import java.util.Random;
  */
 public class HomeFragment extends MapFragment {
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
-    public static final String ARG_POSITION = "Array di coordinate";
-    public static final int TYPE_ORIGINE = 0;
-    public static final int TYPE_DESTINAZIONE = 1;
-    private static String originText = null;
-    private static String destinationText = null;
-    private static int type;
+    public static final String LOG_TAG = HomeFragment.class.getSimpleName();
+    public static final String INTENT_KEY_POSITION = "position";
+    private static String originText;
+    private static String destinationText;
+    private static Position origin = null, destination = null;
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
@@ -62,17 +66,6 @@ public class HomeFragment extends MapFragment {
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
 
         setupViewUI();
-        if (getArguments().getStringArray(ARG_POSITION) != null) {
-            String posizione = getArguments().getStringArray(ARG_POSITION)[2];
-            switch (HomeFragment.getType()) {
-                case HomeFragment.TYPE_ORIGINE:
-                    holder.originViewText.setText(posizione);
-                    break;
-                case HomeFragment.TYPE_DESTINAZIONE:
-                    holder.destinationViewText.setText(posizione);
-                    break;
-            }
-        }
 
         return view;
     }
@@ -81,20 +74,13 @@ public class HomeFragment extends MapFragment {
         holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
         holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
 
-        String[] array = getArguments().getStringArray(ARG_POSITION);
-        final int X = 0;
-        final int Y = 1;
-        final int PIANO = 2;
-
-        if (array != null) {
-            switch (type) {
-                case TYPE_ORIGINE:
-                    originText = array[PIANO];
-                    break;
-                case TYPE_DESTINAZIONE:
-                    destinationText = array[PIANO];
-            }
-        }
+        //@TODO Cambiare con le label dei checkpoint
+        originText = origin == null ?
+                getString(R.string.navigation_select_origin) :
+                Integer.toString(origin.floor);
+        destinationText = destination == null ?
+                getString(R.string.navigation_select_destination) :
+                Integer.toString(destination.floor);
 
         holder.originViewText.setText(originText);
         holder.destinationViewText.setText(destinationText);
@@ -103,8 +89,7 @@ public class HomeFragment extends MapFragment {
         holder.originView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeFragment.setType(HomeFragment.TYPE_ORIGINE);
-                openSelectionFragment();
+                openSelectionFragment(v);
             }
         });
 
@@ -127,8 +112,7 @@ public class HomeFragment extends MapFragment {
             holder.destinationView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HomeFragment.setType(HomeFragment.TYPE_DESTINAZIONE);
-                    openSelectionFragment();
+                    openSelectionFragment(v);
                 }
             });
             holder.destinationView.setClickable(true);
@@ -142,30 +126,22 @@ public class HomeFragment extends MapFragment {
         mapsDownloaderTask.execute(floors[idx]);
     }
 
-    /**
-     * Metodo che mi consente di riprendere il valore di type che consente di definire se è stato
-     * selezionato origine o destinazione
-     *
-     * @return
-     */
-    public static int getType() {
-        return type;
-    }
-
-    /**
-     * Set della variabile type
-     *
-     * @param type
-     */
-    public static void setType(int type) {
-        HomeFragment.type = type;
-    }
-
-    private void openSelectionFragment() {
+    private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        selectionFragment = SelectionFragment.newInstance();
+
+        int code = 1;
+        switch (v.getId()) {
+            case R.id.navigation_input_origin:
+                code = ORIGIN_SELECTION_REQUEST_CODE;
+                break;
+            case R.id.navigation_input_destination:
+                code = DESTINATION_SELECTION_REQUEST_CODE;
+                break;
+        }
+
+        selectionFragment = SelectionFragment.newInstance(code);
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -194,6 +170,24 @@ public class HomeFragment extends MapFragment {
         assert activity.getSupportActionBar() != null;
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            Position position = (Position) SerializationUtils.deserialize(data.getExtras().getByteArray(INTENT_KEY_POSITION));
+
+            switch (requestCode) {
+                case ORIGIN_SELECTION_REQUEST_CODE:
+                    origin = position;
+                    break;
+                case DESTINATION_SELECTION_REQUEST_CODE:
+                    destination = position;
+                    break;
+            }
+        } catch (NullPointerException ee) {
+            Log.e(LOG_TAG, "NullPointer", ee);
+        }
     }
 
     @Override
@@ -242,11 +236,11 @@ public class HomeFragment extends MapFragment {
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
             holder.destinationView.setClickable(true);
+
             holder.destinationView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    HomeFragment.setType(HomeFragment.TYPE_DESTINAZIONE);
-                    openSelectionFragment();
+                    openSelectionFragment(v);
                 }
             });
             emergency = false;
