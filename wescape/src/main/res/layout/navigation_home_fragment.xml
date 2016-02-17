@@ -27,8 +27,8 @@
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="-4dp"
         android:layout_marginEnd="-4dp"
+        android:layout_marginStart="-4dp"
         android:background="@android:color/transparent"
         android:elevation="1dp"
         android:paddingTop="@dimen/status_bar_height"
@@ -56,11 +56,11 @@
 
         <include
             android:id="@+id/navigation_input_origin"
-            layout="@layout/navigation_input"/>
+            layout="@layout/navigation_input_field"/>
 
         <include
             android:id="@+id/navigation_input_destination"
-            layout="@layout/navigation_input"/>
+            layout="@layout/navigation_input_field"/>
 
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
             android:id="@+id/navigation_map_image"

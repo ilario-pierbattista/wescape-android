@@ -1,7 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -58,7 +57,7 @@ public class NavigatorFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_navigator, container, false);
+        View view = inflater.inflate(R.layout.navigation_navigator_fragment, container, false);
         holder = new ViewHolder(view);
 
         // Setup Up button on Toolbar

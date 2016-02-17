@@ -30,7 +30,9 @@
     </style>
 
     <style name="Wescape.RedTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
     <style name="Wescape.RedTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
     <style name="Wescape.RedTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -45,11 +47,14 @@
     </style>
 
     <style name="Wescape.BlueTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
     <style name="Wescape.BlueTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
     <style name="Wescape.BlueTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="Wescape.BlueTheme.NoActionBar.TranslucentStatusBar">
         <item name="android:windowTranslucentStatus">true</item>
     </style>

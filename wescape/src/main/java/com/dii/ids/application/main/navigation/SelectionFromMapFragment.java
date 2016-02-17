@@ -44,7 +44,7 @@ public class SelectionFromMapFragment extends MapFragment  {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_selection_from_map, container, false);
+        View view = inflater.inflate(R.layout.navigation_selection_from_map_fragment, container, false);
         black = getResources().getColor(R.color.black);
         blue = getResources().getColor(R.color.linkText);
         disabled = getResources().getColor(R.color.disabledText);

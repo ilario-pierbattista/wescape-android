@@ -1,6 +1,5 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -51,7 +50,7 @@ public class HomeFragment extends MapFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        final View view = inflater.inflate(R.layout.navigation_home_fragment, container, false);
         holder = new ViewHolder(view);
 
         setupViewUI();

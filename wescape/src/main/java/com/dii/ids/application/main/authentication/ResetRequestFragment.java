@@ -101,7 +101,7 @@ public class ResetRequestFragment extends BaseFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_request_reset, container, false);
+        final View view = inflater.inflate(R.layout.authentication_request_reset_fragment, container, false);
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);

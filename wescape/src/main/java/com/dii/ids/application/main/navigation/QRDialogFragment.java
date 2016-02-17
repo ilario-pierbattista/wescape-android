@@ -24,7 +24,7 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         getDialog().setTitle(getString(R.string.action_qr));
-        View view = inflater.inflate(R.layout.fragment_qrdialog, container, false);
+        View view = inflater.inflate(R.layout.navigation_qr_dialog_fragment, container, false);
         mydecoderview = (QRCodeReaderView) view.findViewById(R.id.qrdecoderview);
         mydecoderview.setOnQRCodeReadListener(this);
         return view;

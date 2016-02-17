@@ -17,7 +17,7 @@ public class NavigationActivity extends AppCompatActivity implements OnPositionS
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation);
+        setContentView(R.layout.navigation_activity);
 
         if (savedInstanceState == null) {
             HomeFragment homeFragment = HomeFragment.newInstance();

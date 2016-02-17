@@ -105,7 +105,7 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_signup, container, false);
+        final View view = inflater.inflate(R.layout.authentication_signup_fragment, container, false);
 
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));

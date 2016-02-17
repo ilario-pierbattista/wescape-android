@@ -33,10 +33,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_vertical_margin"
                 android:text="@string/description_request_reset"
                 android:textAlignment="center"
-                android:textSize="@dimen/descriptions_font_size"
-                android:layout_marginTop="@dimen/activity_vertical_margin"/>
+                android:textSize="@dimen/descriptions_font_size"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/reset_request_email_text_input_layout"
@@ -51,10 +51,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/prompt_email"
-                    android:inputType="textEmailAddress"
                     android:imeActionId="@+id/request"
                     android:imeActionLabel="@string/action_send_short"
                     android:imeOptions="actionDone"
+                    android:inputType="textEmailAddress"
                     android:maxLines="1"
                     android:singleLine="true"
                     />
