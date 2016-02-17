@@ -1,12 +1,8 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.Context;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.LightingColorFilter;
 import android.graphics.PointF;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -28,6 +24,8 @@ public class SelectionFromMapFragment extends MapFragment  {
     private ViewHolder holder;
     private OnPositionSelectedListener callBack;
     private PointF mCoordinates;
+    int blue, black, disabled;
+    public static final int STARTING_FLOOR = 155;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
@@ -47,30 +45,34 @@ public class SelectionFromMapFragment extends MapFragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_selection_from_map, container, false);
+        black = getResources().getColor(R.color.black);
+        blue = getResources().getColor(R.color.linkText);
+        disabled = getResources().getColor(R.color.disabledText);
         holder = new ViewHolder(view);
 
         toogleConfirmButtonState();
 
         mapsTask = new MapsDownloaderTask().inject(this);
-        mapsTask.execute(155);
+        mapsTask.execute(STARTING_FLOOR);
+        holder.floor155Button.setTextColor(blue);
 
         // @TODO trovare una soluzione più elegante per questi listeners
         holder.floor155Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flootButtonListener(v);
+                floorButtonListener(v);
             }
         });
         holder.floor150Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flootButtonListener(v);
+                floorButtonListener(v);
             }
         });
         holder.floor145Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                flootButtonListener(v);
+                floorButtonListener(v);
             }
         });
 
@@ -148,12 +150,12 @@ public class SelectionFromMapFragment extends MapFragment  {
         this.mapsTask = null;
     }
 
-    public void flootButtonListener(View v) {
+    public void floorButtonListener(View v) {
         Button button = (Button) v;
-        holder.floor155Button.setSelected(false);
-        holder.floor150Button.setSelected(false);
-        holder.floor145Button.setSelected(false);
-        v.setSelected(true);
+        holder.floor155Button.setTextColor(black);
+        holder.floor150Button.setTextColor(black);
+        holder.floor145Button.setTextColor(black);
+        button.setTextColor(blue);
         int floor = Integer.parseInt(button.getText().toString());
         if (mapsTask == null) {
             mapsTask = new MapsDownloaderTask()
@@ -165,10 +167,10 @@ public class SelectionFromMapFragment extends MapFragment  {
     private void toogleConfirmButtonState() {
         if (mCoordinates == null) {
             holder.confirmButton.setEnabled(false);
-            holder.confirmButton.setTextColor(getResources().getColor(R.color.disabledText));
+            holder.confirmButton.setTextColor(disabled);
         } else {
             holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(getResources().getColor(R.color.linkText));
+            holder.confirmButton.setTextColor(blue);
         }
     }
 

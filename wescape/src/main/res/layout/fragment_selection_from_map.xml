@@ -100,7 +100,9 @@
             <Button
                 android:id="@+id/floor_button_155"
                 android:background="@drawable/borderless_white_button"
+                android:stateListAnimator="@null"
                 android:layout_width="55dp"
+                android:elevation="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="155"/>
@@ -113,6 +115,7 @@
 
             <Button
                 android:id="@+id/floor_button_150"
+                android:stateListAnimator="@null"
                 android:background="@drawable/borderless_white_button"
                 android:layout_width="55dp"
                 android:elevation="0dp"
@@ -127,6 +130,7 @@
                 android:background="@color/dividerGrey"/>
             <Button
                 android:id="@+id/floor_button_145"
+                android:stateListAnimator="@null"
                 android:background="@drawable/borderless_white_button"
                 android:layout_width="55dp"
                 android:layout_height="wrap_content"
@@ -177,8 +181,7 @@
                 android:background="@drawable/borderless_white_button"
                 android:layout_weight="1"
                 android:textAllCaps="true"
-                android:text="@string/action_confirm"
-                android:textColor="@color/linkText"/>
+                android:text="@string/action_confirm" />
         </LinearLayout>
 
 
