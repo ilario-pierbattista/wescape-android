@@ -1,11 +1,9 @@
 package com.dii.ids.application.main.authentication;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.Window;
 
@@ -37,7 +35,7 @@ public class AuthenticationActivity extends AppCompatActivity
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_authentication);
+        setContentView(R.layout.authentication_activity);
 
         if (savedInstanceState == null) {
             LoginFragment loginFragment = new LoginFragment();

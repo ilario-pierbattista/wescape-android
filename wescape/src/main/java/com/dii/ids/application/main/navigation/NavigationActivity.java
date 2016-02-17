@@ -17,7 +17,7 @@ public class NavigationActivity extends AppCompatActivity implements OnPositionS
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_navigation);
+        setContentView(R.layout.navigation_activity);
 
         if (savedInstanceState == null) {
             HomeFragment homeFragment = HomeFragment.newInstance();
@@ -45,10 +45,20 @@ public class NavigationActivity extends AppCompatActivity implements OnPositionS
     public void onPositionConfirm(PointF coordinates, int floor, int type) {
         FragmentManager fm = getSupportFragmentManager();
         HomeFragment home = (HomeFragment) fm.findFragmentByTag(HomeFragment.FRAGMENT_TAG);
-        String[] coords = {Double.toString(coordinates.x),Double.toString(coordinates.y), Integer.toString(floor)};
-        Bundle args = new Bundle();
-        args.putStringArray(HomeFragment.ARG_POSITION, coords);
-        home.getArguments().putAll(args);
+
+        String[] coords = {
+                Double.toString(coordinates.x),
+                Double.toString(coordinates.y),
+                Integer.toString(floor)
+        };
+
+        if(floor > 0) { // La selezione è avvenuta veramente
+            Bundle args = new Bundle();
+            args.putStringArray(HomeFragment.ARG_POSITION, coords);
+            home.getArguments().putAll(args);
+        } else {
+            home.setArguments(null);
+        }
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.navigation_content_pane, home)

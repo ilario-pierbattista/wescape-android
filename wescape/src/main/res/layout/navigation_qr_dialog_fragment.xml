@@ -6,9 +6,9 @@
     tools:context="com.dii.ids.application.main.navigation.QRDialogFragment">
 
     <com.dlazaro66.qrcodereaderview.QRCodeReaderView
-        android:layout_marginTop="16dp"
         android:id="@+id/qrdecoderview"
         android:layout_width="match_parent"
-        android:layout_height="400dp" />
+        android:layout_height="400dp"
+        android:layout_marginTop="16dp"/>
 
 </LinearLayout>

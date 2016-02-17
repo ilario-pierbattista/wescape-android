@@ -20,11 +20,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
-import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
@@ -105,7 +105,7 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_signup, container, false);
+        final View view = inflater.inflate(R.layout.authentication_signup_fragment, container, false);
 
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));

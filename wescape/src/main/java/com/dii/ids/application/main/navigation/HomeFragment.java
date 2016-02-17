@@ -51,30 +51,11 @@ public class HomeFragment extends MapFragment {
         return fragment;
     }
 
-    /**
-     * Metodo che mi consente di riprendere il valore di type che consente di definire se è
-     * stato selezionato origine o destinazione
-     *
-     * @return
-     */
-    public static int getType() {
-        return type;
-    }
-
-    /**
-     * Set della variabile type
-     *
-     * @param type
-     */
-    public static void setType(int type) {
-        HomeFragment.type = type;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_home, container, false);
+        final View view = inflater.inflate(R.layout.navigation_home_fragment, container, false);
         holder = new ViewHolder(view);
 
         originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
@@ -118,7 +99,6 @@ public class HomeFragment extends MapFragment {
         holder.originViewText.setText(originText);
         holder.destinationViewText.setText(destinationText);
 
-
         // Setup listeners
         holder.originView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,9 +116,9 @@ public class HomeFragment extends MapFragment {
         });
 
         if (emergency) {
-            holder.revealView.setBackgroundColor(getResources().getColor(R.color.regularRed));
-            holder.revealBackgroundView.setBackgroundColor(getResources().getColor(R.color.regularRed));
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.regularRed)));
+            holder.revealView.setBackgroundColor(color(R.color.regularRed));
+            holder.revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
+            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
             holder.destinationView.setClickable(false);
@@ -160,6 +140,48 @@ public class HomeFragment extends MapFragment {
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
         mapsDownloaderTask.execute(floors[idx]);
+    }
+
+    /**
+     * Metodo che mi consente di riprendere il valore di type che consente di definire se è stato
+     * selezionato origine o destinazione
+     *
+     * @return
+     */
+    public static int getType() {
+        return type;
+    }
+
+    /**
+     * Set della variabile type
+     *
+     * @param type
+     */
+    public static void setType(int type) {
+        HomeFragment.type = type;
+    }
+
+    private void openSelectionFragment() {
+        SelectionFragment selectionFragment;
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        selectionFragment = SelectionFragment.newInstance();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment = new NavigatorFragment();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -229,29 +251,6 @@ public class HomeFragment extends MapFragment {
             });
             emergency = false;
         }
-    }
-
-    private void openSelectionFragment() {
-        SelectionFragment selectionFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        selectionFragment = SelectionFragment.newInstance();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = new NavigatorFragment();
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
     }
 
     @Override

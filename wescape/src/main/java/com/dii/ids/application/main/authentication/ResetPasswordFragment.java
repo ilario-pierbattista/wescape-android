@@ -19,10 +19,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
-import com.dii.ids.application.main.authentication.tasks.PasswordResetTask;
 import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.tasks.PasswordResetTask;
 import com.dii.ids.application.validators.PasswordValidator;
 import com.dii.ids.application.validators.SecretCodeValidator;
 
@@ -95,7 +95,7 @@ public class ResetPasswordFragment extends BaseFragment implements AsyncTaskCall
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_reset_password, container, false);
+        final View view = inflater.inflate(R.layout.authentication_reset_password_fragment, container, false);
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.action_reset_request));
         holder = new ViewHolder(view);

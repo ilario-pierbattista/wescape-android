@@ -8,7 +8,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,30 +19,26 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
-import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.main.navigation.NavigationActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
 public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
+    public ViewHolder holder;
+
     private UserLoginTask mAuthTask = null;
-    private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
-        // Required empty public constructor
     }
 
     /**
@@ -64,7 +59,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_login, container, false);
+        final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
@@ -251,7 +246,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     /**
      * Classe wrapper degli elementi della vista
      */
-    public static class ViewHolder {
+    public static class ViewHolder extends BaseFragment.ViewHolder {
         public final AutoCompleteTextView emailField;
         public final TextInputLayout emailFieldLayout;
         public final TextInputLayout passwordFieldLayout;
@@ -264,16 +259,16 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final TextView resetPasswdTextView;
 
         public ViewHolder(View view) {
-            emailField = (AutoCompleteTextView) view.findViewById(R.id.login_email_text_input);
-            emailFieldLayout = (TextInputLayout) view.findViewById(R.id.login_email_text_input_layout);
-            passwordField = (EditText) view.findViewById(R.id.login_password_text_input);
-            passwordFieldLayout = (TextInputLayout) view.findViewById(R.id.login_password_text_input_layout);
-            loginButton = (Button) view.findViewById(R.id.login_signin_button);
-            progressBar = (ProgressBar) view.findViewById(R.id.login_progress);
-            scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
-            signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
-            resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
-            homeButton = (Button) view.findViewById(R.id.login_home_button);
+            emailField = find(view, R.id.login_email_text_input);
+            emailFieldLayout = find(view, R.id.login_email_text_input_layout);
+            passwordField = find(view, R.id.login_password_text_input);
+            passwordFieldLayout = find(view, R.id.login_password_text_input_layout);
+            loginButton = find(view, R.id.login_signin_button);
+            progressBar = find(view, R.id.login_progress);
+            scrollView = find(view, R.id.login_scroll_view);
+            signupTextView = find(view, R.id.sign_up_text);
+            resetPasswdTextView = find(view, R.id.reset_passwd_text);
+            homeButton = find(view, R.id.login_home_button);
         }
     }
 

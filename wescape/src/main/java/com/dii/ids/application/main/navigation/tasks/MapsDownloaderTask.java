@@ -19,12 +19,12 @@ import java.net.URL;
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
 public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
-    private MapFragment fragment;
     private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
-    private Bitmap image;
     private static SimpleDiskCache imageCache = null;
+    private MapFragment fragment;
+    private Bitmap image;
 
     public MapsDownloaderTask() {
     }
@@ -40,7 +40,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
         HttpURLConnection connection;
         int floor = params[0];
 
-        if(imageCache == null) {
+        if (imageCache == null) {
             try {
                 imageCache = initCache();
             } catch (IOException e) {
@@ -85,8 +85,22 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
         fragment.onTaskCancelled(this);
     }
 
-    public Bitmap getImage() {
-        return image;
+    private SimpleDiskCache initCache() throws IOException {
+        File cacheDir = new File(fragment.getContext().getCacheDir(), CACHE_SUBDIR);
+        return SimpleDiskCache.open(cacheDir, 0, CACHE_SIZE);
+    }
+
+    public Bitmap getBitmapFromMemCache(String key) {
+        try {
+            SimpleDiskCache.BitmapEntry entry = imageCache.getBitmap(key);
+            if (entry != null) {
+                return entry.getBitmap();
+            } else {
+                return null;
+            }
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
@@ -101,21 +115,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
         }
     }
 
-    public Bitmap getBitmapFromMemCache(String key) {
-        try {
-            SimpleDiskCache.BitmapEntry entry = imageCache.getBitmap(key);
-            if(entry != null) {
-                return entry.getBitmap();
-            } else {
-                return null;
-            }
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    private SimpleDiskCache initCache() throws IOException {
-        File cacheDir = new File(fragment.getContext().getCacheDir(), CACHE_SUBDIR);
-        return SimpleDiskCache.open(cacheDir, 0, CACHE_SIZE);
+    public Bitmap getImage() {
+        return image;
     }
 }
