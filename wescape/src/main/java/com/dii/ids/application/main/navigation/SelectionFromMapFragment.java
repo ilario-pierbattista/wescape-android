@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
@@ -26,17 +27,18 @@ public class SelectionFromMapFragment extends MapFragment  {
     private PointF mCoordinates;
     int blue, black, disabled;
     public static final int STARTING_FLOOR = 155;
+    private int mFloor = STARTING_FLOOR;
+    private int mFloorSelected;
+
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
-     * @param selection Parameter 1.
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFromMapFragment newInstance(String selection) {
+    public static SelectionFromMapFragment newInstance() {
         SelectionFromMapFragment fragment = new SelectionFromMapFragment();
         Bundle args = new Bundle();
-        args.putString(TOOLBAR_TITLE, selection);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,6 +51,12 @@ public class SelectionFromMapFragment extends MapFragment  {
         blue = getResources().getColor(R.color.linkText);
         disabled = getResources().getColor(R.color.disabledText);
         holder = new ViewHolder(view);
+
+        if( HomeFragment.getType() == HomeFragment.TYPE_ORIGINE) {
+            holder.toolbarTitle.setText(R.string.navigation_select_origin);
+        } else {
+            holder.toolbarTitle.setText(R.string.navigation_select_destination);
+        }
 
         toogleConfirmButtonState();
 
@@ -87,7 +95,7 @@ public class SelectionFromMapFragment extends MapFragment  {
         holder.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                callBack.onPositionConfirm(mCoordinates);
+                callBack.onPositionConfirm(mCoordinates, mFloorSelected, HomeFragment.getType());
             }
         });
 
@@ -107,6 +115,7 @@ public class SelectionFromMapFragment extends MapFragment  {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if(holder.mapView.isReady()) {
                     mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+                    mFloorSelected = mFloor;
                     toogleConfirmButtonState();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
@@ -157,6 +166,7 @@ public class SelectionFromMapFragment extends MapFragment  {
         holder.floor145Button.setTextColor(black);
         button.setTextColor(blue);
         int floor = Integer.parseInt(button.getText().toString());
+        mFloor = floor;
         if (mapsTask == null) {
             mapsTask = new MapsDownloaderTask()
                     .inject(this);
@@ -183,6 +193,7 @@ public class SelectionFromMapFragment extends MapFragment  {
         public final View actionButtonsContainer;
         public final Button backButton;
         public final Button confirmButton;
+        public final TextView toolbarTitle;
 
         public ViewHolder(View v) {
             mapView = (SubsamplingScaleImageView) v.findViewById(R.id.navigation_map_image);
@@ -192,6 +203,9 @@ public class SelectionFromMapFragment extends MapFragment  {
             actionButtonsContainer = v.findViewById(R.id.action_buttons_container);
             backButton = (Button) actionButtonsContainer.findViewById(R.id.back_button);
             confirmButton = (Button) actionButtonsContainer.findViewById(R.id.confirm_button);
+            toolbarTitle = (TextView) v.findViewById(R.id.toolbar_title);
+
+
         }
     }
 }

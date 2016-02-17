@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,13 +28,11 @@ public class SelectionFragment extends BaseFragment {
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
      *
-     * @param selection Parameter 1.
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFragment newInstance(String selection) {
+    public static SelectionFragment newInstance() {
         SelectionFragment fragment = new SelectionFragment();
         Bundle args = new Bundle();
-        args.putString(TOOLBAR_TITLE, selection);
         fragment.setArguments(args);
         return fragment;
     }
@@ -52,7 +49,12 @@ public class SelectionFragment extends BaseFragment {
         assert mActivity.getSupportActionBar() != null;
         mActivity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        holder.toolbarTitle.setText(getArguments().getString(TOOLBAR_TITLE));
+
+       if( HomeFragment.getType() == HomeFragment.TYPE_ORIGINE) {
+           holder.toolbarTitle.setText(R.string.navigation_select_origin);
+       } else {
+           holder.toolbarTitle.setText(R.string.navigation_select_destination);
+       }
 
         // Setup static actions table
         String[] staticActionsText = {
@@ -113,7 +115,7 @@ public class SelectionFragment extends BaseFragment {
         SelectionFromMapFragment fragment;
 
         FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragment = SelectionFromMapFragment.newInstance(getArguments().getString(TOOLBAR_TITLE));
+        fragment = SelectionFromMapFragment.newInstance();
         transaction.replace(R.id.navigation_content_pane, fragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)

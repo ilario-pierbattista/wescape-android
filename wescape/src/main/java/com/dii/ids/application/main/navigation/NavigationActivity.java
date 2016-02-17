@@ -42,12 +42,12 @@ public class NavigationActivity extends AppCompatActivity implements OnPositionS
     }
 
     @Override
-    public void onPositionConfirm(PointF coordinates) {
+    public void onPositionConfirm(PointF coordinates, int floor, int type) {
         FragmentManager fm = getSupportFragmentManager();
         HomeFragment home = (HomeFragment) fm.findFragmentByTag(HomeFragment.FRAGMENT_TAG);
-
+        String[] coords = {Double.toString(coordinates.x),Double.toString(coordinates.y), Integer.toString(floor)};
         Bundle args = new Bundle();
-        args.putString(HomeFragment.ARG_POSITION, Double.toString(coordinates.y));
+        args.putStringArray(HomeFragment.ARG_POSITION, coords);
         home.getArguments().putAll(args);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

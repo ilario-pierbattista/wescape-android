@@ -1,6 +1,5 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -35,16 +34,40 @@ import java.util.Random;
  */
 public class HomeFragment extends MapFragment {
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
+    public static final String ARG_POSITION = "Array di coordinate";
+    public static final int TYPE_ORIGINE = 0;
+    public static final int TYPE_DESTINAZIONE = 1;
+    private static String originText = null;
+    private static String destinationText = null;
+    private static int type;
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
-    public static final String ARG_POSITION = "Array di coordinate";
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
+    }
+
+    /**
+     * Metodo che mi consente di riprendere il valore di type che consente di definire se è
+     * stato selezionato origine o destinazione
+     *
+     * @return
+     */
+    public static int getType() {
+        return type;
+    }
+
+    /**
+     * Set della variabile type
+     *
+     * @param type
+     */
+    public static void setType(int type) {
+        HomeFragment.type = type;
     }
 
     @Override
@@ -54,22 +77,54 @@ public class HomeFragment extends MapFragment {
         final View view = inflater.inflate(R.layout.fragment_home, container, false);
         holder = new ViewHolder(view);
 
+        originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
+        destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
+
         setupViewUI();
+        if (getArguments().getStringArray(ARG_POSITION) != null) {
+            String posizione = getArguments().getStringArray(ARG_POSITION)[2];
+            switch (HomeFragment.getType()) {
+                case HomeFragment.TYPE_ORIGINE:
+                    holder.originViewText.setText(posizione);
+                    break;
+                case HomeFragment.TYPE_DESTINAZIONE:
+                    holder.destinationViewText.setText(posizione);
+                    break;
+            }
+        }
 
         return view;
     }
 
     private void setupViewUI() {
         holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
-        holder.originViewText.setText(R.string.navigation_select_origin);
         holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
-        holder.destinationViewText.setText(R.string.navigation_select_destination);
+
+        String[] array = getArguments().getStringArray(ARG_POSITION);
+        final int X = 0;
+        final int Y = 1;
+        final int PIANO = 2;
+
+        if (array != null) {
+            switch (type) {
+                case TYPE_ORIGINE:
+                    originText = array[PIANO];
+                    break;
+                case TYPE_DESTINAZIONE:
+                    destinationText = array[PIANO];
+            }
+        }
+
+        holder.originViewText.setText(originText);
+        holder.destinationViewText.setText(destinationText);
+
 
         // Setup listeners
         holder.originView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openSelectionFragment(getString(R.string.navigation_select_origin));
+                HomeFragment.setType(HomeFragment.TYPE_ORIGINE);
+                openSelectionFragment();
             }
         });
 
@@ -79,10 +134,6 @@ public class HomeFragment extends MapFragment {
                 openNavigatorFragment();
             }
         });
-
-        if (getArguments().getString(ARG_POSITION) != null) {
-            holder.originViewText.setText(getArguments().getString(ARG_POSITION));
-        }
 
         if (emergency) {
             holder.revealView.setBackgroundColor(getResources().getColor(R.color.regularRed));
@@ -96,11 +147,14 @@ public class HomeFragment extends MapFragment {
             holder.destinationView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openSelectionFragment(getString(R.string.navigation_select_destination));
+                    HomeFragment.setType(HomeFragment.TYPE_DESTINAZIONE);
+                    openSelectionFragment();
                 }
             });
             holder.destinationView.setClickable(true);
         }
+
+        // @TODO Sostituire con qualcosa di meno insensato
         mapsDownloaderTask = new MapsDownloaderTask()
                 .inject(this);
         int floors[] = {145, 150, 155};
@@ -169,18 +223,19 @@ public class HomeFragment extends MapFragment {
             holder.destinationView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    openSelectionFragment(getString(R.string.navigation_select_destination));
+                    HomeFragment.setType(HomeFragment.TYPE_DESTINAZIONE);
+                    openSelectionFragment();
                 }
             });
             emergency = false;
         }
     }
 
-    private void openSelectionFragment(String message) {
+    private void openSelectionFragment() {
         SelectionFragment selectionFragment;
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        selectionFragment = SelectionFragment.newInstance(message);
+        selectionFragment = SelectionFragment.newInstance();
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
