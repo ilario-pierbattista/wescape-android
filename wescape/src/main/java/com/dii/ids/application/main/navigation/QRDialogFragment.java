@@ -1,11 +1,10 @@
 package com.dii.ids.application.main.navigation;
 
-import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
 
     private QRCodeReaderView mydecoderview;
     public static final String FRAGMENT_TAG = "fragment_read_qr";
+    public static final String INTENT_QR_DATA_TAG = "qr_code";
 
     @Nullable
     @Override
@@ -31,20 +31,15 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
     }
 
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-
-
-        return super.onCreateDialog(savedInstanceState);
-    }
-
-    @Override
     public void onQRCodeRead(String text, PointF[] points) {
-        Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
+        Intent data = new Intent().putExtra(INTENT_QR_DATA_TAG, text);
+        getTargetFragment().onActivityResult(getTargetRequestCode(), 0, data);
+        dismiss();
     }
 
     @Override
     public void cameraNotFound() {
-
+        Toast.makeText(getActivity(), getString(R.string.error_no_camera_found), Toast.LENGTH_SHORT).show();
     }
 
     @Override

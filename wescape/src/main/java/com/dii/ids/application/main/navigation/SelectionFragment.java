@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,16 +12,17 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
-
 
 public class SelectionFragment extends BaseFragment {
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
+    private static final int DIALOG_REQUEST_CODE = 100;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -51,7 +53,6 @@ public class SelectionFragment extends BaseFragment {
         mActivity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         holder.toolbarTitle.setText(getArguments().getString(TOOLBAR_TITLE));
 
-
         // Setup static actions table
         String[] staticActionsText = {
                 getString(R.string.navigation_select_from_map),
@@ -68,9 +69,9 @@ public class SelectionFragment extends BaseFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 int posizione = (int) staticListAdapter.getItem(position);
-                if(posizione == 0) {
+                if (posizione == 0) {
                     openSelectionFromMap(view);
-                }else {
+                } else {
                     qrScannerListener(view);
                 }
             }
@@ -80,23 +81,31 @@ public class SelectionFragment extends BaseFragment {
 
     /**
      * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire
-     * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment
-     * senza passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
+     * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment senza
+     * passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
      *
      * @param v Oggetto View
      */
     private void qrScannerListener(View v) {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         Fragment fragment = fm.findFragmentByTag(QRDialogFragment.FRAGMENT_TAG);
-        if(fragment != null) {
+        if (fragment != null) {
             fm.beginTransaction().remove(fragment).commit();
         }
         QRDialogFragment dialogFragment = new QRDialogFragment();
+        dialogFragment.setTargetFragment(this, DIALOG_REQUEST_CODE);
         dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG), Toast.LENGTH_SHORT)
+                .show();
     }
 
     /**
      * Listener per aprire la vista per la selezione della posizione su mappa
+     *
      * @param v Oggetto view
      */
     private void openSelectionFromMap(View v) {
@@ -111,33 +120,12 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
-     * Metodo che viene richiamato quando si chiude l'intent della fotocamera. Avendo creato
-     * l'oggetto IntentResult a partire da un fragment possiamo riprendere le informazioni senza
-     * ripassare dalla rispettiva activity.
-     *
-     * @param requestCode Request code dell'intent
-     * @param resultCode Result code dell'intent
-     * @param intent Oggetto intent
-     *
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-
-        IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanResult != null) {
-            String re = scanResult.getContents();
-            if (re != null) {
-                Toast.makeText(getActivity(), re, Toast.LENGTH_LONG).show();
-            }
-        }
-    }*/
-
-    /**
      * UI elements wrapper class
      */
     public static class ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
         public final ListView staticListview;
-
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
