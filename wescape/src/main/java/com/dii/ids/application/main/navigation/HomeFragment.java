@@ -34,10 +34,10 @@ import java.util.Random;
  */
 public class HomeFragment extends MapFragment {
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
+    public static final String ARG_POSITION = "Array di coordinate";
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
-    public static final String ARG_POSITION = "Array di coordinate";
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -107,6 +107,29 @@ public class HomeFragment extends MapFragment {
         mapsDownloaderTask.execute(floors[idx]);
     }
 
+    private void openSelectionFragment(String message) {
+        SelectionFragment selectionFragment;
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        selectionFragment = SelectionFragment.newInstance(message);
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment = new NavigatorFragment();
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -173,29 +196,6 @@ public class HomeFragment extends MapFragment {
             });
             emergency = false;
         }
-    }
-
-    private void openSelectionFragment(String message) {
-        SelectionFragment selectionFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        selectionFragment = SelectionFragment.newInstance(message);
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = new NavigatorFragment();
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
     }
 
     @Override

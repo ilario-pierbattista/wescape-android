@@ -22,6 +22,16 @@ public class FabAnimation {
      *
      * @param fab     FloatingActionButton
      * @param toColor Arriving color
+     */
+    public void animateFab(final FloatingActionButton fab, final int toColor) {
+        animateFab(fab, toColor, -1);
+    }
+
+    /**
+     * Change FloatingActionButton color using a nice animation
+     *
+     * @param fab     FloatingActionButton
+     * @param toColor Arriving color
      * @param toIcon  Arriving icon
      */
     public void animateFab(final FloatingActionButton fab, final int toColor, final int toIcon) {
@@ -59,15 +69,5 @@ public class FabAnimation {
             }
         });
         fab.startAnimation(shrink);
-    }
-
-    /**
-     * Change FloatingActionButton color using a nice animation
-     *
-     * @param fab     FloatingActionButton
-     * @param toColor Arriving color
-     */
-    public void animateFab(final FloatingActionButton fab, final int toColor) {
-        animateFab(fab, toColor, -1);
     }
 }

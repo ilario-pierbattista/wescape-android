@@ -18,17 +18,18 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.interfaces.OnPositionSelectedListener;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
-public class SelectionFromMapFragment extends MapFragment  {
+public class SelectionFromMapFragment extends MapFragment {
+    public static final int STARTING_FLOOR = 155;
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
+    int blue, black, disabled;
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private OnPositionSelectedListener callBack;
     private PointF mCoordinates;
-    int blue, black, disabled;
-    public static final int STARTING_FLOOR = 155;
 
     /**
-     * Use this factory method to create a new instance of this fragment using the provided parameters.
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters.
      *
      * @param selection Parameter 1.
      * @return A new instance of fragment ResetPasswordFragment.
@@ -39,6 +40,60 @@ public class SelectionFromMapFragment extends MapFragment  {
         args.putString(TOOLBAR_TITLE, selection);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
+        final Bitmap image = mapsTask.getImage();
+        this.mapsTask = null;
+
+        holder.mapView.setImage(ImageSource.bitmap(image));
+        holder.mapView.setMinimumDpi(40);
+
+        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                if (holder.mapView.isReady()) {
+                    mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+                    toogleConfirmButtonState();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+        });
+
+        holder.mapView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        });
+    }
+
+    @Override
+    public void onTaskError(MapsDownloaderTask asyncTask) {
+        this.mapsTask = null;
+        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
+        this.mapsTask = null;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            callBack = (OnPositionSelectedListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
     }
 
     @Override
@@ -94,60 +149,14 @@ public class SelectionFromMapFragment extends MapFragment  {
         return view;
     }
 
-    @Override
-    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
-        final Bitmap image = mapsTask.getImage();
-        this.mapsTask = null;
-
-        holder.mapView.setImage(ImageSource.bitmap(image));
-        holder.mapView.setMinimumDpi(40);
-
-        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                if(holder.mapView.isReady()) {
-                    mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
-                    toogleConfirmButtonState();
-                } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
-
-
-
-        holder.mapView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        // This makes sure that the container activity has implemented
-        // the callback interface. If not, it throws an exception
-        try {
-            callBack = (OnPositionSelectedListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString()
-                    + " must implement OnHeadlineSelectedListener");
+    private void toogleConfirmButtonState() {
+        if (mCoordinates == null) {
+            holder.confirmButton.setEnabled(false);
+            holder.confirmButton.setTextColor(disabled);
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(blue);
         }
-    }
-
-    @Override
-    public void onTaskError(MapsDownloaderTask asyncTask) {
-        this.mapsTask = null;
-        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
-        this.mapsTask = null;
     }
 
     public void floorButtonListener(View v) {
@@ -163,17 +172,6 @@ public class SelectionFromMapFragment extends MapFragment  {
             mapsTask.execute(floor);
         }
     }
-
-    private void toogleConfirmButtonState() {
-        if (mCoordinates == null) {
-            holder.confirmButton.setEnabled(false);
-            holder.confirmButton.setTextColor(disabled);
-        } else {
-            holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(blue);
-        }
-    }
-
 
     public class ViewHolder {
         public final SubsamplingScaleImageView mapView;

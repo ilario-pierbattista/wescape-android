@@ -9,8 +9,8 @@ import java.net.URL;
 public class EndPointsProvider {
     public static final String SCHEME = "http";
     public static final String AUTHORITY = "wescape.altervista.org";
-    public Uri.Builder builder;
     private static final String LOG_TAG = EndPointsProvider.class.getSimpleName();
+    public Uri.Builder builder;
 
     public EndPointsProvider() {
         builder = new Uri.Builder();

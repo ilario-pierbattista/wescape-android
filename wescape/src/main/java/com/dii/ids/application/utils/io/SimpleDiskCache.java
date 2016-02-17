@@ -76,6 +76,40 @@ public class SimpleDiskCache {
         return new InputStreamEntry(snapshot, readMetadata(snapshot));
     }
 
+    private String toInternalKey(String key) {
+        return md5(key);
+    }
+
+    private Map<String, Serializable> readMetadata(DiskLruCache.Snapshot snapshot)
+            throws IOException {
+        ObjectInputStream ois = null;
+        try {
+            ois = new ObjectInputStream(new BufferedInputStream(
+                    snapshot.getInputStream(METADATA_IDX)));
+            @SuppressWarnings("unchecked")
+            Map<String, Serializable> annotations = (Map<String, Serializable>) ois.readObject();
+            return annotations;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(ois);
+        }
+    }
+
+    private String md5(String s) {
+        try {
+            MessageDigest m = MessageDigest.getInstance("MD5");
+            m.update(s.getBytes("UTF-8"));
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1, digest);
+            return bigInt.toString(16);
+        } catch (NoSuchAlgorithmException e) {
+            throw new AssertionError();
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError();
+        }
+    }
+
     public BitmapEntry getBitmap(String key) throws IOException {
         DiskLruCache.Snapshot snapshot = diskLruCache.get(toInternalKey(key));
         if (snapshot == null) return null;
@@ -124,6 +158,18 @@ public class SimpleDiskCache {
         }
     }
 
+    private void writeMetadata(Map<String, ? extends Serializable> metadata,
+                               DiskLruCache.Editor editor) throws IOException {
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(new BufferedOutputStream(
+                    editor.newOutputStream(METADATA_IDX)));
+            oos.writeObject(metadata);
+        } finally {
+            IOUtils.closeQuietly(oos);
+        }
+    }
+
     public void put(String key, InputStream is) throws IOException {
         put(key, is, new HashMap<String, Serializable>());
     }
@@ -153,121 +199,6 @@ public class SimpleDiskCache {
             if (cos != null) cos.close();
         }
 
-    }
-
-    private void writeMetadata(Map<String, ? extends Serializable> metadata,
-                               DiskLruCache.Editor editor) throws IOException {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new BufferedOutputStream(
-                    editor.newOutputStream(METADATA_IDX)));
-            oos.writeObject(metadata);
-        } finally {
-            IOUtils.closeQuietly(oos);
-        }
-    }
-
-    private Map<String, Serializable> readMetadata(DiskLruCache.Snapshot snapshot)
-            throws IOException {
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(new BufferedInputStream(
-                    snapshot.getInputStream(METADATA_IDX)));
-            @SuppressWarnings("unchecked")
-            Map<String, Serializable> annotations = (Map<String, Serializable>) ois.readObject();
-            return annotations;
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } finally {
-            IOUtils.closeQuietly(ois);
-        }
-    }
-
-    private String toInternalKey(String key) {
-        return md5(key);
-    }
-
-    private String md5(String s) {
-        try {
-            MessageDigest m = MessageDigest.getInstance("MD5");
-            m.update(s.getBytes("UTF-8"));
-            byte[] digest = m.digest();
-            BigInteger bigInt = new BigInteger(1, digest);
-            return bigInt.toString(16);
-        } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError();
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError();
-        }
-    }
-
-    private class CacheOutputStream extends FilterOutputStream {
-
-        private final DiskLruCache.Editor editor;
-        private boolean failed = false;
-
-        private CacheOutputStream(OutputStream os, DiskLruCache.Editor editor) {
-            super(os);
-            this.editor = editor;
-        }
-
-        @Override
-        public void close() throws IOException {
-            IOException closeException = null;
-            try {
-                super.close();
-            } catch (IOException e) {
-                closeException = e;
-            }
-
-            if (failed) {
-                editor.abort();
-            } else {
-                editor.commit();
-            }
-
-            if (closeException != null) throw closeException;
-        }
-
-        @Override
-        public void flush() throws IOException {
-            try {
-                super.flush();
-            } catch (IOException e) {
-                failed = true;
-                throw e;
-            }
-        }
-
-        @Override
-        public void write(int oneByte) throws IOException {
-            try {
-                super.write(oneByte);
-            } catch (IOException e) {
-                failed = true;
-                throw e;
-            }
-        }
-
-        @Override
-        public void write(byte[] buffer) throws IOException {
-            try {
-                super.write(buffer);
-            } catch (IOException e) {
-                failed = true;
-                throw e;
-            }
-        }
-
-        @Override
-        public void write(byte[] buffer, int offset, int length) throws IOException {
-            try {
-                super.write(buffer, offset, length);
-            } catch (IOException e) {
-                failed = true;
-                throw e;
-            }
-        }
     }
 
     public static class InputStreamEntry {
@@ -327,6 +258,75 @@ public class SimpleDiskCache {
 
         public Map<String, Serializable> getMetadata() {
             return metadata;
+        }
+    }
+
+    private class CacheOutputStream extends FilterOutputStream {
+
+        private final DiskLruCache.Editor editor;
+        private boolean failed = false;
+
+        private CacheOutputStream(OutputStream os, DiskLruCache.Editor editor) {
+            super(os);
+            this.editor = editor;
+        }
+
+        @Override
+        public void close() throws IOException {
+            IOException closeException = null;
+            try {
+                super.close();
+            } catch (IOException e) {
+                closeException = e;
+            }
+
+            if (failed) {
+                editor.abort();
+            } else {
+                editor.commit();
+            }
+
+            if (closeException != null) throw closeException;
+        }
+
+        @Override
+        public void flush() throws IOException {
+            try {
+                super.flush();
+            } catch (IOException e) {
+                failed = true;
+                throw e;
+            }
+        }
+
+        @Override
+        public void write(byte[] buffer, int offset, int length) throws IOException {
+            try {
+                super.write(buffer, offset, length);
+            } catch (IOException e) {
+                failed = true;
+                throw e;
+            }
+        }
+
+        @Override
+        public void write(int oneByte) throws IOException {
+            try {
+                super.write(oneByte);
+            } catch (IOException e) {
+                failed = true;
+                throw e;
+            }
+        }
+
+        @Override
+        public void write(byte[] buffer) throws IOException {
+            try {
+                super.write(buffer);
+            } catch (IOException e) {
+                failed = true;
+                throw e;
+            }
         }
     }
 }

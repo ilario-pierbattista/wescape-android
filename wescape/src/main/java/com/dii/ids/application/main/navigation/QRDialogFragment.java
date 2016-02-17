@@ -15,9 +15,9 @@ import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 
 public class QRDialogFragment extends DialogFragment implements QRCodeReaderView.OnQRCodeReadListener {
 
-    private QRCodeReaderView mydecoderview;
     public static final String FRAGMENT_TAG = "fragment_read_qr";
     public static final String INTENT_QR_DATA_TAG = "qr_code";
+    private QRCodeReaderView mydecoderview;
 
     @Nullable
     @Override
@@ -28,6 +28,18 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
         mydecoderview = (QRCodeReaderView) view.findViewById(R.id.qrdecoderview);
         mydecoderview.setOnQRCodeReadListener(this);
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mydecoderview.getCameraManager().startPreview();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        mydecoderview.getCameraManager().stopPreview();
     }
 
     @Override
@@ -45,17 +57,5 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
     @Override
     public void QRCodeNotFoundOnCamImage() {
 
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mydecoderview.getCameraManager().startPreview();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mydecoderview.getCameraManager().stopPreview();
     }
 }

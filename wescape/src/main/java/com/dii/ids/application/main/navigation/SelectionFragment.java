@@ -18,11 +18,11 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
 
 public class SelectionFragment extends BaseFragment {
+    private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
+    private static final int DIALOG_REQUEST_CODE = 100;
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
-    private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
-    private static final int DIALOG_REQUEST_CODE = 100;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -37,6 +37,12 @@ public class SelectionFragment extends BaseFragment {
         args.putString(TOOLBAR_TITLE, selection);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG), Toast.LENGTH_SHORT)
+                .show();
     }
 
     @Override
@@ -80,6 +86,22 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
+     * Listener per aprire la vista per la selezione della posizione su mappa
+     *
+     * @param v Oggetto view
+     */
+    private void openSelectionFromMap(View v) {
+        SelectionFromMapFragment fragment;
+
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragment = SelectionFromMapFragment.newInstance(getArguments().getString(TOOLBAR_TITLE));
+        transaction.replace(R.id.navigation_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    /**
      * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire
      * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment senza
      * passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
@@ -95,28 +117,6 @@ public class SelectionFragment extends BaseFragment {
         QRDialogFragment dialogFragment = new QRDialogFragment();
         dialogFragment.setTargetFragment(this, DIALOG_REQUEST_CODE);
         dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG), Toast.LENGTH_SHORT)
-                .show();
-    }
-
-    /**
-     * Listener per aprire la vista per la selezione della posizione su mappa
-     *
-     * @param v Oggetto view
-     */
-    private void openSelectionFromMap(View v) {
-        SelectionFromMapFragment fragment;
-
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragment = SelectionFromMapFragment.newInstance(getArguments().getString(TOOLBAR_TITLE));
-        transaction.replace(R.id.navigation_content_pane, fragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
     }
 
     /**
