@@ -41,8 +41,6 @@
             android:label="@string/title_activity_navigation"
             android:theme="@style/Wescape.BlueTheme.NoActionBar.TranslucentStatusBar">
         </activity>
-        <activity android:name=".main.navigation.DecoderActivity">
-        </activity>
     </application>
 
 </manifest>

@@ -30,7 +30,8 @@
     <string name="navigation_select_from_map">Seleziona dalla mappa</string>
     <string name="navigation_select_from_qr">Scansiona codice QR</string>
     <string name="action_back">Indietro</string>
-    <string name="action_submit"></string>
     <string name="action_confirm">Conferma</string>
     <string name="title_navigator">Indicazioni</string>
+    <string name="action_qr">Inquadra il codice QR</string>
+    <string name="error_no_camera_found">Non è stata trovata alcuna fotocamera</string>
 </resources>
