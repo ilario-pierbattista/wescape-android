@@ -46,5 +46,6 @@
     <string name="action_back">Back</string>
     <string name="action_confirm">Confirm</string>
     <string name="title_navigator">Indications</string>
+    <string name="action_qr">Scan the QR code</string>
 
 </resources>

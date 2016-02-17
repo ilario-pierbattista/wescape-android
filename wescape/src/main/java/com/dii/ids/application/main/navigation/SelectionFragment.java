@@ -1,7 +1,8 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -10,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
@@ -86,8 +86,13 @@ public class SelectionFragment extends BaseFragment {
      * @param v Oggetto View
      */
     private void qrScannerListener(View v) {
-        Intent intent = new Intent(getActivity(), DecoderActivity.class);
-        startActivity(intent);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentByTag(QRDialogFragment.FRAGMENT_TAG);
+        if(fragment != null) {
+            fm.beginTransaction().remove(fragment).commit();
+        }
+        QRDialogFragment dialogFragment = new QRDialogFragment();
+        dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
     }
 
     /**
