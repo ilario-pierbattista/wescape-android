@@ -88,6 +88,16 @@ public class SelectionFromMapFragment extends MapFragment {
         this.mapsTask = null;
     }
 
+    private void toogleConfirmButtonState() {
+        if (mCoordinates == null) {
+            holder.confirmButton.setEnabled(false);
+            holder.confirmButton.setTextColor(color(R.color.disabledText));
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(color(R.color.linkText));
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -147,26 +157,6 @@ public class SelectionFromMapFragment extends MapFragment {
         return view;
     }
 
-    public void onPositionConfirm(PointF coordinates, int floor) {
-        Intent data = new Intent();
-        Position position = new Position(coordinates.x, coordinates.y, floor);
-        data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(position));
-        getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
-        FragmentManager fm = getActivity().getSupportFragmentManager();
-        fm.popBackStack();
-        fm.popBackStack();
-    }
-
-    private void toogleConfirmButtonState() {
-        if (mCoordinates == null) {
-            holder.confirmButton.setEnabled(false);
-            holder.confirmButton.setTextColor(color(R.color.disabledText));
-        } else {
-            holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(color(R.color.linkText));
-        }
-    }
-
     public void floorButtonListener(View v) {
         Button button = (Button) v;
         holder.floor155Button.setTextColor(color(R.color.black));
@@ -180,6 +170,16 @@ public class SelectionFromMapFragment extends MapFragment {
                     .inject(this);
             mapsTask.execute(floor);
         }
+    }
+
+    public void onPositionConfirm(PointF coordinates, int floor) {
+        Intent data = new Intent();
+        Position position = new Position(coordinates.x, coordinates.y, floor);
+        data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(position));
+        getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
+        FragmentManager fm = getActivity().getSupportFragmentManager();
+        fm.popBackStack();
+        fm.popBackStack();
     }
 
     public class ViewHolder {

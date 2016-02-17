@@ -56,6 +56,24 @@ public class HomeFragment extends MapFragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            Position position = (Position) SerializationUtils.deserialize(data.getExtras().getByteArray(INTENT_KEY_POSITION));
+
+            switch (requestCode) {
+                case ORIGIN_SELECTION_REQUEST_CODE:
+                    origin = position;
+                    break;
+                case DESTINATION_SELECTION_REQUEST_CODE:
+                    destination = position;
+                    break;
+            }
+        } catch (NullPointerException ee) {
+            Log.e(LOG_TAG, "NullPointer", ee);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -170,24 +188,6 @@ public class HomeFragment extends MapFragment {
         assert activity.getSupportActionBar() != null;
         activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
         setHasOptionsMenu(true);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        try {
-            Position position = (Position) SerializationUtils.deserialize(data.getExtras().getByteArray(INTENT_KEY_POSITION));
-
-            switch (requestCode) {
-                case ORIGIN_SELECTION_REQUEST_CODE:
-                    origin = position;
-                    break;
-                case DESTINATION_SELECTION_REQUEST_CODE:
-                    destination = position;
-                    break;
-            }
-        } catch (NullPointerException ee) {
-            Log.e(LOG_TAG, "NullPointer", ee);
-        }
     }
 
     @Override

@@ -8,11 +8,10 @@ import android.view.inputmethod.InputMethodManager;
 
 public abstract class BaseFragment extends Fragment {
 
-    public static String TOOLBAR_TITLE = "toolbar_title";
-
     public static final int QR_READER_DIALOG_REQUEST_CODE = 100;
     public static final int ORIGIN_SELECTION_REQUEST_CODE = 200;
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
+    public static String TOOLBAR_TITLE = "toolbar_title";
 
     /**
      * Wrap di ContextCompact.getColor()

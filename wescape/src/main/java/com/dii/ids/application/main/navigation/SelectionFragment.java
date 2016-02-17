@@ -19,8 +19,8 @@ import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
 
 public class SelectionFragment extends BaseFragment {
-    private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     public static final String FRAGMENT_TAG = SelectionFragment.class.getSimpleName();
+    private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     private static final String SELECTION_REQUEST_CODE = "selection_request_code";
     private NavigationActivity mActivity;
     private ViewHolder holder;
