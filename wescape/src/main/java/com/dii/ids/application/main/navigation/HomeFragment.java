@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
@@ -33,11 +34,18 @@ import java.util.Random;
  * A placeholder fragment containing a simple view.
  */
 public class HomeFragment extends MapFragment {
-
+    public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
+    public static final String ARG_POSITION = "Array di coordinate";
 
+    public static HomeFragment newInstance() {
+        HomeFragment fragment = new HomeFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,6 +80,10 @@ public class HomeFragment extends MapFragment {
             }
         });
 
+        if (getArguments().getString(ARG_POSITION) != null) {
+            holder.originViewText.setText(getArguments().getString(ARG_POSITION));
+        }
+
         if (emergency) {
             holder.revealView.setBackgroundColor(getResources().getColor(R.color.regularRed));
             holder.revealBackgroundView.setBackgroundColor(getResources().getColor(R.color.regularRed));
@@ -79,6 +91,7 @@ public class HomeFragment extends MapFragment {
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
             holder.destinationView.setClickable(false);
+
         } else {
             holder.destinationView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -180,7 +193,7 @@ public class HomeFragment extends MapFragment {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment )
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                 .addToBackStack(null)
                 .commit();
@@ -198,10 +211,10 @@ public class HomeFragment extends MapFragment {
         final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
-                if(holder.mapImage.isReady()) {
+                if (holder.mapImage.isReady()) {
                     PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
                     Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                        Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                            Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }

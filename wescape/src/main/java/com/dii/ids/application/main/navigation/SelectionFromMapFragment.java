@@ -1,8 +1,11 @@
 package com.dii.ids.application.main.navigation;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -14,12 +17,14 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
+import com.dii.ids.application.interfaces.OnPositionSelectedListener;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
-public class SelectionFromMapFragment extends MapFragment {
+public class SelectionFromMapFragment extends MapFragment  {
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
+    private OnPositionSelectedListener callBack;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
@@ -90,8 +95,7 @@ public class SelectionFromMapFragment extends MapFragment {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if(holder.mapView.isReady()) {
                     PointF sCoord = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
-                    Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                            Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                    callBack.onPositionSelected(sCoord);
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }
@@ -105,6 +109,20 @@ public class SelectionFromMapFragment extends MapFragment {
                 return gestureDetector.onTouchEvent(event);
             }
         });
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        // This makes sure that the container activity has implemented
+        // the callback interface. If not, it throws an exception
+        try {
+            callBack = (OnPositionSelectedListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString()
+                    + " must implement OnHeadlineSelectedListener");
+        }
     }
 
     @Override
@@ -131,6 +149,7 @@ public class SelectionFromMapFragment extends MapFragment {
             mapsTask.execute(floor);
         }
     }
+
 
     public class ViewHolder {
         public final SubsamplingScaleImageView mapView;
