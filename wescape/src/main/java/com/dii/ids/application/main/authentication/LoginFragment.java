@@ -32,16 +32,13 @@ import com.dii.ids.application.validators.PasswordValidator;
 
 public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
+    public ViewHolder holder;
+
     private UserLoginTask mAuthTask = null;
-    private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
 
     public LoginFragment() {
-        // Required empty public constructor
     }
 
     /**
@@ -249,7 +246,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
     /**
      * Classe wrapper degli elementi della vista
      */
-    public static class ViewHolder {
+    public static class ViewHolder extends BaseFragment.ViewHolder {
         public final AutoCompleteTextView emailField;
         public final TextInputLayout emailFieldLayout;
         public final TextInputLayout passwordFieldLayout;
@@ -262,16 +259,16 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final TextView resetPasswdTextView;
 
         public ViewHolder(View view) {
-            emailField = (AutoCompleteTextView) view.findViewById(R.id.login_email_text_input);
-            emailFieldLayout = (TextInputLayout) view.findViewById(R.id.login_email_text_input_layout);
-            passwordField = (EditText) view.findViewById(R.id.login_password_text_input);
-            passwordFieldLayout = (TextInputLayout) view.findViewById(R.id.login_password_text_input_layout);
-            loginButton = (Button) view.findViewById(R.id.login_signin_button);
-            progressBar = (ProgressBar) view.findViewById(R.id.login_progress);
-            scrollView = (ScrollView) view.findViewById(R.id.login_scroll_view);
-            signupTextView = (TextView) view.findViewById(R.id.sign_up_text);
-            resetPasswdTextView = (TextView) view.findViewById(R.id.reset_passwd_text);
-            homeButton = (Button) view.findViewById(R.id.login_home_button);
+            emailField = find(view, R.id.login_email_text_input);
+            emailFieldLayout = find(view, R.id.login_email_text_input_layout);
+            passwordField = find(view, R.id.login_password_text_input);
+            passwordFieldLayout = find(view, R.id.login_password_text_input_layout);
+            loginButton = find(view, R.id.login_signin_button);
+            progressBar = find(view, R.id.login_progress);
+            scrollView = find(view, R.id.login_scroll_view);
+            signupTextView = find(view, R.id.sign_up_text);
+            resetPasswdTextView = find(view, R.id.reset_passwd_text);
+            homeButton = find(view, R.id.login_home_button);
         }
     }
 

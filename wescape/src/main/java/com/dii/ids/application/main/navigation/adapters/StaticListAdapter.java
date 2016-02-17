@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.navigation;
+package com.dii.ids.application.main.navigation.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;

@@ -21,7 +21,6 @@ import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 public class SelectionFromMapFragment extends MapFragment {
     public static final int STARTING_FLOOR = 155;
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
-    int blue, black, disabled;
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private OnPositionSelectedListener callBack;
@@ -82,6 +81,16 @@ public class SelectionFromMapFragment extends MapFragment {
         this.mapsTask = null;
     }
 
+    private void toogleConfirmButtonState() {
+        if (mCoordinates == null) {
+            holder.confirmButton.setEnabled(false);
+            holder.confirmButton.setTextColor(color(R.color.disabledText));
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(color(R.color.linkText));
+        }
+    }
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -100,16 +109,13 @@ public class SelectionFromMapFragment extends MapFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.navigation_selection_from_map_fragment, container, false);
-        black = getResources().getColor(R.color.black);
-        blue = getResources().getColor(R.color.linkText);
-        disabled = getResources().getColor(R.color.disabledText);
         holder = new ViewHolder(view);
 
         toogleConfirmButtonState();
 
         mapsTask = new MapsDownloaderTask().inject(this);
         mapsTask.execute(STARTING_FLOOR);
-        holder.floor155Button.setTextColor(blue);
+        holder.floor155Button.setTextColor(color(R.color.linkText));
 
         // @TODO trovare una soluzione più elegante per questi listeners
         holder.floor155Button.setOnClickListener(new View.OnClickListener() {
@@ -149,22 +155,12 @@ public class SelectionFromMapFragment extends MapFragment {
         return view;
     }
 
-    private void toogleConfirmButtonState() {
-        if (mCoordinates == null) {
-            holder.confirmButton.setEnabled(false);
-            holder.confirmButton.setTextColor(disabled);
-        } else {
-            holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(blue);
-        }
-    }
-
     public void floorButtonListener(View v) {
         Button button = (Button) v;
-        holder.floor155Button.setTextColor(black);
-        holder.floor150Button.setTextColor(black);
-        holder.floor145Button.setTextColor(black);
-        button.setTextColor(blue);
+        holder.floor155Button.setTextColor(color(R.color.black));
+        holder.floor150Button.setTextColor(color(R.color.black));
+        holder.floor145Button.setTextColor(color(R.color.black));
+        button.setTextColor(color(R.color.linkText));
         int floor = Integer.parseInt(button.getText().toString());
         if (mapsTask == null) {
             mapsTask = new MapsDownloaderTask()

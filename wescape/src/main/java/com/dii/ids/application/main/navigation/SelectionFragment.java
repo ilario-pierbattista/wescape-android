@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
 
 public class SelectionFragment extends BaseFragment {
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();

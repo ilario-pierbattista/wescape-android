@@ -84,9 +84,9 @@ public class HomeFragment extends MapFragment {
         }
 
         if (emergency) {
-            holder.revealView.setBackgroundColor(getResources().getColor(R.color.regularRed));
-            holder.revealBackgroundView.setBackgroundColor(getResources().getColor(R.color.regularRed));
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(getResources().getColor(R.color.regularRed)));
+            holder.revealView.setBackgroundColor(color(R.color.regularRed));
+            holder.revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
+            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
             holder.destinationView.setClickable(false);
