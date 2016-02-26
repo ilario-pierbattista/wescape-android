@@ -12,7 +12,6 @@ import com.dii.ids.application.main.BaseFragment;
  * Classe per la realizzazione delle animazioni della toolbar
  */
 public class ToolbarAnimation {
-
     private BaseFragment fragment;
     private View revealView;
     private View revealBackgroundView;

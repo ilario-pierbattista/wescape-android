@@ -2,6 +2,7 @@ package com.dii.ids.application.utils.io;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 
 import com.jakewharton.disklrucache.DiskLruCache;
 
@@ -103,9 +104,7 @@ public class SimpleDiskCache {
             byte[] digest = m.digest();
             BigInteger bigInt = new BigInteger(1, digest);
             return bigInt.toString(16);
-        } catch (NoSuchAlgorithmException e) {
-            throw new AssertionError();
-        } catch (UnsupportedEncodingException e) {
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             throw new AssertionError();
         }
     }
@@ -300,7 +299,7 @@ public class SimpleDiskCache {
         }
 
         @Override
-        public void write(byte[] buffer, int offset, int length) throws IOException {
+        public void write(@NonNull byte[] buffer, int offset, int length) throws IOException {
             try {
                 super.write(buffer, offset, length);
             } catch (IOException e) {
@@ -320,7 +319,7 @@ public class SimpleDiskCache {
         }
 
         @Override
-        public void write(byte[] buffer) throws IOException {
+        public void write(@NonNull byte[] buffer) throws IOException {
             try {
                 super.write(buffer);
             } catch (IOException e) {

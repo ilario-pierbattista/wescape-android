@@ -35,7 +35,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.util.Random;
 
 /**
- * A placeholder fragment containing a simple view.
+ * HomeFragment: classe per la schermata principale nel contesto di navigazione.
  */
 public class HomeFragment extends MapFragment {
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
@@ -57,8 +57,15 @@ public class HomeFragment extends MapFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Position position;
+        byte[] serializedData;
+
         try {
-            Position position = (Position) SerializationUtils.deserialize(data.getExtras().getByteArray(INTENT_KEY_POSITION));
+            serializedData = data.getByteArrayExtra(INTENT_KEY_POSITION);
+            if (serializedData == null) {
+                throw new NullPointerException("Null array data");
+            }
+            position = (Position) SerializationUtils.deserialize(serializedData);
 
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
