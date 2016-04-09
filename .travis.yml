@@ -18,6 +18,5 @@ before_script:
 script:
   - android list target
   - ./gradlew test && ./gradlew build connectedCheck
-
 notifications:
   email: false
