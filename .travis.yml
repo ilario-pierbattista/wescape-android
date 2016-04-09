@@ -10,6 +10,6 @@ android:
     - sys-img-armeabi-v7a-android-23
 
 before_install:
-  - echo y | android update sdk --no-ui --all --filter "tools"
+  - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.2"  
 script:
   - ./gradlew build connectedCheck
