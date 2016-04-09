@@ -20,7 +20,7 @@ script:
   - ./gradlew test && ./gradlew build connectedCheck
 
 cache:
-  - apt
+  apt: true
   directories:
     - $HOME/.gradle
 
