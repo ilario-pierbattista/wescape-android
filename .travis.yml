@@ -18,5 +18,11 @@ before_script:
 script:
   - android list target
   - ./gradlew test && ./gradlew build connectedCheck
+
+cache:
+  - apt
+  directories:
+    - $HOME/.gradle
+
 notifications:
   email: false

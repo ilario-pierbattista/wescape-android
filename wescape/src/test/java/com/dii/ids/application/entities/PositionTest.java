@@ -26,6 +26,5 @@ public class PositionTest {
 
         toStringResult = position.toString();
         Assert.assertEquals(toStringResult, "{x: 1.5, y: 2.6, floor: 1}");
-        Assert.assertFalse(true);
     }
 }
