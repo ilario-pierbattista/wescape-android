@@ -1,7 +1,7 @@
 language: android
 android:
   components:
-    - platform-tools
+    # - platform-tools
     # - tools
 
     - build-tools-23.0.3
@@ -9,7 +9,7 @@ android:
 
     # - sys-img-armeabi-v7a-android-23
 
-# before_install:
-  # - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.2"
+before_install:
+  - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
 script:
   - ./gradlew build connectedCheck
