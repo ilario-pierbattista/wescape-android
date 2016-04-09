@@ -10,16 +10,22 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 public class ShowProgressAnimation {
-    private Fragment fragment;
     private ScrollView scrollView;
     private ProgressBar progressBar;
+    private int animTime;
 
-    public ShowProgressAnimation(Fragment fragment,
-                                 ScrollView scrollView,
-                                 ProgressBar progressBar) {
-        this.fragment = fragment;
+    /**
+     * @TODO Commentare
+     * @param scrollView
+     * @param progressBar
+     * @param animTime
+     */
+    public ShowProgressAnimation(ScrollView scrollView,
+                                 ProgressBar progressBar,
+                                 int animTime) {
         this.scrollView = scrollView;
         this.progressBar = progressBar;
+        this.animTime = animTime;
     }
 
     /**
@@ -31,10 +37,8 @@ public class ShowProgressAnimation {
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = fragment.getResources().getInteger(android.R.integer.config_shortAnimTime);
-
             scrollView.setVisibility(show ? View.GONE : View.VISIBLE);
-            scrollView.animate().setDuration(shortAnimTime).alpha(
+            scrollView.animate().setDuration(animTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
@@ -43,7 +47,7 @@ public class ShowProgressAnimation {
             });
 
             progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressBar.animate().setDuration(shortAnimTime).alpha(
+            progressBar.animate().setDuration(animTime).alpha(
                     show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {

@@ -33,6 +33,10 @@ public abstract class BaseFragment extends Fragment {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
+    protected int getShortAnimTime() {
+        return getResources().getInteger(android.R.integer.config_shortAnimTime);
+    }
+
     public static abstract class ViewHolder {
 
         @SuppressWarnings("unchecked")

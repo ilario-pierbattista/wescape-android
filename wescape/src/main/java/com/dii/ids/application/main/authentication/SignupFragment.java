@@ -111,7 +111,7 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
+        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
 
         emailAutocompleter.populateAutoComplete();
 

@@ -105,7 +105,7 @@ public class ResetRequestFragment extends BaseFragment
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
-        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
+        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 

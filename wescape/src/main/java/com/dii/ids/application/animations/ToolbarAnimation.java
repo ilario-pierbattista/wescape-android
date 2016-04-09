@@ -12,6 +12,7 @@ import com.dii.ids.application.main.BaseFragment;
  * Classe per la realizzazione delle animazioni della toolbar
  */
 public class ToolbarAnimation {
+    // @TODO Questa variabile instaura una dipendenza circolare. Trovare una soluzione
     private BaseFragment fragment;
     private View revealView;
     private View revealBackgroundView;

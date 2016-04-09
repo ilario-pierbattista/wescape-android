@@ -224,7 +224,9 @@ public class HomeFragment extends MapFragment {
     private void toggleEmergency() {
         int red = R.color.regularRed;
         int blue = R.color.regularBlue;
-        FabAnimation fabAnimation = new FabAnimation(this);
+        ColorStateList toRed = getResources().getColorStateList(red),
+                toBlue = getResources().getColorStateList(blue);
+        FabAnimation fabAnimation = new FabAnimation();
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(this,
                 holder.revealView,
                 holder.revealBackgroundView,
@@ -232,14 +234,14 @@ public class HomeFragment extends MapFragment {
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(blue, red);
-            fabAnimation.animateFab(holder.startFabButton, red);
+            fabAnimation.animateFab(holder.startFabButton, toRed);
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
             holder.destinationView.setClickable(false);
             emergency = true;
         } else {
             toolbarAnimation.animateAppAndStatusBar(red, blue);
-            fabAnimation.animateFab(holder.startFabButton, blue);
+            fabAnimation.animateFab(holder.startFabButton, toBlue);
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);
             holder.destinationView.setClickable(true);

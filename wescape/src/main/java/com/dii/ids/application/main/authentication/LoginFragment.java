@@ -62,7 +62,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        showProgressAnimation = new ShowProgressAnimation(this, holder.scrollView, holder.progressBar);
+        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();

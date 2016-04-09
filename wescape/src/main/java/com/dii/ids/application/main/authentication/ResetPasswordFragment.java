@@ -99,7 +99,7 @@ public class ResetPasswordFragment extends BaseFragment implements AsyncTaskCall
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.action_reset_request));
         holder = new ViewHolder(view);
-        animation = new ShowProgressAnimation(this, holder.scrollView, holder.progress);
+        animation = new ShowProgressAnimation(holder.scrollView, holder.progress, getShortAnimTime());
 
         holder.passwordConfirmField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
