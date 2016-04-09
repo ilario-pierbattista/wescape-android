@@ -10,5 +10,8 @@ android:
     - extra-android-support
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-23
-scripts:
+before_script:
+  - android-wait-for-emulator
+script:
+  - android list target
   - ./gradlew build connectedCheck
