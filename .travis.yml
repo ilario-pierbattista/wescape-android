@@ -9,3 +9,4 @@ android:
     - extra-google-m2repository
     - extra-android-support
     - extra-android-m2repository
+    - sys-img-armeabi-v7a-android-23
