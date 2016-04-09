@@ -15,8 +15,8 @@ public class Position implements Serializable {
 
     @Override
     public String toString() {
-        return "{x: " + Double.toString(x) + ", y:" +
-                Double.toString(y) + ", floor:" +
+        return "{x: " + Double.toString(x) + ", y: " +
+                Double.toString(y) + ", floor: " +
                 Integer.toString(floor) + "}";
     }
 }
