@@ -1,15 +1,9 @@
+sudo: false 
 language: android
 android:
   components:
-    # - platform-tools
-    # - tools
-
+    - tools
     - build-tools-23.0.3
     - android-23
-
-    # - sys-img-armeabi-v7a-android-23
-
-before_install:
-  - echo y | android update sdk --no-ui --all --filter "build-tools-23.0.3"
-script:
-  - ./gradlew build connectedCheck
+    - extra-android-support
+    - extra-android-m2repository
