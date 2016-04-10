@@ -1,4 +1,8 @@
 sudo: false
+branches:
+  only:
+    - master
+    - dev
 language: android
 android:
   components:
@@ -17,7 +21,7 @@ before_script:
   - adb shell input keyevent 82 &
 script:
   - android list target
-  - ./gradlew test && ./gradlew build connectedCheck && ./gradlew connectedAndroidTest
+  - ./gradlew test && ./gradlew build connectedCheck
 
 cache:
   apt: true
