@@ -1,3 +1,6 @@
+env:
+  matrix:
+    - ANDROID_TARGET=android-21 ANDROID_ABI=armeabi-v7a
 sudo: false
 branches:
   only:
@@ -15,18 +18,25 @@ android:
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-23
 before_script:
-  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
   - emulator -avd test -no-skin -no-audio -no-window &
-  - android-wait-for-emulator
-  - adb shell input keyevent 82 &
 script:
-  - android list target
-  - ./gradlew test && ./gradlew build connectedCheck
+  - set -e
+  - ./gradlew check -PdisablePreDex --continue --stacktrace
+  - ./gradlew build test
+  - android-wait-for-emulator
+  - adb devices
+  - adb shell input keyevent 82 &
+  - ./gradlew connectedCheck deviceAndroidTest --stacktrace
 
 cache:
   apt: true
   directories:
-    - $HOME/.gradle
+    - $HOME/.gradle/caches/2.8
+    - $HOME/.gradle/caches/jars-1
+    - $HOME/.gradle/daemon
+    - $HOME/.gradle/native
+    - $HOME/.gradle/wrapper
 
 notifications:
   email: false

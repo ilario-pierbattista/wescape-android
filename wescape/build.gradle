@@ -1,4 +1,10 @@
 apply plugin: 'com.android.application'
+apply plugin: 'checkstyle'
+
+checkstyle {
+    configFile rootProject.file("checkstyle.xml")
+    showViolations true
+}
 
 android {
     compileSdkVersion 23
