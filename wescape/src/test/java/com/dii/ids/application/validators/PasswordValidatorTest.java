@@ -8,11 +8,11 @@ import static org.junit.Assert.*;
 
 public class PasswordValidatorTest {
     private PasswordValidator validator;
-    private final String[] validPasswords = {
+    public static final String[] validPasswords = {
             "aaaaa",
             "12adfd"
     };
-    private final String[] invalidPasswords = {
+    public static final String[] invalidPasswords = {
             "a",
             "",
             "aaaa"

@@ -227,20 +227,19 @@ public class HomeFragment extends MapFragment {
         ColorStateList toRed = getResources().getColorStateList(red),
                 toBlue = getResources().getColorStateList(blue);
         FabAnimation fabAnimation = new FabAnimation();
-        ToolbarAnimation toolbarAnimation = new ToolbarAnimation(this,
-                holder.revealView,
+        ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
                 holder.revealBackgroundView,
                 holder.toolbar);
 
         if (!emergency) {
-            toolbarAnimation.animateAppAndStatusBar(blue, red);
+            toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
             fabAnimation.animateFab(holder.startFabButton, toRed);
             holder.toolbarTitle.setText(R.string.action_emergency);
             holder.destinationViewText.setText(R.string.description_destination_emergency);
             holder.destinationView.setClickable(false);
             emergency = true;
         } else {
-            toolbarAnimation.animateAppAndStatusBar(red, blue);
+            toolbarAnimation.animateAppAndStatusBar(color(red), color(blue));
             fabAnimation.animateFab(holder.startFabButton, toBlue);
             holder.toolbarTitle.setText(R.string.title_activity_navigation);
             holder.destinationViewText.setText(R.string.navigation_select_destination);

@@ -8,11 +8,11 @@ import static org.junit.Assert.*;
 
 public class SecretCodeValidatorTest {
     private SecretCodeValidator validator;
-    private final String[] validCodes = {
+    public static final String[] validCodes = {
             "34565",
             "335444"
     };
-    private final String[] invalidCodes = {
+    public static final String[] invalidCodes = {
             "",
             "a4564",
             "3445",

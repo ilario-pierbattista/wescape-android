@@ -6,20 +6,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 
-import com.dii.ids.application.main.BaseFragment;
-
 /**
  * Classe per la realizzazione delle animazioni della toolbar
  */
 public class ToolbarAnimation {
-    // @TODO Questa variabile instaura una dipendenza circolare. Trovare una soluzione
-    private BaseFragment fragment;
     private View revealView;
     private View revealBackgroundView;
     private Toolbar toolbar;
 
-    public ToolbarAnimation(BaseFragment fragment, View revealView, View revealBackgroundView, Toolbar toolbar) {
-        this.fragment = fragment;
+    public ToolbarAnimation(View revealView, View revealBackgroundView, Toolbar toolbar) {
         this.revealView = revealView;
         this.revealBackgroundView = revealBackgroundView;
         this.toolbar = toolbar;
@@ -31,7 +26,7 @@ public class ToolbarAnimation {
      * @param fromColor Starting color
      * @param toColor   Arriving color
      */
-    public void animateAppAndStatusBar(int fromColor, final int toColor) {
+    public void animateAppAndStatusBar(final int fromColor, final int toColor) {
         Animator animator = ViewAnimationUtils.createCircularReveal(
                 revealView,
                 toolbar.getWidth() / 2,
@@ -41,11 +36,11 @@ public class ToolbarAnimation {
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                revealView.setBackgroundColor(fragment.color(toColor));
+                revealView.setBackgroundColor(toColor);
             }
         });
 
-        revealBackgroundView.setBackgroundColor(fragment.color(fromColor));
+        revealBackgroundView.setBackgroundColor(fromColor);
         animator.setStartDelay(70);
         animator.setDuration(125);
         animator.start();

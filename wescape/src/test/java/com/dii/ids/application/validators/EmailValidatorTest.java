@@ -6,10 +6,10 @@ import org.junit.Test;
 
 public class EmailValidatorTest {
     private EmailValidator validator;
-    private final String[] valid = {
+    public static final String[] validEmails = {
             "prova@email"
     };
-    private final String[] invalid = {
+    public static final String[] invalidEmails = {
             "",
             "email"
     };
@@ -22,11 +22,11 @@ public class EmailValidatorTest {
     @Test
     public void testIsValid() {
         for (String validEmail :
-                valid) {
+                validEmails) {
             Assert.assertTrue(validator.isValid(validEmail));
         }
         for (String invalidEmail :
-                invalid) {
+                invalidEmails) {
             Assert.assertFalse(validator.isValid(invalidEmail));
         }
     }

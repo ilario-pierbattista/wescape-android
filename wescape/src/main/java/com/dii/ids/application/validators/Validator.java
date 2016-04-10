@@ -7,5 +7,5 @@ public interface Validator {
      * @param text Stringa da convalidare
      * @return True se text è valido, False altrimenti
      */
-    public boolean isValid(String text);
+    boolean isValid(String text);
 }
