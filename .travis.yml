@@ -17,17 +17,17 @@ android:
     - extra-android-support
     - extra-android-m2repository
     - sys-img-armeabi-v7a-android-23
-before_script:
-  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
-  - emulator -avd test -no-skin -no-audio -no-window &
+#before_script:
+#  - echo no | android create avd --force -n test -t $ANDROID_TARGET --abi $ANDROID_ABI
+#  - emulator -avd test -no-skin -no-audio -no-window &
 script:
   - set -e
   - ./gradlew check -PdisablePreDex --continue --stacktrace
   - ./gradlew build test
-  - android-wait-for-emulator
-  - adb devices
-  - adb shell input keyevent 82 &
-  - ./gradlew connectedCheck deviceAndroidTest --stacktrace
+#  - android-wait-for-emulator
+#  - adb devices
+#  - adb shell input keyevent 82 &
+#  - ./gradlew connectedCheck deviceAndroidTest --stacktrace
 
 cache:
   apt: true
