@@ -22,6 +22,10 @@ android {
     buildTypes {
         debug {
             testCoverageEnabled = true
+            manifestPlaceholders = [
+                    wescape_client_id: "2_f9333e7fd031066729f232e7a1d3ceed622605a0317386339915a04b7fb3bcd1",
+                    wescape_client_secret: "03d6630b54ff78bb1e616994f60ccb11b9c7547ea3fe25534e4afc944537e14d"
+            ]
         }
         release {
             minifyEnabled false
@@ -75,4 +79,6 @@ dependencies {
     compile 'com.jakewharton:disklrucache:2.0.2'
     compile 'com.davemorrissey.labs:subsampling-scale-image-view:3.4.1'
     compile 'com.dlazaro66.qrcodereaderview:qrcodereaderview:1.0.0'
+    compile 'com.squareup.retrofit2:retrofit:2.0.2'
+    compile 'com.squareup.retrofit2:converter-gson:2.0.2'
 }

@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.dii.ids.application.main.navigation.MapFragment;
-import com.dii.ids.application.providers.EndPointsProvider;
+import com.dii.ids.application.api.EndPointsProvider;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
 import java.io.File;
