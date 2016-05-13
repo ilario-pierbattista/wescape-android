@@ -8,6 +8,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,27 +17,35 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
+import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
 public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
     private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+    private final int CLICK_TO_OPEN = 8,
+            CLICK_TO_FEEDBACK = 4;
     public ViewHolder holder;
 
     private UserLoginTask mAuthTask = null;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
+    private int logoClickTimes;
+    private Toast hiddenMenuFeedbackToast;
 
     public LoginFragment() {
     }
@@ -61,6 +70,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
+        logoClickTimes = 0;
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
 
@@ -78,6 +88,13 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
                     return true;
                 }
                 return false;
+            }
+        });
+
+        holder.logoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openHiddenMenu();
             }
         });
 
@@ -223,6 +240,26 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         }
     }
 
+    /**
+     * Apre l'activity delle preferenze
+     */
+    private void openHiddenMenu() {
+        logoClickTimes++;
+
+        if(logoClickTimes >= CLICK_TO_OPEN) {
+            Log.i(LOG_TAG, "Open");
+            Intent intent = new Intent(this.getContext(), SettingsActivity.class);
+            startActivity(intent);
+        } else if(logoClickTimes >= CLICK_TO_FEEDBACK) {
+            if(hiddenMenuFeedbackToast == null) {
+                hiddenMenuFeedbackToast = Toast.makeText(this.getContext(),
+                        getString(R.string.toast_hidden_menu_feedback),
+                        Toast.LENGTH_SHORT);
+            }
+            hiddenMenuFeedbackToast.show();
+        }
+    }
+
     @Override
     public void onTaskSuccess(UserLoginTask asyncTask) {
         Intent intent = new Intent(getActivity(), NavigationActivity.class);
@@ -261,6 +298,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final ScrollView scrollView;
         public final TextView signupTextView;
         public final TextView resetPasswdTextView;
+        public final ImageView logoImageView;
 
         public ViewHolder(View view) {
             emailField = find(view, R.id.login_email_text_input);
@@ -273,6 +311,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             signupTextView = find(view, R.id.sign_up_text);
             resetPasswdTextView = find(view, R.id.reset_passwd_text);
             homeButton = find(view, R.id.login_home_button);
+            logoImageView = find(view, R.id.wescape_logo_image_view);
         }
     }
 
