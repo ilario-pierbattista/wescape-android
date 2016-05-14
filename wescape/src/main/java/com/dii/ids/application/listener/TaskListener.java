@@ -6,4 +6,6 @@ public interface TaskListener<Result> {
     void onTaskError();
 
     void onTaskComplete();
+
+    void onTaskCancelled();
 }
