@@ -140,10 +140,10 @@ public class PinView extends SubsamplingScaleImageView {
 
     private void drawPin(Canvas canvas, MapPin pin) {
         //Bitmap bmpPin = Utils.getBitmapFromAsset(context, mPin.getPinImgSrc());
-        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.pushpin_blue);
+        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.marker_icon);
 
-        float w = (density / 960f) * bmpPin.getWidth();
-        float h = (density / 960f) * bmpPin.getHeight();
+        float w = (density / 1200f) * bmpPin.getWidth();
+        float h = (density / 1200f) * bmpPin.getHeight();
         bmpPin = Bitmap.createScaledBitmap(bmpPin, (int) w, (int) h, true);
 
         PointF vPin = sourceToViewCoord(pin.getPoint());
