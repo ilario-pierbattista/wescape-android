@@ -20,11 +20,12 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Wescape">
+
         <meta-data
-            android:name="WESCAPE_CLIENT_ID"
+            android:name="com.dii.ids.application.WESCAPE_CLIENT_ID"
             android:value="${wescape_client_id}"/>
         <meta-data
-            android:name="WESCAPE_CLIENT_SECRET"
+            android:name="com.dii.ids.application.WESCAPE_CLIENT_SECRET"
             android:value="${wescape_client_secret}"/>
 
         <activity

@@ -1,17 +1,25 @@
 package com.dii.ids.application.main;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 public abstract class BaseFragment extends Fragment {
 
+    public static final String TAG = BaseFragment.class.getName();
+    public static final String META_CLIENT_ID_KEY = "com.dii.ids.application.WESCAPE_CLIENT_ID";
+    public static final String META_CLIENT_SECRET_KEY = "com.dii.ids.application.WESCAPE_CLIENT_SECRET";
+
     public static final int QR_READER_DIALOG_REQUEST_CODE = 100;
     public static final int ORIGIN_SELECTION_REQUEST_CODE = 200;
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
     public static String TOOLBAR_TITLE = "toolbar_title";
+    private Bundle metaData = null;
 
     /**
      * Wrap di ContextCompact.getColor()
@@ -35,6 +43,24 @@ public abstract class BaseFragment extends Fragment {
 
     protected int getShortAnimTime() {
         return getResources().getInteger(android.R.integer.config_shortAnimTime);
+    }
+
+    /**
+     * Restituisce il bundle dei metadati dichiarati nel manifest
+     *
+     * @return Bundle di metadati
+     */
+    protected Bundle getMetaData() {
+        if (metaData == null) {
+            try {
+                metaData = (getContext().getPackageManager().getApplicationInfo(
+                        getContext().getPackageName(), PackageManager.GET_META_DATA
+                )).metaData;
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "Errore nel caricare i metadati", e);
+            }
+        }
+        return metaData;
     }
 
     public static abstract class ViewHolder {

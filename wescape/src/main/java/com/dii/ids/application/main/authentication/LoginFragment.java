@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.AuthenticationManager;
 import com.dii.ids.application.api.form.PasswordOAuth2Form;
 import com.dii.ids.application.api.response.AccessTokenResponse;
 import com.dii.ids.application.listener.TaskListener;
@@ -38,7 +39,7 @@ import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
 public class LoginFragment extends BaseFragment {
-    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+    private final String TAG = LoginFragment.class.getName();
     private final int CLICK_TO_OPEN = 8,
             CLICK_TO_FEEDBACK = 4;
     public ViewHolder holder;
@@ -48,14 +49,21 @@ public class LoginFragment extends BaseFragment {
     private ShowProgressAnimation showProgressAnimation;
     private Toast hiddenMenuFeedbackToast;
     private ApiBuilder apiBuilder;
+    private AuthenticationManager authenticationManager;
     private int logoClickTimes;
 
     private TaskListener<AccessTokenResponse> loginTaskListener =
             new TaskListener<AccessTokenResponse>() {
                 @Override
-                public void onTaskSuccess(AccessTokenResponse response) {
+                public void onTaskSuccess(AccessTokenResponse accessTokenResponse) {
                     Intent intent = new Intent(getActivity(), NavigationActivity.class);
                     startActivity(intent);
+
+                    Log.i(TAG, "Response " + accessTokenResponse.getAccess_token());
+                    Log.i(TAG, "Response " + accessTokenResponse.getRefresh_token());
+                    Log.i(TAG, "Response " + accessTokenResponse.getExpires_in());
+
+                    authenticationManager.saveAccessToken(accessTokenResponse);
                 }
 
                 @Override
@@ -99,7 +107,8 @@ public class LoginFragment extends BaseFragment {
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
         logoClickTimes = 0;
-        apiBuilder = new ApiBuilder(this.getContext());
+        apiBuilder = new ApiBuilder(getContext());
+        authenticationManager = new AuthenticationManager(getContext());
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
 
@@ -213,8 +222,8 @@ public class LoginFragment extends BaseFragment {
             showProgressAnimation.showProgress(true);
 
             PasswordOAuth2Form passwordOAuth2Form = new PasswordOAuth2Form();
-            passwordOAuth2Form.setClient_id("2_f9333e7fd031066729f232e7a1d3ceed622605a0317386339915a04b7fb3bcd1");
-            passwordOAuth2Form.setClient_secret("03d6630b54ff78bb1e616994f60ccb11b9c7547ea3fe25534e4afc944537e14d");
+            passwordOAuth2Form.setClient_id(getMetaData().getString(BaseFragment.META_CLIENT_ID_KEY));
+            passwordOAuth2Form.setClient_secret(getMetaData().getString(BaseFragment.META_CLIENT_SECRET_KEY));
             passwordOAuth2Form.setUsername("admin");
             passwordOAuth2Form.setPassword("admin");
 
@@ -282,7 +291,6 @@ public class LoginFragment extends BaseFragment {
         logoClickTimes++;
 
         if (logoClickTimes >= CLICK_TO_OPEN) {
-            Log.i(LOG_TAG, "Open");
             Intent intent = new Intent(this.getContext(), SettingsActivity.class);
             startActivity(intent);
         } else if (logoClickTimes >= CLICK_TO_FEEDBACK) {

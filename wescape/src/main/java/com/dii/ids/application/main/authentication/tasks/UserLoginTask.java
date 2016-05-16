@@ -38,19 +38,8 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
             // @TODO Sistemare
             OAuth2Service oAuth2Service = apiBuilder.buildAuthService();
             Call<AccessTokenResponse> call = oAuth2Service.getAccessToken(form);
-
-            Log.i(TAG, "Pre execute");
-
             Response<AccessTokenResponse> response = call.execute();
-
-            Log.i(TAG, "Post execute");
-
             accessTokenResponse = response.body();
-
-            Log.i(TAG, "Response " + accessTokenResponse.getAccess_token());
-            Log.i(TAG, "Response " + accessTokenResponse.getRefresh_token());
-            Log.i(TAG, "Response " + accessTokenResponse.getExpires_in());
-
         } catch (IOException e) {
             Log.e(TAG, "Login Error", e);
             return false;
