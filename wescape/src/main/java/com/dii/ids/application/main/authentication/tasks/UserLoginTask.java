@@ -1,69 +1,65 @@
 package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
-import com.dii.ids.application.main.authentication.LoginFragment;
+import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.form.PasswordOAuth2Form;
+import com.dii.ids.application.api.response.AccessTokenResponse;
+import com.dii.ids.application.api.service.OAuth2Service;
+import com.dii.ids.application.listener.TaskListener;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-    /**
-     * A dummy authentication store containing known user names and passwords. TODO: remove after
-     * connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+    private static final String TAG = UserLoginTask.class.getName();
+    private TaskListener<AccessTokenResponse> listener;
+    private ApiBuilder apiBuilder;
+    private PasswordOAuth2Form form;
+    private AccessTokenResponse accessTokenResponse;
 
-    private final String email;
-    private final String password;
-    private LoginFragment fragment;
-
-    public UserLoginTask(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public UserLoginTask inject(LoginFragment fragment) {
-        this.fragment = fragment;
-        return this;
+    public UserLoginTask(ApiBuilder apiBuilder,
+                         TaskListener<AccessTokenResponse> listener,
+                         PasswordOAuth2Form form) {
+        this.apiBuilder = apiBuilder;
+        this.listener = listener;
+        this.form = form;
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
-        // TODO: attempt authentication against a network service.
-
         try {
-            // Simulate network access.
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
+            // @TODO Sistemare
+            OAuth2Service oAuth2Service = apiBuilder.buildAuthService();
+            Call<AccessTokenResponse> call = oAuth2Service.getAccessToken(form);
+            Response<AccessTokenResponse> response = call.execute();
+            accessTokenResponse = response.body();
+        } catch (IOException e) {
+            Log.e(TAG, "Login Error", e);
             return false;
         }
 
-        for (String credential : DUMMY_CREDENTIALS) {
-            String[] pieces = credential.split(":");
-            if (pieces[0].equals(email)) {
-                // Account exists, return true if the password matches.
-                return pieces[1].equals(password);
-            }
-        }
-
-        // TODO: register the new account here.
         return true;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            fragment.onTaskSuccess(this);
+            listener.onTaskSuccess(accessTokenResponse);
         } else {
-            fragment.onTaskCancelled(this);
+            listener.onTaskError();
         }
+        listener.onTaskComplete();
     }
 
     @Override
     protected void onCancelled() {
-        fragment.onTaskCancelled(this);
+        listener.onTaskCancelled();
     }
 }

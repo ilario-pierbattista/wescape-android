@@ -34,12 +34,14 @@
             android:paddingTop="@dimen/activity_vertical_margin">
 
             <ImageView
+                android:id="@+id/wescape_logo_image_view"
                 android:layout_width="wrap_content"
                 android:layout_height="170dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="15dp"
                 android:layout_marginTop="20dp"
                 android:contentDescription="@string/accessibility_logo_description"
+                android:clickable="true"
                 android:src="@drawable/wescape_logo"/>
 
             <android.support.design.widget.TextInputLayout

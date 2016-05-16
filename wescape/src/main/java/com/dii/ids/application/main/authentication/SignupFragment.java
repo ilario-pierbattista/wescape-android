@@ -177,7 +177,11 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
         View focusView = null;
 
         // Check for a valid password, if the user entered one.
-        if (!(passwordValidator.isValid(password))) {
+        if (password.isEmpty()) {
+            holder.passwordFieldLayout.setError(getString(R.string.error_field_required));
+            focusView = holder.passwordField;
+            cancel = true;
+        } else if (!(passwordValidator.isValid(password))) {
             holder.passwordFieldLayout.setError(getString(R.string.error_invalid_password));
             focusView = holder.passwordField;
             cancel = true;

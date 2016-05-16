@@ -17,7 +17,7 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
-import com.dii.ids.application.entities.Position;
+import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 
 import org.apache.commons.lang3.SerializationUtils;

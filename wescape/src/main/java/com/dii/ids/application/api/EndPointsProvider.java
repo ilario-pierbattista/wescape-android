@@ -1,4 +1,4 @@
-package com.dii.ids.application.providers;
+package com.dii.ids.application.api;
 
 import android.net.Uri;
 import android.util.Log;

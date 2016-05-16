@@ -8,6 +8,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,27 +17,71 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
-import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.AuthenticationManager;
+import com.dii.ids.application.api.form.PasswordOAuth2Form;
+import com.dii.ids.application.api.response.AccessTokenResponse;
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
+import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserLoginTask> {
-    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+public class LoginFragment extends BaseFragment {
+    private final String TAG = LoginFragment.class.getName();
+    private final int CLICK_TO_OPEN = 8,
+            CLICK_TO_FEEDBACK = 4;
     public ViewHolder holder;
 
-    private UserLoginTask mAuthTask = null;
+    private UserLoginTask loginTask = null;
     private EmailAutocompleter emailAutocompleter;
     private ShowProgressAnimation showProgressAnimation;
+    private Toast hiddenMenuFeedbackToast;
+    private ApiBuilder apiBuilder;
+    private AuthenticationManager authenticationManager;
+    private int logoClickTimes;
+
+    private TaskListener<AccessTokenResponse> loginTaskListener =
+            new TaskListener<AccessTokenResponse>() {
+                @Override
+                public void onTaskSuccess(AccessTokenResponse accessTokenResponse) {
+                    Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                    startActivity(intent);
+
+                    Log.i(TAG, "Response " + accessTokenResponse.getAccess_token());
+                    Log.i(TAG, "Response " + accessTokenResponse.getRefresh_token());
+                    Log.i(TAG, "Response " + accessTokenResponse.getExpires_in());
+
+                    authenticationManager.saveAccessToken(accessTokenResponse);
+                }
+
+                @Override
+                public void onTaskError() {
+                    holder.passwordField.setError(getString(R.string.error_incorrect_password));
+                    holder.passwordField.requestFocus();
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    wipeAsyncTask();
+                }
+
+                @Override
+                public void onTaskCancelled() {
+                    wipeAsyncTask();
+                }
+            };
 
     public LoginFragment() {
     }
@@ -61,6 +106,9 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
+        logoClickTimes = 0;
+        apiBuilder = new ApiBuilder(getContext());
+        authenticationManager = new AuthenticationManager(getContext());
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
 
@@ -78,6 +126,13 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
                     return true;
                 }
                 return false;
+            }
+        });
+
+        holder.logoImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openHiddenMenu();
             }
         });
 
@@ -120,7 +175,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
      * attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
+        if (loginTask != null) {
             return;
         }
 
@@ -165,9 +220,15 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
-            mAuthTask = new UserLoginTask(email, password)
-                    .inject(this);
-            mAuthTask.execute((Void) null);
+
+            PasswordOAuth2Form passwordOAuth2Form = new PasswordOAuth2Form();
+            passwordOAuth2Form.setClient_id(getMetaData().getString(BaseFragment.META_CLIENT_ID_KEY));
+            passwordOAuth2Form.setClient_secret(getMetaData().getString(BaseFragment.META_CLIENT_SECRET_KEY));
+            passwordOAuth2Form.setUsername("admin");
+            passwordOAuth2Form.setPassword("admin");
+
+            loginTask = new UserLoginTask(apiBuilder, loginTaskListener, passwordOAuth2Form);
+            loginTask.execute();
         }
     }
 
@@ -223,28 +284,28 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         }
     }
 
-    @Override
-    public void onTaskSuccess(UserLoginTask asyncTask) {
-        Intent intent = new Intent(getActivity(), NavigationActivity.class);
-        startActivity(intent);
-        wipeAsyncTask();
+    /**
+     * Apre l'activity delle preferenze
+     */
+    private void openHiddenMenu() {
+        logoClickTimes++;
+
+        if (logoClickTimes >= CLICK_TO_OPEN) {
+            Intent intent = new Intent(this.getContext(), SettingsActivity.class);
+            startActivity(intent);
+        } else if (logoClickTimes >= CLICK_TO_FEEDBACK) {
+            if (hiddenMenuFeedbackToast == null) {
+                hiddenMenuFeedbackToast = Toast.makeText(this.getContext(),
+                        getString(R.string.toast_hidden_menu_feedback),
+                        Toast.LENGTH_SHORT);
+            }
+            hiddenMenuFeedbackToast.show();
+        }
     }
 
     private void wipeAsyncTask() {
-        mAuthTask = null;
+        loginTask = null;
         showProgressAnimation.showProgress(false);
-    }
-
-    @Override
-    public void onTaskError(UserLoginTask asyncTask) {
-        wipeAsyncTask();
-        holder.passwordField.setError(getString(R.string.error_incorrect_password));
-        holder.passwordField.requestFocus();
-    }
-
-    @Override
-    public void onTaskCancelled(UserLoginTask asyncTask) {
-        wipeAsyncTask();
     }
 
     /**
@@ -261,6 +322,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
         public final ScrollView scrollView;
         public final TextView signupTextView;
         public final TextView resetPasswdTextView;
+        public final ImageView logoImageView;
 
         public ViewHolder(View view) {
             emailField = find(view, R.id.login_email_text_input);
@@ -273,6 +335,7 @@ public class LoginFragment extends BaseFragment implements AsyncTaskCallbacksInt
             signupTextView = find(view, R.id.sign_up_text);
             resetPasswdTextView = find(view, R.id.reset_passwd_text);
             homeButton = find(view, R.id.login_home_button);
+            logoImageView = find(view, R.id.wescape_logo_image_view);
         }
     }
 

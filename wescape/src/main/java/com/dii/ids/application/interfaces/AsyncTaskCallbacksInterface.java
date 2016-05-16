@@ -1,5 +1,7 @@
 package com.dii.ids.application.interfaces;
 
+import android.support.annotation.DimenRes;
+
 /**
  * Interfaccia delle callback ad un <pre>AsyncTask</pre>
  * <p/>
@@ -12,6 +14,7 @@ package com.dii.ids.application.interfaces;
  * @param <AsyncTaskType> Classe dell'AsyncTask di cui si stanno implementando i metodi di
  *                        callback.
  */
+@Deprecated
 public interface AsyncTaskCallbacksInterface<AsyncTaskType> {
     /**
      * Callback da chiamare nel caso in cui il task asincrono sia andato a buon fine.
