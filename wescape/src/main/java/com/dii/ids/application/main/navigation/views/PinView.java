@@ -97,6 +97,7 @@ public class PinView extends SubsamplingScaleImageView {
 
     /**
      * Get multiple pins
+     *
      * @return
      */
     public ArrayList<MapPin> getMultiplePins() {
@@ -116,11 +117,11 @@ public class PinView extends SubsamplingScaleImageView {
             return;
         }
 
-        if (singlePin == null) {
+        if (singlePin == null && multiplePins != null) {
             for (MapPin pin : multiplePins) {
                 drawPin(canvas, pin);
             }
-        } else {
+        } else if (singlePin != null) {
             drawPin(canvas, singlePin);
         }
     }
@@ -136,6 +137,11 @@ public class PinView extends SubsamplingScaleImageView {
             }
         }
         return -1; //negative no means no pin selected
+    }
+
+    public void resetPins() {
+        singlePin = null;
+        multiplePins = null;
     }
 
     private void drawPin(Canvas canvas, MapPin pin) {

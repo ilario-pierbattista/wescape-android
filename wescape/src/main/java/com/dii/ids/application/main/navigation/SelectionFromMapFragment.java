@@ -37,7 +37,6 @@ public class SelectionFromMapFragment extends BaseFragment {
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private PointF tappedCoordinates;
-    private ArrayList<MapPin> mapPins;
     private int displayedFloor = STARTING_FLOOR;
     private int selectedFloor;
 
@@ -47,6 +46,8 @@ public class SelectionFromMapFragment extends BaseFragment {
                 public void onTaskSuccess(Bitmap image) {
                     holder.mapView.setImage(ImageSource.bitmap(image));
                     holder.mapView.setMinimumDpi(40);
+                    holder.mapView.resetPins();
+                    disableConfirmButtonState();
 
                     final GestureDetector gestureDetector
                             = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
@@ -111,12 +112,16 @@ public class SelectionFromMapFragment extends BaseFragment {
 
     private void toogleConfirmButtonState() {
         if (tappedCoordinates == null) {
-            holder.confirmButton.setEnabled(false);
-            holder.confirmButton.setTextColor(color(R.color.disabledText));
+            disableConfirmButtonState();
         } else {
             holder.confirmButton.setEnabled(true);
             holder.confirmButton.setTextColor(color(R.color.linkText));
         }
+    }
+
+    private void disableConfirmButtonState() {
+        holder.confirmButton.setEnabled(false);
+        holder.confirmButton.setTextColor(color(R.color.disabledText));
     }
 
     @Override
@@ -174,9 +179,6 @@ public class SelectionFromMapFragment extends BaseFragment {
                 onPositionConfirm(tappedCoordinates, selectedFloor);
             }
         });
-
-        mapPins = new ArrayList<>(1);
-        holder.mapView.setMultiplePins(mapPins);
 
         return view;
     }
