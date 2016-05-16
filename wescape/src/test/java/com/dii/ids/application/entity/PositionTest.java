@@ -1,10 +1,7 @@
-package com.dii.ids.application.entities;
+package com.dii.ids.application.entity;
 
-import org.apache.commons.lang3.text.StrBuilder;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class PositionTest {
     @Test

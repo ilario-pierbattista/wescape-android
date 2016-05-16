@@ -1,4 +1,4 @@
-package com.dii.ids.application.entities;
+package com.dii.ids.application.entity;
 
 import java.io.Serializable;
 

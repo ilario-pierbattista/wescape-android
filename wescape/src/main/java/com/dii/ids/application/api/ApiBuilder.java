@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
 import com.dii.ids.application.api.service.OAuth2Service;
+import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.main.settings.SettingsActivity;
 
 import retrofit2.Retrofit;
@@ -29,5 +30,16 @@ public class ApiBuilder {
                 .build();
 
         return retrofit.create(OAuth2Service.class);
+    }
+
+    public WescapeService buildWescapeService() {
+        String ipAddress = this.preferences.getString(SettingsActivity.WESCAPE_HOSTNAME, "");
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://" + ipAddress + "/api/v1/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        return retrofit.create(WescapeService.class);
     }
 }

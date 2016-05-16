@@ -211,6 +211,7 @@ public class LoginFragment extends BaseFragment {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             showProgressAnimation.showProgress(true);
+
             PasswordOAuth2Form passwordOAuth2Form = new PasswordOAuth2Form();
             passwordOAuth2Form.setClient_id("2_f9333e7fd031066729f232e7a1d3ceed622605a0317386339915a04b7fb3bcd1");
             passwordOAuth2Form.setClient_secret("03d6630b54ff78bb1e616994f60ccb11b9c7547ea3fe25534e4afc944537e14d");
