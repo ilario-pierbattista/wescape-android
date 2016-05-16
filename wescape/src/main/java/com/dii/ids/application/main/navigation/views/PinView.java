@@ -20,7 +20,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 
@@ -37,6 +39,7 @@ public class PinView extends SubsamplingScaleImageView {
     private Context context;
     private float density;
     private Paint paint;
+    private ArrayList<PointF> points;
 
     /**
      * Constructor
@@ -104,6 +107,10 @@ public class PinView extends SubsamplingScaleImageView {
         return multiplePins;
     }
 
+    public void setPoints(ArrayList<PointF> points) {
+        this.points = points;
+    }
+
     private void initialise() {
 
     }
@@ -124,6 +131,12 @@ public class PinView extends SubsamplingScaleImageView {
         } else if (singlePin != null) {
             drawPin(canvas, singlePin);
         }
+
+        if (points != null) {
+            for (int i = 0; i < points.size() - 1; i++) {
+                drawLine(canvas, points.get(i), points.get(i + 1));
+            }
+        }
     }
 
     public int getPinIdByPoint(PointF point) {
@@ -142,6 +155,22 @@ public class PinView extends SubsamplingScaleImageView {
     public void resetPins() {
         singlePin = null;
         multiplePins = null;
+    }
+
+    private void drawLine(Canvas canvas, PointF start, PointF end) {
+        int strokeWidth = (int) (density / 60f);
+
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeWidth(strokeWidth * 2);
+        paint.setColor(Color.BLACK);
+        PointF sStart = sourceToViewCoord(start);
+        PointF sEnd = sourceToViewCoord(end);
+        canvas.drawLine(sStart.x, sStart.y, sEnd.x, sEnd.y, paint);
+        paint.setStrokeWidth(strokeWidth);
+        paint.setColor(Color.argb(255, 51, 181, 229));
     }
 
     private void drawPin(Canvas canvas, MapPin pin) {

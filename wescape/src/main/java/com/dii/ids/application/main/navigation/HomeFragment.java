@@ -37,6 +37,7 @@ import com.dii.ids.application.main.navigation.views.PinView;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -67,6 +68,17 @@ public class HomeFragment extends BaseFragment {
                     final ArrayList<MapPin> MapPins = new ArrayList();
                     MapPins.add(mapPin);
                     MapPins.add(mapPin1);
+
+                    ArrayList<PointF> points = new ArrayList<>(
+                            Arrays.asList(
+                                    new PointF(400f, 500f),
+                                    new PointF(800f, 500f),
+                                    new PointF(300f, 200f),
+                                    new PointF(100f, 900f),
+                                    new PointF(300f, 700f)));
+
+                    holder.mapImage.setPoints(points);
+
                     holder.mapImage.setMultiplePins(MapPins);
 
                     // @TODO Spostare il gestore della gesture nel fragment di competenza
@@ -159,7 +171,9 @@ public class HomeFragment extends BaseFragment {
 
     private void setupViewUI() {
         holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
+        holder.originViewIcon.setImageResource(R.drawable.ic_my_location);
         holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
+        holder.destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
         //@TODO Cambiare con le label dei checkpoint
         originText = origin == null ?
@@ -329,7 +343,9 @@ public class HomeFragment extends BaseFragment {
         public final View originView;
         public final TextView destinationViewText;
         public final TextView originViewText;
+        public final ImageView originViewIcon;
         public final TextView destinationViewPlaceholder;
+        public final ImageView destinationViewIcon;
         public final TextView originViewPlaceholder;
         public final PinView mapImage;
 
@@ -344,9 +360,11 @@ public class HomeFragment extends BaseFragment {
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
             destinationViewPlaceholder = (TextView) destinationView.findViewById(R.id.placeholder);
+            destinationViewIcon = (ImageView) destinationView.findViewById(R.id.icon);
             originView = view.findViewById(R.id.navigation_input_origin);
             originViewText = (TextView) originView.findViewById(R.id.text);
             originViewPlaceholder = (TextView) originView.findViewById(R.id.placeholder);
+            originViewIcon = (ImageView) originView.findViewById(R.id.icon);
         }
     }
 }
