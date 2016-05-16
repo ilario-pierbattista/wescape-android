@@ -23,7 +23,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
@@ -265,13 +264,15 @@ public class HomeFragment extends MapFragment {
 
         holder.mapImage.setImage(ImageSource.bitmap(image));
         holder.mapImage.setMinimumDpi(40);
+
+        // @TODO Porchetto a tutto volume
         MapPin mapPin = new MapPin(500f, 900f, 1);
         MapPin mapPin1 = new MapPin(550f, 1000f, 2);
 
         final ArrayList<MapPin> MapPins = new ArrayList();
         MapPins.add(mapPin);
         MapPins.add(mapPin1);
-        holder.mapImage.setPins(MapPins);
+        holder.mapImage.setMultiplePins(MapPins);
 
         // @TODO Spostare il gestore della gesture nel fragment di competenza
         final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
@@ -280,7 +281,7 @@ public class HomeFragment extends MapFragment {
                 if (holder.mapImage.isReady()) {
                     PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
                     MapPins.add(new MapPin(sCoord.x, sCoord.y,4));
-                    holder.mapImage.setPins(MapPins);
+                    holder.mapImage.setMultiplePins(MapPins);
                     //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
                     //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                 } else {

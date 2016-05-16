@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -15,12 +16,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
-import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Position;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+import com.dii.ids.application.main.navigation.views.MapPin;
+import com.dii.ids.application.main.navigation.views.PinView;
 
 import org.apache.commons.lang3.SerializationUtils;
+
+import java.util.ArrayList;
 
 public class SelectionFromMapFragment extends MapFragment {
     public static final String FRAGMENT_TAG = SelectionFromMapFragment.class.getSimpleName();
@@ -30,7 +35,8 @@ public class SelectionFromMapFragment extends MapFragment {
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
     private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
-    private PointF mCoordinates;
+    private PointF tappedCoordinates;
+    private ArrayList<MapPin> mapPins;
     private int displayedFloor = STARTING_FLOOR;
     private int selectedFloor;
 
@@ -59,8 +65,17 @@ public class SelectionFromMapFragment extends MapFragment {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (holder.mapView.isReady()) {
-                    mCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+                    tappedCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+
+                    // @TODO Trasformare le coordinate per azzeccare il nodo
+                    // @TODO Valutare l'uso dell'id numerico
+                    // mapPins.add(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
+                    // holder.mapView.setMultiplePins(mapPins);
+                    holder.mapView.setSinglePin(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
+                    Log.i(TAG, "Clicked: " + tappedCoordinates.x + " " + tappedCoordinates.y);
+
                     selectedFloor = displayedFloor;
+
                     toogleConfirmButtonState();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
@@ -89,7 +104,7 @@ public class SelectionFromMapFragment extends MapFragment {
     }
 
     private void toogleConfirmButtonState() {
-        if (mCoordinates == null) {
+        if (tappedCoordinates == null) {
             holder.confirmButton.setEnabled(false);
             holder.confirmButton.setTextColor(color(R.color.disabledText));
         } else {
@@ -150,9 +165,12 @@ public class SelectionFromMapFragment extends MapFragment {
         holder.confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onPositionConfirm(mCoordinates, selectedFloor);
+                onPositionConfirm(tappedCoordinates, selectedFloor);
             }
         });
+
+        mapPins = new ArrayList<>(1);
+        holder.mapView.setMultiplePins(mapPins);
 
         return view;
     }
@@ -182,8 +200,8 @@ public class SelectionFromMapFragment extends MapFragment {
         fm.popBackStack();
     }
 
-    public class ViewHolder {
-        public final SubsamplingScaleImageView mapView;
+    public class ViewHolder extends BaseFragment.ViewHolder {
+        public final PinView mapView;
         public final Button floor155Button;
         public final Button floor150Button;
         public final Button floor145Button;
@@ -193,14 +211,14 @@ public class SelectionFromMapFragment extends MapFragment {
         public final TextView toolbarTitle;
 
         public ViewHolder(View v) {
-            mapView = (SubsamplingScaleImageView) v.findViewById(R.id.navigation_map_image);
-            floor155Button = (Button) v.findViewById(R.id.floor_button_155);
-            floor150Button = (Button) v.findViewById(R.id.floor_button_150);
-            floor145Button = (Button) v.findViewById(R.id.floor_button_145);
-            actionButtonsContainer = v.findViewById(R.id.action_buttons_container);
-            backButton = (Button) actionButtonsContainer.findViewById(R.id.back_button);
-            confirmButton = (Button) actionButtonsContainer.findViewById(R.id.confirm_button);
-            toolbarTitle = (TextView) v.findViewById(R.id.toolbar_title);
+            mapView = find(v, R.id.navigation_map_image);
+            floor155Button = find(v, R.id.floor_button_155);
+            floor150Button = find(v, R.id.floor_button_150);
+            floor145Button = find(v, R.id.floor_button_145);
+            actionButtonsContainer = find(v, R.id.action_buttons_container);
+            backButton = find(v, R.id.back_button);
+            confirmButton = find(v, R.id.confirm_button);
+            toolbarTitle = find(v, R.id.toolbar_title);
         }
     }
 }
