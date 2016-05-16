@@ -29,9 +29,12 @@ import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entities.Position;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+import com.dii.ids.application.main.navigation.views.MapPin;
+import com.dii.ids.application.main.navigation.views.PinView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -262,6 +265,13 @@ public class HomeFragment extends MapFragment {
 
         holder.mapImage.setImage(ImageSource.bitmap(image));
         holder.mapImage.setMinimumDpi(40);
+        MapPin mapPin = new MapPin(500f, 900f, 1);
+        MapPin mapPin1 = new MapPin(550f, 1000f, 2);
+
+        ArrayList<MapPin> MapPins = new ArrayList();
+        MapPins.add(mapPin);
+        MapPins.add(mapPin1);
+        holder.mapImage.setPins(MapPins);
 
         // @TODO Spostare il gestore della gesture nel fragment di competenza
         final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
@@ -270,7 +280,7 @@ public class HomeFragment extends MapFragment {
                 if (holder.mapImage.isReady()) {
                     PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
                     Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                            Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                          Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }
@@ -312,7 +322,7 @@ public class HomeFragment extends MapFragment {
         public final TextView originViewText;
         public final TextView destinationViewPlaceholder;
         public final TextView originViewPlaceholder;
-        public final SubsamplingScaleImageView mapImage;
+        public final PinView mapImage;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -320,7 +330,7 @@ public class HomeFragment extends MapFragment {
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
-            mapImage = (SubsamplingScaleImageView) view.findViewById(R.id.navigation_map_image);
+            mapImage = (PinView) view.findViewById(R.id.navigation_map_image);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);

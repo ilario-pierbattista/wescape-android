@@ -62,7 +62,7 @@
             android:id="@+id/navigation_input_destination"
             layout="@layout/navigation_input_field"/>
 
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+        <com.dii.ids.application.main.navigation.views.PinView
             android:id="@+id/navigation_map_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
