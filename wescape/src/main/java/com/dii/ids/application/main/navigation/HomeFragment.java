@@ -268,7 +268,7 @@ public class HomeFragment extends MapFragment {
         MapPin mapPin = new MapPin(500f, 900f, 1);
         MapPin mapPin1 = new MapPin(550f, 1000f, 2);
 
-        ArrayList<MapPin> MapPins = new ArrayList();
+        final ArrayList<MapPin> MapPins = new ArrayList();
         MapPins.add(mapPin);
         MapPins.add(mapPin1);
         holder.mapImage.setPins(MapPins);
@@ -279,8 +279,10 @@ public class HomeFragment extends MapFragment {
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 if (holder.mapImage.isReady()) {
                     PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
-                    Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                          Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                    MapPins.add(new MapPin(sCoord.x, sCoord.y,4));
+                    holder.mapImage.setPins(MapPins);
+                    //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                    //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
                 }

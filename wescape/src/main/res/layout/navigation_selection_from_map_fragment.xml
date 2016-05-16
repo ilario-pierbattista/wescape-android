@@ -72,7 +72,7 @@
         android:layout_above="@+id/action_buttons_container"
         android:layout_below="@+id/toolbar_container">
 
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+        <com.dii.ids.application.main.navigation.views.PinView
             android:id="@+id/navigation_map_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
