@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Position;
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
@@ -27,7 +28,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
 
-public class SelectionFromMapFragment extends MapFragment {
+public class SelectionFromMapFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = SelectionFromMapFragment.class.getSimpleName();
     public static final int STARTING_FLOOR = 155;
     public static final int POSITION_ACQUIRED = 1;
@@ -40,6 +41,61 @@ public class SelectionFromMapFragment extends MapFragment {
     private int displayedFloor = STARTING_FLOOR;
     private int selectedFloor;
 
+    private TaskListener<Bitmap> taskListener =
+            new TaskListener<Bitmap>() {
+                @Override
+                public void onTaskSuccess(Bitmap image) {
+                    holder.mapView.setImage(ImageSource.bitmap(image));
+                    holder.mapView.setMinimumDpi(40);
+
+                    final GestureDetector gestureDetector
+                            = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onSingleTapConfirmed(MotionEvent e) {
+                            if (holder.mapView.isReady()) {
+                                tappedCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
+
+                                // @TODO Trasformare le coordinate per azzeccare il nodo
+                                // @TODO Valutare l'uso dell'id numerico
+                                // mapPins.add(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
+                                // holder.mapView.setMultiplePins(mapPins);
+                                holder.mapView.setSinglePin(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
+                                Log.i(TAG, "Clicked: " + tappedCoordinates.x + " " + tappedCoordinates.y);
+
+                                selectedFloor = displayedFloor;
+
+                                toogleConfirmButtonState();
+                            } else {
+                                Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
+                            }
+                            return true;
+                        }
+                    });
+
+                    holder.mapView.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            return gestureDetector.onTouchEvent(event);
+                        }
+                    });
+                }
+
+                @Override
+                public void onTaskError() {
+                    Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    mapsTask = null;
+                }
+
+                @Override
+                public void onTaskCancelled() {
+                    mapsTask = null;
+                }
+            };
+
     /**
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
@@ -51,56 +107,6 @@ public class SelectionFromMapFragment extends MapFragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    @Override
-    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
-        final Bitmap image = mapsTask.getImage();
-        this.mapsTask = null;
-
-        holder.mapView.setImage(ImageSource.bitmap(image));
-        holder.mapView.setMinimumDpi(40);
-
-        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (holder.mapView.isReady()) {
-                    tappedCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
-
-                    // @TODO Trasformare le coordinate per azzeccare il nodo
-                    // @TODO Valutare l'uso dell'id numerico
-                    // mapPins.add(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
-                    // holder.mapView.setMultiplePins(mapPins);
-                    holder.mapView.setSinglePin(new MapPin(tappedCoordinates.x, tappedCoordinates.y, 0));
-                    Log.i(TAG, "Clicked: " + tappedCoordinates.x + " " + tappedCoordinates.y);
-
-                    selectedFloor = displayedFloor;
-
-                    toogleConfirmButtonState();
-                } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
-
-        holder.mapView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-    }
-
-    @Override
-    public void onTaskError(MapsDownloaderTask asyncTask) {
-        this.mapsTask = null;
-        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
-        this.mapsTask = null;
     }
 
     private void toogleConfirmButtonState() {
@@ -130,7 +136,7 @@ public class SelectionFromMapFragment extends MapFragment {
 
         toogleConfirmButtonState();
 
-        mapsTask = new MapsDownloaderTask().inject(this);
+        mapsTask = new MapsDownloaderTask(getContext(), taskListener);
         mapsTask.execute(STARTING_FLOOR);
         holder.floor155Button.setTextColor(color(R.color.linkText));
 
@@ -184,8 +190,7 @@ public class SelectionFromMapFragment extends MapFragment {
         int floor = Integer.parseInt(button.getText().toString());
         displayedFloor = floor;
         if (mapsTask == null) {
-            mapsTask = new MapsDownloaderTask()
-                    .inject(this);
+            mapsTask = new MapsDownloaderTask(getContext(), taskListener);
             mapsTask.execute(floor);
         }
     }

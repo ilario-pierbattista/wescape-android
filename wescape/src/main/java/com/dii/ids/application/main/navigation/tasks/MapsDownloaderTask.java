@@ -1,10 +1,12 @@
 package com.dii.ids.application.main.navigation.tasks;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.navigation.MapFragment;
 import com.dii.ids.application.api.EndPointsProvider;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
@@ -23,15 +25,13 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
     private static SimpleDiskCache imageCache = null;
-    private MapFragment fragment;
     private Bitmap image;
+    private TaskListener<Bitmap> listener;
+    private Context context;
 
-    public MapsDownloaderTask() {
-    }
-
-    public MapsDownloaderTask inject(MapFragment fragment) {
-        this.fragment = fragment;
-        return this;
+    public MapsDownloaderTask(Context context, TaskListener<Bitmap> listener) {
+        this.context = context;
+        this.listener = listener;
     }
 
     @Override
@@ -74,19 +74,20 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            fragment.onTaskSuccess(this);
+            listener.onTaskSuccess(image);
         } else {
-            fragment.onTaskError(this);
+            listener.onTaskError();
         }
+        listener.onTaskComplete();
     }
 
     @Override
     protected void onCancelled() {
-        fragment.onTaskCancelled(this);
+        listener.onTaskCancelled();
     }
 
     private SimpleDiskCache initCache() throws IOException {
-        File cacheDir = new File(fragment.getContext().getCacheDir(), CACHE_SUBDIR);
+        File cacheDir = new File(context.getCacheDir(), CACHE_SUBDIR);
         return SimpleDiskCache.open(cacheDir, 0, CACHE_SIZE);
     }
 
@@ -113,9 +114,5 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
                 Log.e(LOG_TAG, "Error", e);
             }
         }
-    }
-
-    public Bitmap getImage() {
-        return image;
     }
 }

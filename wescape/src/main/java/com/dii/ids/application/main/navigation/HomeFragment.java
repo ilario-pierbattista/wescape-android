@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +28,8 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entity.Position;
+import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
@@ -39,7 +42,7 @@ import java.util.Random;
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
  */
-public class HomeFragment extends MapFragment {
+public class HomeFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
     public static final String LOG_TAG = HomeFragment.class.getSimpleName();
     public static final String INTENT_KEY_POSITION = "position";
@@ -49,6 +52,63 @@ public class HomeFragment extends MapFragment {
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
+
+    private TaskListener<Bitmap> taskListener =
+            new TaskListener<Bitmap>() {
+                @Override
+                public void onTaskSuccess(Bitmap image) {
+                    holder.mapImage.setImage(ImageSource.bitmap(image));
+                    holder.mapImage.setMinimumDpi(40);
+
+                    // @TODO Porchetto a tutto volume
+                    MapPin mapPin = new MapPin(500f, 900f, 1);
+                    MapPin mapPin1 = new MapPin(550f, 1000f, 2);
+
+                    final ArrayList<MapPin> MapPins = new ArrayList();
+                    MapPins.add(mapPin);
+                    MapPins.add(mapPin1);
+                    holder.mapImage.setMultiplePins(MapPins);
+
+                    // @TODO Spostare il gestore della gesture nel fragment di competenza
+                    final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onSingleTapConfirmed(MotionEvent e) {
+                            if (holder.mapImage.isReady()) {
+                                PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
+                                MapPins.add(new MapPin(sCoord.x, sCoord.y,4));
+                                holder.mapImage.setMultiplePins(MapPins);
+                                //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                                //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
+                            }
+                            return true;
+                        }
+                    });
+
+                    holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
+                        @Override
+                        public boolean onTouch(View v, MotionEvent event) {
+                            return gestureDetector.onTouchEvent(event);
+                        }
+                    });
+                }
+
+                @Override
+                public void onTaskError() {
+                    Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    mapsDownloaderTask = null;
+                }
+
+                @Override
+                public void onTaskCancelled() {
+                    mapsDownloaderTask = null;
+                }
+            };
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -146,8 +206,7 @@ public class HomeFragment extends MapFragment {
         }
 
         // @TODO Sostituire con qualcosa di meno insensato
-        mapsDownloaderTask = new MapsDownloaderTask()
-                .inject(this);
+        mapsDownloaderTask = new MapsDownloaderTask(getContext(), taskListener);
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
         mapsDownloaderTask.execute(floors[idx]);
@@ -255,59 +314,6 @@ public class HomeFragment extends MapFragment {
             });
             emergency = false;
         }
-    }
-
-    @Override
-    public void onTaskSuccess(MapsDownloaderTask asyncTask) {
-        final Bitmap image = mapsDownloaderTask.getImage();
-        this.mapsDownloaderTask = null;
-
-        holder.mapImage.setImage(ImageSource.bitmap(image));
-        holder.mapImage.setMinimumDpi(40);
-
-        // @TODO Porchetto a tutto volume
-        MapPin mapPin = new MapPin(500f, 900f, 1);
-        MapPin mapPin1 = new MapPin(550f, 1000f, 2);
-
-        final ArrayList<MapPin> MapPins = new ArrayList();
-        MapPins.add(mapPin);
-        MapPins.add(mapPin1);
-        holder.mapImage.setMultiplePins(MapPins);
-
-        // @TODO Spostare il gestore della gesture nel fragment di competenza
-        final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public boolean onSingleTapConfirmed(MotionEvent e) {
-                if (holder.mapImage.isReady()) {
-                    PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
-                    MapPins.add(new MapPin(sCoord.x, sCoord.y,4));
-                    holder.mapImage.setMultiplePins(MapPins);
-                    //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                    //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
-                }
-                return true;
-            }
-        });
-
-        holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return gestureDetector.onTouchEvent(event);
-            }
-        });
-    }
-
-    @Override
-    public void onTaskError(MapsDownloaderTask asyncTask) {
-        this.mapsDownloaderTask = null;
-        Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onTaskCancelled(MapsDownloaderTask asyncTask) {
-        this.mapsDownloaderTask = null;
     }
 
     /**
