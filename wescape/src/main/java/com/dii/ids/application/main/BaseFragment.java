@@ -41,7 +41,7 @@ public abstract class BaseFragment extends Fragment {
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
-    protected int getShortAnimTime() {
+    public int getShortAnimTime() {
         return getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
 

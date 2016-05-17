@@ -37,12 +37,8 @@ public class UpdateAccessTokenTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            Calendar calendar = Calendar.getInstance();
-            float currentTime = calendar.getTimeInMillis();
-
             // Token scaduto
-            if (accessTokenBundle != null &&
-                     currentTime >= accessTokenBundle.getExpiration()) {
+            if (accessTokenBundle != null && accessTokenBundle.isExpired()) {
                 RefreshOAuthForm refreshOAuthForm = new RefreshOAuthForm();
                 refreshOAuthForm.setClient_id(authenticationManager.getClientId());
                 refreshOAuthForm.setClient_secret(authenticationManager.getClientSecret());
