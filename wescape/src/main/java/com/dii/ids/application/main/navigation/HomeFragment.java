@@ -27,9 +27,13 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.AuthenticationManager;
+import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.DownloadDataTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
@@ -38,6 +42,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -52,9 +57,12 @@ public class HomeFragment extends BaseFragment {
     private static Position origin = null, destination = null;
     private ViewHolder holder;
     private boolean emergency = false;
+    private ApiBuilder apiBuilder;
+    private AuthenticationManager authenticationManager;
     private MapsDownloaderTask mapsDownloaderTask;
+    private DownloadDataTask downloadDataTask;
 
-    private TaskListener<Bitmap> taskListener =
+    private TaskListener<Bitmap> mapDownloaderListener =
             new TaskListener<Bitmap>() {
                 @Override
                 public void onTaskSuccess(Bitmap image) {
@@ -120,6 +128,31 @@ public class HomeFragment extends BaseFragment {
                 }
             };
 
+    private TaskListener<List<Node>> nodesDownloaderListener =
+            new TaskListener<List<Node>>() {
+                @Override
+                public void onTaskSuccess(List<Node> nodes) {
+                    for(Node node : nodes) {
+                        Log.i(TAG, "NODE " + node.getId() + " " + node.getName());
+                    }
+                }
+
+                @Override
+                public void onTaskError() {
+                    Log.i(TAG, "Download fallito");
+                }
+
+                @Override
+                public void onTaskComplete() {
+
+                }
+
+                @Override
+                public void onTaskCancelled() {
+
+                }
+            };
+
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -161,8 +194,14 @@ public class HomeFragment extends BaseFragment {
 
         originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
+        authenticationManager = new AuthenticationManager(getContext());
+        apiBuilder = new ApiBuilder(getContext());
 
         setupViewUI();
+
+        downloadDataTask = new DownloadDataTask(
+                apiBuilder, authenticationManager, nodesDownloaderListener);
+        downloadDataTask.execute();
 
         return view;
     }
@@ -218,7 +257,7 @@ public class HomeFragment extends BaseFragment {
         }
 
         // @TODO Sostituire con qualcosa di meno insensato
-        mapsDownloaderTask = new MapsDownloaderTask(getContext(), taskListener);
+        mapsDownloaderTask = new MapsDownloaderTask(getContext(), mapDownloaderListener);
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
         mapsDownloaderTask.execute(floors[idx]);

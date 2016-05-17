@@ -42,7 +42,7 @@ public class AuthenticationManager {
 
     public void saveAccessToken(AccessTokenBundle accessTokenBundle) {
         Calendar calendar = Calendar.getInstance();
-        float time = calendar.getTime().getTime(); // Tempo in millisecondi
+        float time = calendar.getTimeInMillis(); // Tempo in millisecondi
         float expiration = time + (accessTokenBundle.getExpires_in() * 1000);
 
         preferences.edit()
@@ -65,18 +65,29 @@ public class AuthenticationManager {
         }
     }
 
+    public void deleteAccessToken() {
+        preferences.edit()
+                .putString(ACCESS_TOKEN_KEY, null)
+                .putString(REFRESH_TOKEN_KEY, null)
+                .putString(ACCESS_EXPIRATION_DATE, null)
+                .apply();
+    }
+
     public String getValidAccessToken() {
         AccessTokenBundle accessTokenBundle = retrieveAccessToken();
-        Calendar calendar = Calendar.getInstance();
-        float currentTime = calendar.getTimeInMillis();
 
         if(accessTokenBundle == null) {
             return null;
-        } else if(currentTime >= accessTokenBundle.getExpiration()) {
+        } else if(accessTokenBundle.isExpired()) {
             return null;
         } else {
             return accessTokenBundle.getAccess_token();
         }
+    }
+
+    public String getValidBearer() {
+        String token = getValidAccessToken();
+        return token == null ? null : "Bearer " + token;
     }
 
     public String getClientId() {

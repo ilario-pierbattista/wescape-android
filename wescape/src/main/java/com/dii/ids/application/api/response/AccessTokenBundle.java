@@ -1,7 +1,5 @@
 package com.dii.ids.application.api.response;
 
-import android.provider.CalendarContract;
-
 import java.util.Calendar;
 
 public class AccessTokenBundle {
@@ -49,6 +47,8 @@ public class AccessTokenBundle {
 
     public boolean isExpired() {
         float currentTime = calendar.getTimeInMillis();
+        System.out.println(currentTime);
+        System.out.println(expiration);
 
         return currentTime < expiration;
     }
