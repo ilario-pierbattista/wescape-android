@@ -22,7 +22,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.util.AttributeSet;
 
@@ -39,7 +38,7 @@ public class PinView extends SubsamplingScaleImageView {
     private Context context;
     private float density;
     private Paint paint;
-    private ArrayList<PointF> points;
+    private ArrayList<PointF> path;
 
     /**
      * Constructor
@@ -107,8 +106,8 @@ public class PinView extends SubsamplingScaleImageView {
         return multiplePins;
     }
 
-    public void setPoints(ArrayList<PointF> points) {
-        this.points = points;
+    public void setPath(ArrayList<PointF> path) {
+        this.path = path;
     }
 
     private void initialise() {
@@ -132,9 +131,9 @@ public class PinView extends SubsamplingScaleImageView {
             drawPin(canvas, singlePin);
         }
 
-        if (points != null) {
-            for (int i = 0; i < points.size() - 1; i++) {
-                drawLine(canvas, points.get(i), points.get(i + 1));
+        if (path != null) {
+            for (int i = 0; i < path.size() - 1; i++) {
+                drawLine(canvas, path.get(i), path.get(i + 1));
             }
         }
     }

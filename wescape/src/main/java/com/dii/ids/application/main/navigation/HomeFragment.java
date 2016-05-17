@@ -77,7 +77,7 @@ public class HomeFragment extends BaseFragment {
                                     new PointF(100f, 900f),
                                     new PointF(300f, 700f)));
 
-                    holder.mapImage.setPoints(points);
+                    holder.mapImage.setPath(points);
 
                     holder.mapImage.setMultiplePins(MapPins);
 
