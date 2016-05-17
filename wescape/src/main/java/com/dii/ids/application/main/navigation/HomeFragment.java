@@ -87,8 +87,6 @@ public class HomeFragment extends BaseFragment {
                         public boolean onSingleTapConfirmed(MotionEvent e) {
                             if (holder.mapImage.isReady()) {
                                 PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
-                                MapPins.add(new MapPin(sCoord.x, sCoord.y,4));
-                                holder.mapImage.setMultiplePins(MapPins);
                                 //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
                                 //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
                             } else {

@@ -1,28 +1,13 @@
-/*
-Copyright 2014 David Morrissey
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package com.dii.ids.application.main.navigation.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -132,9 +117,7 @@ public class PinView extends SubsamplingScaleImageView {
         }
 
         if (path != null) {
-            for (int i = 0; i < path.size() - 1; i++) {
-                drawLine(canvas, path.get(i), path.get(i + 1));
-            }
+            drawPath(canvas, path);
         }
     }
 
@@ -156,20 +139,38 @@ public class PinView extends SubsamplingScaleImageView {
         multiplePins = null;
     }
 
-    private void drawLine(Canvas canvas, PointF start, PointF end) {
-        int strokeWidth = (int) (density / 60f);
+    private void drawPath(Canvas canvas, ArrayList<PointF> points) {
+        int strokeWidth = (int) (density / 20f);
 
         Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeCap(Paint.Cap.ROUND);
+        paint.setStrokeJoin(Paint.Join.ROUND);
+
+        // Convert absolute coordinates to coordinates relative to image
+        ArrayList<PointF> sPoints = new ArrayList<>();
+        for (PointF point : points) {
+            sPoints.add(sourceToViewCoord(point));
+        }
+
+        Path path = new Path();
+        boolean first = true;
+        for (PointF point : sPoints) {
+            if (first) {
+                first = false;
+                path.moveTo(point.x, point.y);
+            } else {
+                path.lineTo(point.x, point.y);
+            }
+        }
+
         paint.setStrokeWidth(strokeWidth * 2);
-        paint.setColor(Color.BLACK);
-        PointF sStart = sourceToViewCoord(start);
-        PointF sEnd = sourceToViewCoord(end);
-        canvas.drawLine(sStart.x, sStart.y, sEnd.x, sEnd.y, paint);
+        paint.setColor(ContextCompat.getColor(context, R.color.darkBlue));
+        canvas.drawPath(path, paint);
         paint.setStrokeWidth(strokeWidth);
-        paint.setColor(Color.argb(255, 51, 181, 229));
+        paint.setColor(ContextCompat.getColor(context, R.color.regularBlue));
+        canvas.drawPath(path, paint);
     }
 
     private void drawPin(Canvas canvas, MapPin pin) {
