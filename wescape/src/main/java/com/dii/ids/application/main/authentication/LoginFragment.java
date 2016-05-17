@@ -167,10 +167,6 @@ public class LoginFragment extends BaseFragment {
             }
         });
 
-        // @TODO Remove
-        MinimumPathTask task = new MinimumPathTask();
-        task.execute();
-
         return view;
     }
 
