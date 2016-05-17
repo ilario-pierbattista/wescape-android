@@ -1,5 +1,6 @@
 package com.dii.ids.application.api.service;
 
+import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
 
 import java.util.List;
@@ -11,4 +12,7 @@ import retrofit2.http.Header;
 public interface WescapeService {
     @GET("nodes.json")
     Call<List<Node>> listNodes(@Header("Authorization") String authorization);
+
+    @GET("edges.json")
+    Call<List<Edge>> listEdges(@Header("Authorization") String authorization);
 }

@@ -47,9 +47,6 @@ public class AccessTokenBundle {
 
     public boolean isExpired() {
         float currentTime = calendar.getTimeInMillis();
-        System.out.println(currentTime);
-        System.out.println(expiration);
-
         return currentTime < expiration;
     }
 }
