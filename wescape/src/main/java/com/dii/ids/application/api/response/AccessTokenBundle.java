@@ -1,10 +1,19 @@
 package com.dii.ids.application.api.response;
 
+import android.provider.CalendarContract;
 
-public class AccessTokenResponse {
+import java.util.Calendar;
+
+public class AccessTokenBundle {
+    private Calendar calendar;
     private String access_token;
     private String refresh_token;
     private int expires_in;
+    private float expiration;
+
+    public AccessTokenBundle() {
+        calendar = Calendar.getInstance();
+    }
 
     public String getAccess_token() {
         return access_token;
@@ -28,5 +37,19 @@ public class AccessTokenResponse {
 
     public void setExpires_in(int expires_in) {
         this.expires_in = expires_in;
+    }
+
+    public float getExpiration() {
+        return expiration;
+    }
+
+    public void setExpiration(float expiration) {
+        this.expiration = expiration;
+    }
+
+    public boolean isExpired() {
+        float currentTime = calendar.getTimeInMillis();
+
+        return currentTime < expiration;
     }
 }

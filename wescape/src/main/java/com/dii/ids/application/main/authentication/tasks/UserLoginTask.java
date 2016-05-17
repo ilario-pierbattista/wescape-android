@@ -5,7 +5,7 @@ import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.form.PasswordOAuth2Form;
-import com.dii.ids.application.api.response.AccessTokenResponse;
+import com.dii.ids.application.api.response.AccessTokenBundle;
 import com.dii.ids.application.api.service.OAuth2Service;
 import com.dii.ids.application.listener.TaskListener;
 
@@ -19,13 +19,13 @@ import retrofit2.Response;
  */
 public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     private static final String TAG = UserLoginTask.class.getName();
-    private TaskListener<AccessTokenResponse> listener;
+    private TaskListener<AccessTokenBundle> listener;
     private ApiBuilder apiBuilder;
     private PasswordOAuth2Form form;
-    private AccessTokenResponse accessTokenResponse;
+    private AccessTokenBundle accessTokenBundle;
 
     public UserLoginTask(ApiBuilder apiBuilder,
-                         TaskListener<AccessTokenResponse> listener,
+                         TaskListener<AccessTokenBundle> listener,
                          PasswordOAuth2Form form) {
         this.apiBuilder = apiBuilder;
         this.listener = listener;
@@ -35,23 +35,22 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            // @TODO Sistemare
             OAuth2Service oAuth2Service = apiBuilder.buildAuthService();
-            Call<AccessTokenResponse> call = oAuth2Service.getAccessToken(form);
-            Response<AccessTokenResponse> response = call.execute();
-            accessTokenResponse = response.body();
+            Call<AccessTokenBundle> call = oAuth2Service.getAccessToken(form);
+            Response<AccessTokenBundle> response = call.execute();
+            accessTokenBundle = response.body();
+
+            return (accessTokenBundle != null);
         } catch (IOException e) {
             Log.e(TAG, "Login Error", e);
             return false;
         }
-
-        return true;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            listener.onTaskSuccess(accessTokenResponse);
+            listener.onTaskSuccess(accessTokenBundle);
         } else {
             listener.onTaskError();
         }

@@ -50,6 +50,7 @@ public abstract class BaseFragment extends Fragment {
      *
      * @return Bundle di metadati
      */
+    @Deprecated
     protected Bundle getMetaData() {
         if (metaData == null) {
             try {
