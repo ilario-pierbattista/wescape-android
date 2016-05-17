@@ -36,6 +36,8 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+        pickFirst 'META-INF/maven/com.fasterxml.jackson.core/jackson-core/pom.xml'
+        pickFirst 'META-INF/maven/com.fasterxml.jackson.core/jackson-core/pom.properties'
     }
 
     lintOptions {
@@ -62,11 +64,13 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'com.google.code.findbugs:jsr305:3.0.0'
 
     androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
     androidTestCompile 'com.android.support.test:runner:0.5'
     androidTestCompile 'com.android.support:support-annotations:23.3.0'
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+    androidTestCompile 'com.google.code.findbugs:jsr305:3.0.0'
 
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
@@ -81,5 +85,5 @@ dependencies {
     compile 'com.dlazaro66.qrcodereaderview:qrcodereaderview:1.0.0'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
-    compile ('es.usc.citius.hipster:hipster-all:1.0.0') { exclude group: 'com.google.code.findbugs', module: 'jsr305' }
+    //compile 'es.usc.citius.hipster:hipster-all:1.0.0'
 }
