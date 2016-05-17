@@ -1,13 +1,36 @@
 package com.dii.ids.application.entity;
 
-public class Node {
+import com.dii.ids.application.db.WescapeDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
+@Table(database = WescapeDatabase.class)
+public class Node extends BaseModel {
+
+    @PrimaryKey
     private int id;
+
+    @Column
     private String name;
+
+    @Column
     private String floor;
+
+    @Column
     private double width;
+
+    @Column
     private int x;
+
+    @Column
     private int y;
+
+    @Column
     private int meter_x;
+
+    @Column
     private int meter_y;
 
     public int getId() {
