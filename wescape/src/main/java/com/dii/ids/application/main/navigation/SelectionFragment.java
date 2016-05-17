@@ -6,17 +6,26 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.adapters.NodeAdapter;
 import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class SelectionFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = SelectionFragment.class.getSimpleName();
@@ -25,10 +34,12 @@ public class SelectionFragment extends BaseFragment {
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
+    private String mSearchQuery;
+    private List<Node> mNodes;
+    private List<Node> mNodesFiltered;
 
     /**
-     * Use this factory method to create a new instance of this fragment using the provided
-     * parameters.
+     * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
      * @return A new instance of fragment ResetPasswordFragment.
      */
@@ -42,7 +53,8 @@ public class SelectionFragment extends BaseFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG), Toast.LENGTH_SHORT)
+        Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG),
+                       Toast.LENGTH_SHORT)
                 .show();
     }
 
@@ -91,6 +103,24 @@ public class SelectionFragment extends BaseFragment {
                 }
             }
         });
+
+
+        //@TODO: cambiare i contenuti statici con chiamata alle API
+        ArrayList<Node> nodesList = new ArrayList<>();
+        Node nodo1 = new Node();
+        Node nodo2 = new Node();
+        Node nodo3 = new Node();
+        nodo1.setName("150");
+        nodo2.setName("150");
+        nodo3.setName("145");
+        nodesList.add(nodo1);
+        nodesList.add(nodo2);
+        nodesList.add(nodo3);
+
+        NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
+        holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
+        holder.nodeListView.setAdapter(nodeAdapter);
+        holder.nodeListView.setTextFilterEnabled(true);
         return view;
     }
 
@@ -118,9 +148,9 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
-     * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire
-     * dal fragment. In questo modo posso riprendere le informazioni direttamente dal fragment senza
-     * passare dall'activity. Riprendo le informazioni tramite il metodo onActivityResult.
+     * Setto il listener per il bottone per la scansione. Creo l'oggetto IntentIntegrator a partire dal fragment. In
+     * questo modo posso riprendere le informazioni direttamente dal fragment senza passare dall'activity. Riprendo le
+     * informazioni tramite il metodo onActivityResult.
      *
      * @param v Oggetto View
      */
@@ -136,17 +166,45 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
+     * Responsible for handling changes in search edit text.
+     */
+    private class SearchWatcher implements TextWatcher {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            mSearchQuery = holder.searchFieldTextView.getText().toString();
+            NodeAdapter adapter = (NodeAdapter) holder.nodeListView.getAdapter();
+            adapter.getFilter().filter(s);
+        }
+    }
+
+    /**
      * UI elements wrapper class
      */
     public static class ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
         public final ListView staticListview;
+        public final View searchFieldView;
+        public final TextView searchFieldTextView;
+        public final ImageView searchFieldIcon;
+        public final ListView nodeListView;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
             toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
             staticListview = (ListView) view.findViewById((R.id.selection_static_listview));
+            searchFieldView = view.findViewById(R.id.navigation_search_field);
+            searchFieldIcon = (ImageView) searchFieldView.findViewById(R.id.search_icon);
+            nodeListView = (ListView) view.findViewById(R.id.nodes_listview);
+            searchFieldTextView = (EditText) searchFieldView.findViewById(R.id.search_text);
 
         }
     }
