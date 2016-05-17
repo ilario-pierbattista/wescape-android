@@ -34,6 +34,7 @@ import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
+import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
@@ -165,6 +166,10 @@ public class LoginFragment extends BaseFragment {
                 openResetRequestFragment(v);
             }
         });
+
+        // @TODO Remove
+        MinimumPathTask task = new MinimumPathTask();
+        task.execute();
 
         return view;
     }
