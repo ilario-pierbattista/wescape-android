@@ -34,4 +34,7 @@
     <string name="title_navigator">Indicazioni</string>
     <string name="action_qr">Inquadra il codice QR</string>
     <string name="error_no_camera_found">Non è stata trovata alcuna fotocamera</string>
+    <string name="search_hint" translatable="false">Cerca un punto</string>
+    <string name="title_activity_settings">Impostazioni</string>
+    <string name="toast_hidden_menu_feedback">Mantieni premuto per aprire le preferenze</string>
 </resources>

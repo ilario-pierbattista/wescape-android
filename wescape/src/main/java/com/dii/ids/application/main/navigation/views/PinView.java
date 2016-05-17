@@ -140,7 +140,7 @@ public class PinView extends SubsamplingScaleImageView {
     }
 
     private void drawPath(Canvas canvas, ArrayList<PointF> points) {
-        int strokeWidth = (int) (density / 20f);
+        int strokeWidth = (int) (density / 35f);
 
         Paint paint = new Paint();
         paint.setAntiAlias(true);
