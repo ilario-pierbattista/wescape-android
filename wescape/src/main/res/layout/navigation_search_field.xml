@@ -35,7 +35,8 @@
             android:layout_height="wrap_content"
             android:textColor="@color/black"
             android:inputType="text"
-            android:hint="@string/search_hint"/>
+            android:hint="@string/search_hint"
+            android:background="@android:color/transparent"/>
 
     </LinearLayout>
 
