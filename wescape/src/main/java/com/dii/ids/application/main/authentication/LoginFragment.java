@@ -8,7 +8,6 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,13 +27,13 @@ import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.AuthenticationManager;
 import com.dii.ids.application.api.form.PasswordOAuth2Form;
-import com.dii.ids.application.api.response.AccessTokenResponse;
+import com.dii.ids.application.api.response.AccessTokenBundle;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.tasks.UpdateAccessTokenTask;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
-import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
@@ -46,25 +45,20 @@ public class LoginFragment extends BaseFragment {
     public ViewHolder holder;
 
     private UserLoginTask loginTask = null;
+    private UpdateAccessTokenTask updateTokenTask;
     private EmailAutocompleter emailAutocompleter;
-    private ShowProgressAnimation showProgressAnimation;
     private Toast hiddenMenuFeedbackToast;
     private ApiBuilder apiBuilder;
     private AuthenticationManager authenticationManager;
     private int logoClickTimes;
 
-    private TaskListener<AccessTokenResponse> loginTaskListener =
-            new TaskListener<AccessTokenResponse>() {
+    private TaskListener<AccessTokenBundle> loginTaskListener =
+            new TaskListener<AccessTokenBundle>() {
                 @Override
-                public void onTaskSuccess(AccessTokenResponse accessTokenResponse) {
+                public void onTaskSuccess(AccessTokenBundle accessTokenBundle) {
                     Intent intent = new Intent(getActivity(), NavigationActivity.class);
                     startActivity(intent);
-
-                    Log.i(TAG, "Response " + accessTokenResponse.getAccess_token());
-                    Log.i(TAG, "Response " + accessTokenResponse.getRefresh_token());
-                    Log.i(TAG, "Response " + accessTokenResponse.getExpires_in());
-
-                    authenticationManager.saveAccessToken(accessTokenResponse);
+                    authenticationManager.saveAccessToken(accessTokenBundle);
                 }
 
                 @Override
@@ -81,6 +75,31 @@ public class LoginFragment extends BaseFragment {
                 @Override
                 public void onTaskCancelled() {
                     wipeAsyncTask();
+                }
+            };
+
+    private TaskListener<AccessTokenBundle> updateTaskListener =
+            new TaskListener<AccessTokenBundle>() {
+                @Override
+                public void onTaskSuccess(AccessTokenBundle accessTokenBundle) {
+                    Intent intent = new Intent(getActivity(), NavigationActivity.class);
+                    startActivity(intent);
+                    authenticationManager.saveAccessToken(accessTokenBundle);
+                }
+
+                @Override
+                public void onTaskError() {
+
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    holder.showProgressAnimation.showProgress(false);
+                }
+
+                @Override
+                public void onTaskCancelled() {
+                    holder.showProgressAnimation.showProgress(false);
                 }
             };
 
@@ -111,7 +130,8 @@ public class LoginFragment extends BaseFragment {
         apiBuilder = new ApiBuilder(getContext());
         authenticationManager = new AuthenticationManager(getContext());
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
+        holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
+                getShortAnimTime());
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
@@ -167,6 +187,8 @@ public class LoginFragment extends BaseFragment {
             }
         });
 
+        refreshAccessToken();
+
         return view;
     }
 
@@ -220,11 +242,11 @@ public class LoginFragment extends BaseFragment {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgressAnimation.showProgress(true);
+            holder.showProgressAnimation.showProgress(true);
 
             PasswordOAuth2Form passwordOAuth2Form = new PasswordOAuth2Form();
-            passwordOAuth2Form.setClient_id(getMetaData().getString(BaseFragment.META_CLIENT_ID_KEY));
-            passwordOAuth2Form.setClient_secret(getMetaData().getString(BaseFragment.META_CLIENT_SECRET_KEY));
+            passwordOAuth2Form.setClient_id(authenticationManager.getClientId());
+            passwordOAuth2Form.setClient_secret(authenticationManager.getClientSecret());
             passwordOAuth2Form.setUsername("admin");
             passwordOAuth2Form.setPassword("admin");
 
@@ -304,9 +326,25 @@ public class LoginFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Aggiorna l'access token
+     */
+    private void refreshAccessToken() {
+        AccessTokenBundle accessTokenBundle = authenticationManager.retrieveAccessToken();
+        if (accessTokenBundle != null) {
+            updateTokenTask = new UpdateAccessTokenTask(
+                    updateTaskListener,
+                    apiBuilder,
+                    authenticationManager);
+            updateTokenTask.execute();
+            holder.showProgressAnimation
+                    .showProgress(true);
+        }
+    }
+
     private void wipeAsyncTask() {
         loginTask = null;
-        showProgressAnimation.showProgress(false);
+        holder.showProgressAnimation.showProgress(false);
     }
 
     /**
@@ -324,6 +362,7 @@ public class LoginFragment extends BaseFragment {
         public final TextView signupTextView;
         public final TextView resetPasswdTextView;
         public final ImageView logoImageView;
+        public ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View view) {
             emailField = find(view, R.id.login_email_text_input);
@@ -339,5 +378,4 @@ public class LoginFragment extends BaseFragment {
             logoImageView = find(view, R.id.wescape_logo_image_view);
         }
     }
-
 }
