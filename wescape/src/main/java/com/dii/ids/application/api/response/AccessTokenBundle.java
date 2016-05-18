@@ -47,6 +47,16 @@ public class AccessTokenBundle {
 
     public boolean isExpired() {
         float currentTime = calendar.getTimeInMillis();
-        return currentTime < expiration;
+        return currentTime >= expiration;
+    }
+
+    @Override
+    public String toString() {
+        return "AccessTokenBundle{" +
+                "expiration=" + expiration +
+                ", expires_in=" + expires_in +
+                ", refresh_token='" + refresh_token + '\'' +
+                ", access_token='" + access_token + '\'' +
+                '}';
     }
 }

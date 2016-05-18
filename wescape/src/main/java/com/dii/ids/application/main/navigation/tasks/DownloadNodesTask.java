@@ -13,23 +13,20 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 
-import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
-import okhttp3.internal.http.OkHeaders;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class DownloadDataTask extends AsyncTask<Void, Void, Boolean> {
-    public static final String TAG = DownloadDataTask.class.getName();
+public class DownloadNodesTask extends AsyncTask<Void, Void, Boolean> {
+    public static final String TAG = DownloadNodesTask.class.getName();
 
     private ApiBuilder apiBuilder;
     private AuthenticationManager authenticationManager;
     private TaskListener<List<Node>> listener;
     private List<Node> nodes;
 
-    public DownloadDataTask(ApiBuilder apiBuilder,
-                            AuthenticationManager authenticationManager,
-                            TaskListener<List<Node>> listener) {
+    public DownloadNodesTask(ApiBuilder apiBuilder,
+                             AuthenticationManager authenticationManager,
+                             TaskListener<List<Node>> listener) {
         this.apiBuilder = apiBuilder;
         this.listener = listener;
         this.authenticationManager = authenticationManager;
@@ -51,6 +48,7 @@ public class DownloadDataTask extends AsyncTask<Void, Void, Boolean> {
                 }
                 case HttpURLConnection.HTTP_FORBIDDEN: {
                     authenticationManager.deleteAccessToken();
+                    break;
                 }
             }
 

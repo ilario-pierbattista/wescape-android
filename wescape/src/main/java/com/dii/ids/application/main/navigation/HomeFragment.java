@@ -33,7 +33,7 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.DownloadDataTask;
+import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
@@ -60,7 +60,7 @@ public class HomeFragment extends BaseFragment {
     private ApiBuilder apiBuilder;
     private AuthenticationManager authenticationManager;
     private MapsDownloaderTask mapsDownloaderTask;
-    private DownloadDataTask downloadDataTask;
+    private DownloadNodesTask downloadNodesTask;
 
     private TaskListener<Bitmap> mapDownloaderListener =
             new TaskListener<Bitmap>() {
@@ -199,9 +199,9 @@ public class HomeFragment extends BaseFragment {
 
         setupViewUI();
 
-        downloadDataTask = new DownloadDataTask(
+        downloadNodesTask = new DownloadNodesTask(
                 apiBuilder, authenticationManager, nodesDownloaderListener);
-        downloadDataTask.execute();
+        downloadNodesTask.execute();
 
         return view;
     }
