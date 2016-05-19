@@ -8,6 +8,7 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +58,7 @@ public class LoginFragment extends BaseFragment {
                 @Override
                 public void onTaskError(Exception e) {
                     // @TODO Cambiare messaggio a seconda dell'errore
+                    Log.e(TAG, "Login Error", e);
                     holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
                     holder.passwordField.requestFocus();
                 }

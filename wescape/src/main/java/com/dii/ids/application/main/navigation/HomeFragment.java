@@ -27,6 +27,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.db.WescapeDatabase;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
@@ -35,6 +36,11 @@ import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
+import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
+import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -128,7 +134,7 @@ public class HomeFragment extends BaseFragment {
             new TaskListener<List<Node>>() {
                 @Override
                 public void onTaskSuccess(List<Node> nodes) {
-                    for (Node node : nodes) {
+                    for (final Node node : nodes) {
                         Log.i(TAG, "NODE " + node.getId() + " " + node.getName());
                     }
                 }
@@ -136,6 +142,7 @@ public class HomeFragment extends BaseFragment {
                 @Override
                 public void onTaskError(Exception e) {
                     Log.i(TAG, "Download fallito");
+                    Log.e(TAG, e.toString());
                 }
 
                 @Override
