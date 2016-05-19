@@ -15,7 +15,7 @@ public class ApiBuilder {
         // @TODO Aggiungere la validazione dell'indirizzo IP
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String ipAddress = preferences.getString(SettingsActivity.WESCAPE_HOSTNAME, "");
+        String ipAddress = preferences.getString(SettingsActivity.WESCAPE_HOSTNAME, "10.42.0.1");
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ipAddress + "/")

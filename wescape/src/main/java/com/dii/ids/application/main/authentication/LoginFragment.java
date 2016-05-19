@@ -100,6 +100,7 @@ public class LoginFragment extends BaseFragment {
         holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
                 getShortAnimTime());
 
+        // @TODO Sistemare
         try {
             authenticator = new WescapeAuthenticator(getContext());
         } catch (IllegalArgumentException e) {
