@@ -104,4 +104,18 @@ public class Node extends BaseModel {
         this.meter_y = meter_y;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", floor='" + floor + '\'' +
+                ", width=" + width +
+                ", x=" + x +
+                ", y=" + y +
+                ", meter_x=" + meter_x +
+                ", meter_y=" + meter_y +
+                '}';
+    }
 }

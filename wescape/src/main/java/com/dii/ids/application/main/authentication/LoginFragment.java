@@ -27,6 +27,7 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.api.auth.Authenticator;
 import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
+import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
@@ -162,6 +163,9 @@ public class LoginFragment extends BaseFragment {
                 openResetRequestFragment(v);
             }
         });
+
+        // @TODO Test porchetto
+        Log.i(TAG, NodeRepository.find(3).toString());
 
         return view;
     }

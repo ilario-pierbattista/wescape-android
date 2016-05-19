@@ -30,6 +30,7 @@ import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.db.WescapeDatabase;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
+import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
@@ -38,6 +39,7 @@ import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -133,10 +135,18 @@ public class HomeFragment extends BaseFragment {
     private TaskListener<List<Node>> nodesDownloaderListener =
             new TaskListener<List<Node>>() {
                 @Override
-                public void onTaskSuccess(List<Node> nodes) {
-                    for (final Node node : nodes) {
-                        Log.i(TAG, "NODE " + node.getId() + " " + node.getName());
-                    }
+                public void onTaskSuccess(final List<Node> nodes) {
+
+                    Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+                        @Override
+                        public void execute(DatabaseWrapper databaseWrapper) {
+                            for (Node node : nodes) {
+                                node.save(databaseWrapper);
+                            }
+                        }
+                    }).build();
+
+                    transaction.execute();
                 }
 
                 @Override
@@ -147,7 +157,12 @@ public class HomeFragment extends BaseFragment {
 
                 @Override
                 public void onTaskComplete() {
+                    NodeRepository nodeRepository = new NodeRepository();
+                    List<Node> nodes = nodeRepository.findAll();
 
+                    for (Node node : nodes) {
+                        Log.i(TAG, node.toString());
+                    }
                 }
 
                 @Override

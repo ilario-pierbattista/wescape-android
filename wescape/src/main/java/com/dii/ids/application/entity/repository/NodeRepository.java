@@ -8,7 +8,7 @@ import java.util.List;
 
 public class NodeRepository {
 
-    public Node find(int id) {
+    public static Node find(int id) {
 
         return SQLite
                 .select()
@@ -17,7 +17,7 @@ public class NodeRepository {
                 .querySingle();
     }
 
-    public List<Node> findAll() {
+    public static List<Node> findAll() {
         return SQLite
                 .select()
                 .from(Node.class)

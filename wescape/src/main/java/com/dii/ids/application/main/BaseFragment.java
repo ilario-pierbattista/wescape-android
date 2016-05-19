@@ -9,6 +9,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
+import com.dii.ids.application.db.WescapeDatabase;
+import com.raizlabs.android.dbflow.config.DatabaseDefinition;
+import com.raizlabs.android.dbflow.config.FlowManager;
+
 public abstract class BaseFragment extends Fragment {
 
     public static final String TAG = BaseFragment.class.getName();
@@ -20,6 +24,11 @@ public abstract class BaseFragment extends Fragment {
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
     public static String TOOLBAR_TITLE = "toolbar_title";
     private Bundle metaData = null;
+    protected DatabaseDefinition database;
+
+    public BaseFragment() {
+        database = FlowManager.getDatabase(WescapeDatabase.class);
+    }
 
     /**
      * Wrap di ContextCompact.getColor()
