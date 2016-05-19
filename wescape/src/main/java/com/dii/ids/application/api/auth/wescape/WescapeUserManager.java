@@ -7,6 +7,8 @@ import com.dii.ids.application.api.auth.Client;
 import com.dii.ids.application.api.auth.UserManager;
 import com.dii.ids.application.api.form.ClientForm;
 import com.dii.ids.application.api.form.CreateUserForm;
+import com.dii.ids.application.api.form.RequestPasswordForm;
+import com.dii.ids.application.api.response.StatusResponse;
 import com.dii.ids.application.api.response.UserResponse;
 import com.dii.ids.application.api.service.WescapeService;
 
@@ -42,7 +44,15 @@ public class WescapeUserManager implements UserManager {
 
     @Override
     public void requestSecretCode(String email) throws Exception {
+        RequestPasswordForm requestPasswordForm = new RequestPasswordForm();
+        requestPasswordForm.setClient(createClientForm())
+                .setEmail(email);
+        Call<StatusResponse> call = service.requestPasswordReset(requestPasswordForm);
+        Response<StatusResponse> response = call.execute();
 
+        if(response.code() != HttpURLConnection.HTTP_ACCEPTED) {
+            throw new Exception();
+        }
     }
 
     @Override
