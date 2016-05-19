@@ -1,10 +1,12 @@
 package com.dii.ids.application.main.navigation.tasks;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
-import com.dii.ids.application.api.AuthenticationManager;
+import com.dii.ids.application.api.auth.SessionManager;
+import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
@@ -19,25 +21,23 @@ import retrofit2.Response;
 public class DownloadNodesTask extends AsyncTask<Void, Void, Boolean> {
     public static final String TAG = DownloadNodesTask.class.getName();
 
-    private ApiBuilder apiBuilder;
-    private AuthenticationManager authenticationManager;
+    private SessionManager sessionManager;
+    private WescapeService service;
     private TaskListener<List<Node>> listener;
     private List<Node> nodes;
+    private Exception thrownException;
 
-    public DownloadNodesTask(ApiBuilder apiBuilder,
-                             AuthenticationManager authenticationManager,
+    public DownloadNodesTask(Context context,
                              TaskListener<List<Node>> listener) {
-        this.apiBuilder = apiBuilder;
         this.listener = listener;
-        this.authenticationManager = authenticationManager;
+        this.sessionManager = new WescapeSessionManager(context);
+        this.service = ApiBuilder.buildWescapeService(context);
     }
 
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            WescapeService service = apiBuilder.buildWescapeService();
-            Call<List<Node>> call = service.listNodes(
-                    authenticationManager.getValidBearer());
+            Call<List<Node>> call = service.listNodes(sessionManager.getBearer());
             Response<List<Node>> response = call.execute();
             Log.i(TAG, "Response "+response.code());
 
@@ -46,15 +46,11 @@ public class DownloadNodesTask extends AsyncTask<Void, Void, Boolean> {
                     nodes = response.body();
                     break;
                 }
-                case HttpURLConnection.HTTP_FORBIDDEN: {
-                    authenticationManager.deleteAccessToken();
-                    break;
-                }
             }
 
             return (nodes != null);
-        } catch (IOException e) {
-            Log.e(TAG, "API Error", e);
+        } catch (Exception e) {
+            thrownException = e;
             return false;
         }
     }
@@ -64,7 +60,7 @@ public class DownloadNodesTask extends AsyncTask<Void, Void, Boolean> {
         if (success) {
             listener.onTaskSuccess(nodes);
         } else {
-            listener.onTaskError();
+            listener.onTaskError(thrownException);
         }
         listener.onTaskComplete();
     }

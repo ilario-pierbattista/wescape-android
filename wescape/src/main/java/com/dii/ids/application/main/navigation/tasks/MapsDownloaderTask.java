@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.dii.ids.application.listener.TaskListener;
-import com.dii.ids.application.main.navigation.MapFragment;
 import com.dii.ids.application.api.EndPointsProvider;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
@@ -28,6 +27,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     private Bitmap image;
     private TaskListener<Bitmap> listener;
     private Context context;
+    private Exception thrownException;
 
     public MapsDownloaderTask(Context context, TaskListener<Bitmap> listener) {
         this.context = context;
@@ -64,6 +64,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
                 addBitmapToMemoryCache(url.toString(), image);
             }
         } catch (IOException e) {
+            thrownException = e;
             return false;
         }
 
@@ -76,7 +77,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
         if (success) {
             listener.onTaskSuccess(image);
         } else {
-            listener.onTaskError();
+            listener.onTaskError(thrownException);
         }
         listener.onTaskComplete();
     }

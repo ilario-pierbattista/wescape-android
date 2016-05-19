@@ -26,8 +26,6 @@ import com.dii.ids.application.main.navigation.views.PinView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.util.ArrayList;
-
 public class SelectionFromMapFragment extends BaseFragment {
     public static final String FRAGMENT_TAG = SelectionFromMapFragment.class.getSimpleName();
     public static final int STARTING_FLOOR = 155;
@@ -82,7 +80,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                 }
 
                 @Override
-                public void onTaskError() {
+                public void onTaskError(Exception e) {
                     Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
                 }
 

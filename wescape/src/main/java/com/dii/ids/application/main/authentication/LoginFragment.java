@@ -24,13 +24,10 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
-import com.dii.ids.application.api.ApiBuilder;
-import com.dii.ids.application.api.AuthenticationManager;
-import com.dii.ids.application.api.form.PasswordOAuth2Form;
-import com.dii.ids.application.api.response.AccessTokenBundle;
+import com.dii.ids.application.api.auth.Authenticator;
+import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.authentication.tasks.UpdateAccessTokenTask;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
@@ -40,30 +37,27 @@ import com.dii.ids.application.validators.PasswordValidator;
 
 public class LoginFragment extends BaseFragment {
     private final String TAG = LoginFragment.class.getName();
-    private final int CLICK_TO_OPEN = 8,
-            CLICK_TO_FEEDBACK = 4;
+    private final int CLICK_TO_OPEN = 8, CLICK_TO_FEEDBACK = 4;
     public ViewHolder holder;
 
     private UserLoginTask loginTask = null;
-    private UpdateAccessTokenTask updateTokenTask;
     private EmailAutocompleter emailAutocompleter;
     private Toast hiddenMenuFeedbackToast;
-    private ApiBuilder apiBuilder;
-    private AuthenticationManager authenticationManager;
+    private Authenticator authenticator;
     private int logoClickTimes;
 
-    private TaskListener<AccessTokenBundle> loginTaskListener =
-            new TaskListener<AccessTokenBundle>() {
+    private TaskListener<Void> loginTaskListener =
+            new TaskListener<Void>() {
                 @Override
-                public void onTaskSuccess(AccessTokenBundle accessTokenBundle) {
+                public void onTaskSuccess(Void v) {
                     Intent intent = new Intent(getActivity(), NavigationActivity.class);
                     startActivity(intent);
-                    authenticationManager.saveAccessToken(accessTokenBundle);
                 }
 
                 @Override
-                public void onTaskError() {
-                    holder.passwordField.setError(getString(R.string.error_incorrect_password));
+                public void onTaskError(Exception e) {
+                    // @TODO Cambiare messaggio a seconda dell'errore
+                    holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
                     holder.passwordField.requestFocus();
                 }
 
@@ -75,31 +69,6 @@ public class LoginFragment extends BaseFragment {
                 @Override
                 public void onTaskCancelled() {
                     wipeAsyncTask();
-                }
-            };
-
-    private TaskListener<AccessTokenBundle> updateTaskListener =
-            new TaskListener<AccessTokenBundle>() {
-                @Override
-                public void onTaskSuccess(AccessTokenBundle accessTokenBundle) {
-                    Intent intent = new Intent(getActivity(), NavigationActivity.class);
-                    startActivity(intent);
-                    authenticationManager.saveAccessToken(accessTokenBundle);
-                }
-
-                @Override
-                public void onTaskError() {
-
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    holder.showProgressAnimation.showProgress(false);
-                }
-
-                @Override
-                public void onTaskCancelled() {
-                    holder.showProgressAnimation.showProgress(false);
                 }
             };
 
@@ -127,11 +96,11 @@ public class LoginFragment extends BaseFragment {
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
         logoClickTimes = 0;
-        apiBuilder = new ApiBuilder(getContext());
-        authenticationManager = new AuthenticationManager(getContext());
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
                 getShortAnimTime());
+
+        authenticator = new WescapeAuthenticator(getContext());
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
@@ -186,8 +155,6 @@ public class LoginFragment extends BaseFragment {
                 openResetRequestFragment(v);
             }
         });
-
-        refreshAccessToken();
 
         return view;
     }
@@ -244,14 +211,8 @@ public class LoginFragment extends BaseFragment {
             // perform the user login attempt.
             holder.showProgressAnimation.showProgress(true);
 
-            PasswordOAuth2Form passwordOAuth2Form = new PasswordOAuth2Form();
-            passwordOAuth2Form.setClient_id(authenticationManager.getClientId());
-            passwordOAuth2Form.setClient_secret(authenticationManager.getClientSecret());
-            passwordOAuth2Form.setUsername("admin");
-            passwordOAuth2Form.setPassword("admin");
-
-            loginTask = new UserLoginTask(apiBuilder, loginTaskListener, passwordOAuth2Form);
-            loginTask.execute();
+            loginTask = new UserLoginTask(authenticator, loginTaskListener);
+            loginTask.execute(email, password);
         }
     }
 
@@ -323,22 +284,6 @@ public class LoginFragment extends BaseFragment {
                         Toast.LENGTH_SHORT);
             }
             hiddenMenuFeedbackToast.show();
-        }
-    }
-
-    /**
-     * Aggiorna l'access token
-     */
-    private void refreshAccessToken() {
-        AccessTokenBundle accessTokenBundle = authenticationManager.retrieveAccessToken();
-        if (accessTokenBundle != null) {
-            updateTokenTask = new UpdateAccessTokenTask(
-                    updateTaskListener,
-                    apiBuilder,
-                    authenticationManager);
-            updateTokenTask.execute();
-            holder.showProgressAnimation
-                    .showProgress(true);
         }
     }
 

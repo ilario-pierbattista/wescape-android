@@ -2,14 +2,14 @@ package com.dii.ids.application.api.response;
 
 import java.util.Calendar;
 
-public class AccessTokenBundle {
+public class TokenResponse {
     private Calendar calendar;
     private String access_token;
     private String refresh_token;
     private int expires_in;
     private float expiration;
 
-    public AccessTokenBundle() {
+    public TokenResponse() {
         calendar = Calendar.getInstance();
     }
 
@@ -52,7 +52,7 @@ public class AccessTokenBundle {
 
     @Override
     public String toString() {
-        return "AccessTokenBundle{" +
+        return "TokenResponse{" +
                 "expiration=" + expiration +
                 ", expires_in=" + expires_in +
                 ", refresh_token='" + refresh_token + '\'' +
