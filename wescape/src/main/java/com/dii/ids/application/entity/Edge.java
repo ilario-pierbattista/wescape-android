@@ -1,16 +1,45 @@
 package com.dii.ids.application.entity;
 
+import com.dii.ids.application.db.WescapeDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
-public class Edge {
+@Table(database = WescapeDatabase.class)
+public class Edge extends BaseModel {
+
+    @PrimaryKey
     private int id;
+
+    @Column
+    @ForeignKey
     private Node begin;
+
+    @Column
+    @ForeignKey
     private Node end;
+
+    @Column
     private double length;
+
+    @Column
     private double width;
+
+    @Column
     private boolean stairs;
+
+    @Column
     private double v;
+
+    @Column
     private double i;
+
+    @Column
     private double los;
+
+    @Column
     private double c;
 
     public int getId() {
@@ -58,7 +87,7 @@ public class Edge {
         return this;
     }
 
-    public boolean isStairs() {
+    public boolean getStairs() {
         return stairs;
     }
 

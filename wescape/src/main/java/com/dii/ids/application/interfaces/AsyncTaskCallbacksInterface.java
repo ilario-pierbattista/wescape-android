@@ -1,7 +1,5 @@
 package com.dii.ids.application.interfaces;
 
-import android.support.annotation.DimenRes;
-
 /**
  * Interfaccia delle callback ad un <pre>AsyncTask</pre>
  * <p/>
