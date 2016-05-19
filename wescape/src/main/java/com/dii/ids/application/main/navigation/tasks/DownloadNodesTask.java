@@ -49,7 +49,7 @@ public class DownloadNodesTask extends AsyncTask<Void, Void, Boolean> {
             }
 
             return (nodes != null);
-        } catch (IOException e) {
+        } catch (Exception e) {
             thrownException = e;
             return false;
         }

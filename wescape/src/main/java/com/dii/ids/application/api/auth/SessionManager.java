@@ -1,7 +1,7 @@
 package com.dii.ids.application.api.auth;
 
 public interface SessionManager {
-    String getBearer();
+    String getBearer() throws Exception;
 
-    String getAccessToken();
+    String getAccessToken() throws Exception;
 }
