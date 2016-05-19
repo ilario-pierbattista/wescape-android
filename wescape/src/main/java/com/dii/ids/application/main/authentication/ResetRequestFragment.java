@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.ResetRequestTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
@@ -34,20 +35,46 @@ import com.dii.ids.application.validators.EmailValidator;
  * events. Use the {@link ResetRequestFragment#newInstance} factory method to create an instance of
  * this fragment.
  */
-public class ResetRequestFragment extends BaseFragment
-        implements AsyncTaskCallbacksInterface<ResetRequestTask> {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+public class ResetRequestFragment extends BaseFragment {
     private static final String ARG_PARAM1 = "email";
 
-    // TODO: Rename and change types of parameters
     private String email;
     private ViewHolder holder;
     private EmailAutocompleter autocompleter;
     private ResetRequestTask asyncTask;
-    private ShowProgressAnimation showProgressAnimation;
 
     private OnFragmentInteractionListener mListener;
+
+    private TaskListener<Void> listener =
+            new TaskListener<Void>() {
+                @Override
+                public void onTaskSuccess(Void aVoid) {
+                    ResetPasswordFragment fragment;
+
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
+
+                    transaction.replace(R.id.authentication_content_pane, fragment)
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                            .addToBackStack(null)
+                            .commit();
+                }
+
+                @Override
+                public void onTaskError(Exception e) {
+
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    holder.showProgressAnimation.showProgress(false);
+                }
+
+                @Override
+                public void onTaskCancelled() {
+
+                }
+            };
 
     public ResetRequestFragment() {
         // Required empty public constructor
@@ -60,7 +87,6 @@ public class ResetRequestFragment extends BaseFragment
      * @param email Parameter 1.
      * @return A new instance of fragment ResetRequestFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ResetRequestFragment newInstance(String email) {
         ResetRequestFragment fragment = new ResetRequestFragment();
         Bundle args = new Bundle();
@@ -105,7 +131,8 @@ public class ResetRequestFragment extends BaseFragment
         ((AuthenticationActivity) getActivity())
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
-        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
+        holder.showProgressAnimation = new ShowProgressAnimation(
+                holder.scrollView, holder.progressBar, getShortAnimTime());
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 
@@ -143,10 +170,6 @@ public class ResetRequestFragment extends BaseFragment
      * attempt is made.
      */
     private void requestReset() {
-        if (asyncTask != null) {
-            return;
-        }
-
         EmailValidator emailValidator = new EmailValidator();
 
         // Reset errors.
@@ -176,10 +199,9 @@ public class ResetRequestFragment extends BaseFragment
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgressAnimation.showProgress(true);
-            asyncTask = new ResetRequestTask(email)
-                    .inject(this, holder);
-            asyncTask.execute((Void) null);
+            holder.showProgressAnimation.showProgress(true);
+            asyncTask = new ResetRequestTask(getContext(), listener);
+            asyncTask.execute(email);
         }
     }
 
@@ -187,35 +209,6 @@ public class ResetRequestFragment extends BaseFragment
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onTaskSuccess(ResetRequestTask asyncTask) {
-        wipeAsyncTask();
-        ResetPasswordFragment fragment;
-
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
-
-        transaction.replace(R.id.authentication_content_pane, fragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    @Override
-    public void onTaskError(ResetRequestTask asyncTask) {
-        wipeAsyncTask();
-    }
-
-    @Override
-    public void onTaskCancelled(ResetRequestTask asyncTask) {
-        wipeAsyncTask();
-    }
-
-    private void wipeAsyncTask() {
-        showProgressAnimation.showProgress(false);
-        asyncTask = null;
     }
 
     @Nullable
@@ -254,6 +247,7 @@ public class ResetRequestFragment extends BaseFragment
         private final AutoCompleteTextView emailField;
         private final TextInputLayout emailFieldLayout;
         private final Button resetRequestButton;
+        private ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View v) {
             progressBar = (ProgressBar) v.findViewById(R.id.reset_request_progress);
