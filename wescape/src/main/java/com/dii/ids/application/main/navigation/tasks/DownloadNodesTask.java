@@ -11,7 +11,6 @@ import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.List;
 

@@ -1,6 +1,6 @@
 package com.dii.ids.application.api.form;
 
-public class PasswordOAuth2Form {
+public class LoginForm {
     private final String grant_type = "password";
     private String client_id;
     private String client_secret;
@@ -11,7 +11,7 @@ public class PasswordOAuth2Form {
         return client_id;
     }
 
-    public PasswordOAuth2Form setClient_id(String client_id) {
+    public LoginForm setClient_id(String client_id) {
         this.client_id = client_id;
         return this;
     }
@@ -20,7 +20,7 @@ public class PasswordOAuth2Form {
         return client_secret;
     }
 
-    public PasswordOAuth2Form setClient_secret(String client_secret) {
+    public LoginForm setClient_secret(String client_secret) {
         this.client_secret = client_secret;
         return this;
     }
@@ -29,7 +29,7 @@ public class PasswordOAuth2Form {
         return username;
     }
 
-    public PasswordOAuth2Form setUsername(String username) {
+    public LoginForm setUsername(String username) {
         this.username = username;
         return this;
     }
@@ -38,7 +38,7 @@ public class PasswordOAuth2Form {
         return password;
     }
 
-    public PasswordOAuth2Form setPassword(String password) {
+    public LoginForm setPassword(String password) {
         this.password = password;
         return this;
     }

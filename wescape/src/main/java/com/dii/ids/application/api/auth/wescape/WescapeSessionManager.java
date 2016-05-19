@@ -5,9 +5,8 @@ import android.content.Context;
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.Client;
 import com.dii.ids.application.api.auth.SessionManager;
-import com.dii.ids.application.api.auth.exception.AuthException;
 import com.dii.ids.application.api.auth.exception.TokenNotFoundException;
-import com.dii.ids.application.api.form.RefreshOAuthForm;
+import com.dii.ids.application.api.form.RefreshTokenForm;
 import com.dii.ids.application.api.response.TokenResponse;
 import com.dii.ids.application.api.service.WescapeService;
 
@@ -51,7 +50,7 @@ public class WescapeSessionManager implements SessionManager {
         if(currentToken == null) {
             throw new TokenNotFoundException();
         } else if(currentToken.isExpired()) {
-            RefreshOAuthForm refreshForm = new RefreshOAuthForm();
+            RefreshTokenForm refreshForm = new RefreshTokenForm();
 
             refreshForm.setClient_id(client.getId())
                     .setClient_secret(client.getSecret())

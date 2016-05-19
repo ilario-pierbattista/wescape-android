@@ -1,69 +1,52 @@
 package com.dii.ids.application.main.authentication.tasks;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
-import com.dii.ids.application.main.authentication.SignupFragment;
+import com.dii.ids.application.api.auth.UserManager;
+import com.dii.ids.application.api.auth.wescape.WescapeUserManager;
+import com.dii.ids.application.listener.TaskListener;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class UserSignupTask extends AsyncTask<Void, Void, Boolean> {
-    /**
-     * A dummy authentication store containing known user names and passwords. TODO: remove after
-     * connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
+public class UserSignupTask extends AsyncTask<String, Void, Boolean> {
+    private UserManager userManager;
+    private TaskListener<Void> listener;
+    private Exception thrownException;
 
-    private final String email;
-    private final String password;
-    private SignupFragment fragment;
-
-    public UserSignupTask(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
-
-    public UserSignupTask inject(SignupFragment fragment) {
-        this.fragment = fragment;
-        return this;
+    public UserSignupTask(Context context,
+                          TaskListener<Void> listener) {
+        userManager = new WescapeUserManager(context);
+        this.listener = listener;
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
-        // TODO: attempt authentication against a network service.
-
+    protected Boolean doInBackground(String... params) {
         try {
-            // Simulate network access.
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
+            String email = params[0];
+            String password = params[1];
+
+            userManager.signup(email, password);
+        } catch (Exception e) {
+            thrownException = e;
             return false;
         }
-
-        for (String credential : DUMMY_CREDENTIALS) {
-            String[] pieces = credential.split(":");
-            if (pieces[0].equals(email)) {
-                // Account exists, return true if the password matches.
-                return pieces[1].equals(password);
-            }
-        }
-
-        // TODO: register the new account here.
         return true;
     }
 
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            fragment.onTaskSuccess(this);
+            listener.onTaskSuccess(null);
         } else {
-            fragment.onTaskError(this);
+            listener.onTaskError(thrownException);
         }
+        listener.onTaskComplete();
     }
 
     @Override
     protected void onCancelled() {
-        fragment.onTaskCancelled(this);
+        listener.onTaskCancelled();
     }
 }

@@ -1,9 +1,9 @@
 package com.dii.ids.application.api.auth;
 
 public interface UserManager {
-    void signup(String email, String password);
+    void signup(String email, String password) throws Exception;
 
-    void requestSecretCode(String email);
+    void requestSecretCode(String email) throws Exception;
 
-    void resetPassword(String email, String secretCode, String password);
+    void resetPassword(String email, String secretCode, String password) throws Exception;
 }

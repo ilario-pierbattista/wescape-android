@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,7 +22,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
-import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
@@ -33,18 +34,38 @@ import com.dii.ids.application.validators.PasswordValidator;
  * {@link SignupFragment.OnFragmentInteractionListener} interface to handle interaction events. Use
  * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
  */
-public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksInterface<UserSignupTask> {
+public class SignupFragment extends BaseFragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
 
     private String email;
-
     private UserSignupTask signupTask;
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
-    private ShowProgressAnimation showProgressAnimation;
-
     private OnFragmentInteractionListener mListener;
+
+    private TaskListener<Void> signupTaskListener =
+            new TaskListener<Void>() {
+                @Override
+                public void onTaskSuccess(Void aVoid) {
+
+                }
+
+                @Override
+                public void onTaskError(Exception e) {
+                    Log.e(TAG, "Error", e);
+                }
+
+                @Override
+                public void onTaskComplete() {
+                    holder.showProgressAnimation.showProgress(false);
+                }
+
+                @Override
+                public void onTaskCancelled() {
+                    holder.showProgressAnimation.showProgress(false);
+                }
+            };
 
     public SignupFragment() {
         // Required empty public constructor
@@ -111,7 +132,8 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
                 .showActionBar(getString(R.string.authentication_title_bar));
         holder = new ViewHolder(view);
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar, getShortAnimTime());
+        holder.showProgressAnimation = new ShowProgressAnimation(
+                holder.scrollView, holder.progressBar, getShortAnimTime());
 
         emailAutocompleter.populateAutoComplete();
 
@@ -156,10 +178,6 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
      * attempt is made.
      */
     private void attempSignup() {
-        if (signupTask != null) {
-            return;
-        }
-
         PasswordValidator passwordValidator = new PasswordValidator();
         EmailValidator emailValidator = new EmailValidator();
 
@@ -212,33 +230,10 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            showProgressAnimation.showProgress(true);
-            signupTask = new UserSignupTask(email, password)
-                    .inject(this);
-            signupTask.execute((Void) null);
+            holder.showProgressAnimation.showProgress(true);
+            signupTask = new UserSignupTask(getContext(), signupTaskListener);
+            signupTask.execute(email, password);
         }
-    }
-
-    @Override
-    public void onTaskSuccess(UserSignupTask asyncTask) {
-        wipeAsyncTask();
-    }
-
-    public void wipeAsyncTask() {
-        showProgressAnimation.showProgress(false);
-        signupTask = null;
-    }
-
-    @Override
-    public void onTaskError(UserSignupTask asyncTask) {
-        wipeAsyncTask();
-        holder.passwordField.setError(getString(R.string.error_incorrect_password));
-        holder.passwordField.requestFocus();
-    }
-
-    @Override
-    public void onTaskCancelled(UserSignupTask asyncTask) {
-        wipeAsyncTask();
     }
 
     /**
@@ -264,6 +259,7 @@ public class SignupFragment extends BaseFragment implements AsyncTaskCallbacksIn
         public final EditText passwordConfirmField;
         public final TextInputLayout passwordConfirmFieldLayout;
         public final Button signupButton;
+        private ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View v) {
             progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);

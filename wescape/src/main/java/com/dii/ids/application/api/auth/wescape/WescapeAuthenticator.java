@@ -5,7 +5,7 @@ import android.content.Context;
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.Authenticator;
 import com.dii.ids.application.api.auth.Client;
-import com.dii.ids.application.api.form.PasswordOAuth2Form;
+import com.dii.ids.application.api.form.LoginForm;
 import com.dii.ids.application.api.response.TokenResponse;
 import com.dii.ids.application.api.service.WescapeService;
 
@@ -25,7 +25,7 @@ public class WescapeAuthenticator implements Authenticator {
 
     @Override
     public void login(String email, String password) throws Exception {
-        PasswordOAuth2Form form = new PasswordOAuth2Form();
+        LoginForm form = new LoginForm();
         form.setClient_id(client.getId())
                 .setClient_secret(client.getSecret())
                 .setUsername(email)

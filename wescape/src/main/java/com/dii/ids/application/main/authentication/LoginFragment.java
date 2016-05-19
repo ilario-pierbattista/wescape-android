@@ -100,7 +100,11 @@ public class LoginFragment extends BaseFragment {
         holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
                 getShortAnimTime());
 
-        authenticator = new WescapeAuthenticator(getContext());
+        try {
+            authenticator = new WescapeAuthenticator(getContext());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
