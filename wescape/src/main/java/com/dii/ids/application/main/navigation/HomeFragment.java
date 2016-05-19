@@ -27,8 +27,6 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.api.ApiBuilder;
-import com.dii.ids.application.api.AuthenticationManager;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
@@ -57,8 +55,6 @@ public class HomeFragment extends BaseFragment {
     private static Position origin = null, destination = null;
     private ViewHolder holder;
     private boolean emergency = false;
-    private ApiBuilder apiBuilder;
-    private AuthenticationManager authenticationManager;
     private MapsDownloaderTask mapsDownloaderTask;
     private DownloadNodesTask downloadNodesTask;
 
@@ -113,7 +109,7 @@ public class HomeFragment extends BaseFragment {
                 }
 
                 @Override
-                public void onTaskError() {
+                public void onTaskError(Exception e) {
                     Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
                 }
 
@@ -132,13 +128,13 @@ public class HomeFragment extends BaseFragment {
             new TaskListener<List<Node>>() {
                 @Override
                 public void onTaskSuccess(List<Node> nodes) {
-                    for(Node node : nodes) {
+                    for (Node node : nodes) {
                         Log.i(TAG, "NODE " + node.getId() + " " + node.getName());
                     }
                 }
 
                 @Override
-                public void onTaskError() {
+                public void onTaskError(Exception e) {
                     Log.i(TAG, "Download fallito");
                 }
 
@@ -194,13 +190,10 @@ public class HomeFragment extends BaseFragment {
 
         originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
-        authenticationManager = new AuthenticationManager(getContext());
-        apiBuilder = new ApiBuilder(getContext());
 
         setupViewUI();
 
-        downloadNodesTask = new DownloadNodesTask(
-                apiBuilder, authenticationManager, nodesDownloaderListener);
+        downloadNodesTask = new DownloadNodesTask(getContext(), nodesDownloaderListener);
         downloadNodesTask.execute();
 
         return view;

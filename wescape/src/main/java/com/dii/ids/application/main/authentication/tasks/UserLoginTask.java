@@ -1,48 +1,37 @@
 package com.dii.ids.application.main.authentication.tasks;
 
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.dii.ids.application.api.ApiBuilder;
-import com.dii.ids.application.api.form.PasswordOAuth2Form;
-import com.dii.ids.application.api.response.AccessTokenBundle;
-import com.dii.ids.application.api.service.OAuth2Service;
+import com.dii.ids.application.api.auth.Authenticator;
 import com.dii.ids.application.listener.TaskListener;
-
-import java.io.IOException;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
     private static final String TAG = UserLoginTask.class.getName();
-    private TaskListener<AccessTokenBundle> listener;
-    private ApiBuilder apiBuilder;
-    private PasswordOAuth2Form form;
-    private AccessTokenBundle accessTokenBundle;
+    private TaskListener<Void> listener;
+    private Authenticator authenticator;
+    private Exception thrownException;
 
-    public UserLoginTask(ApiBuilder apiBuilder,
-                         TaskListener<AccessTokenBundle> listener,
-                         PasswordOAuth2Form form) {
-        this.apiBuilder = apiBuilder;
+    public UserLoginTask(
+            Authenticator authenticator,
+            TaskListener<Void> listener) {
+        this.authenticator = authenticator;
         this.listener = listener;
-        this.form = form;
     }
 
     @Override
-    protected Boolean doInBackground(Void... params) {
+    protected Boolean doInBackground(String... params) {
         try {
-            OAuth2Service oAuth2Service = apiBuilder.buildAuthService();
-            Call<AccessTokenBundle> call = oAuth2Service.getAccessToken(form);
-            Response<AccessTokenBundle> response = call.execute();
-            accessTokenBundle = response.body();
+            String email = params[0];
+            String password = params[1];
 
-            return (accessTokenBundle != null);
-        } catch (IOException e) {
-            Log.e(TAG, "Login Error", e);
+            authenticator.login(email, password);
+
+            return true;
+        } catch (Exception e) {
+            thrownException = e;
             return false;
         }
     }
@@ -50,9 +39,9 @@ public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            listener.onTaskSuccess(accessTokenBundle);
+            listener.onTaskSuccess(null);
         } else {
-            listener.onTaskError();
+            listener.onTaskError(thrownException);
         }
         listener.onTaskComplete();
     }
