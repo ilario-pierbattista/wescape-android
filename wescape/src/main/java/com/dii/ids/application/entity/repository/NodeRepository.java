@@ -23,4 +23,12 @@ public class NodeRepository {
                 .from(Node.class)
                 .queryList();
     }
+
+    public static List<Node> findByFloor(String floor) {
+        return SQLite
+                .select()
+                .from(Node.class)
+                .where(Node_Table.floor.eq(floor))
+                .queryList();
+    }
 }

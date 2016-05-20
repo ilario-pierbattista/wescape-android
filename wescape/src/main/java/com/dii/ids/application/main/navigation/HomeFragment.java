@@ -389,8 +389,7 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskError(Exception e) {
-            Log.i(TAG, "Download fallito");
-            Log.e(TAG, e.toString());
+            Log.e(TAG, "Download fallito", e);
         }
 
         @Override
