@@ -112,4 +112,5 @@
     <string name="select_end_point">Select an ending point</string>
     <string name="error_duplicated_email">This email address is already in use</string>
     <string name="error_signup_general">Some error occurred while signing up</string>
+    <string name="error_connection_failed">Connection error. Check internet connectivity.</string>
 </resources>

@@ -25,12 +25,9 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
-import com.dii.ids.application.api.auth.Authenticator;
-import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
-import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.tasks.AutomaticLoginTask;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
@@ -38,46 +35,19 @@ import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-public class LoginFragment extends BaseFragment {
-    private final String TAG = LoginFragment.class.getName();
-    private final int CLICK_TO_OPEN = 8, CLICK_TO_FEEDBACK = 4;
-    public ViewHolder holder;
+import java.net.ConnectException;
 
+public class LoginFragment extends BaseFragment {
+    private static final String TAG = LoginFragment.class.getName();
+    public static final int SIGNUP_CREDENTIAL_REQUEST = 300;
+    private static final int CLICK_TO_OPEN = 8, CLICK_TO_FEEDBACK = 4;
+
+    public ViewHolder holder;
     private UserLoginTask loginTask = null;
     private EmailAutocompleter emailAutocompleter;
     private Toast hiddenMenuFeedbackToast;
-    private Authenticator authenticator;
     private int logoClickTimes;
-
-    private TaskListener<Void> loginTaskListener =
-            new TaskListener<Void>() {
-                @Override
-                public void onTaskSuccess(Void v) {
-                    Intent intent = new Intent(getActivity(), NavigationActivity.class);
-                    startActivity(intent);
-                }
-
-                @Override
-                public void onTaskError(Exception e) {
-                    // @TODO Cambiare messaggio a seconda dell'errore
-                    Log.e(TAG, "Login Error", e);
-                    holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
-                    holder.passwordField.requestFocus();
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    wipeAsyncTask();
-                }
-
-                @Override
-                public void onTaskCancelled() {
-                    wipeAsyncTask();
-                }
-            };
-
-    public LoginFragment() {
-    }
+    private boolean doAutomaticLogin = true;
 
     /**
      * Callback received when a permissions request has been completed.
@@ -103,13 +73,6 @@ public class LoginFragment extends BaseFragment {
         emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
         holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
                 getShortAnimTime());
-
-        // @TODO Sistemare
-        try {
-            authenticator = new WescapeAuthenticator(getContext());
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
 
         // Si nasconde la action bar
         ((AuthenticationActivity) getActivity()).hideActionBar();
@@ -165,11 +128,8 @@ public class LoginFragment extends BaseFragment {
             }
         });
 
-        // @TODO Test porchetto
-        Node node = NodeRepository.find(3);
-        if(node != null) {
-            Log.i(TAG, node.toString());
-        }
+        // Tenta di effettuare il login automatico
+        automaticLogin();
 
         return view;
     }
@@ -180,10 +140,6 @@ public class LoginFragment extends BaseFragment {
      * attempt is made.
      */
     private void attemptLogin() {
-        if (loginTask != null) {
-            return;
-        }
-
         // Reset errors.
         holder.emailFieldLayout.setError(null);
         holder.passwordFieldLayout.setError(null);
@@ -222,13 +178,19 @@ public class LoginFragment extends BaseFragment {
             // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            holder.showProgressAnimation.showProgress(true);
-
-            loginTask = new UserLoginTask(authenticator, loginTaskListener);
-            loginTask.execute(email, password);
+            triggerLoginTask(email, password);
         }
+    }
+
+    /**
+     * @param email
+     * @param password
+     */
+    private void triggerLoginTask(String email, String password) {
+        holder.showProgressAnimation.showProgress(true);
+
+        loginTask = new UserLoginTask(getContext(), new LoginTaskListener());
+        loginTask.execute(email, password);
     }
 
     /**
@@ -243,6 +205,7 @@ public class LoginFragment extends BaseFragment {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         signupFragment = SignupFragment.newInstance(getValidEmailFromView());
+        signupFragment.setTargetFragment(this, SIGNUP_CREDENTIAL_REQUEST);
 
         fragmentTransaction.replace(R.id.authentication_content_pane, signupFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -302,9 +265,79 @@ public class LoginFragment extends BaseFragment {
         }
     }
 
-    private void wipeAsyncTask() {
-        loginTask = null;
-        holder.showProgressAnimation.showProgress(false);
+    /**
+     * Login automatico in caso di presenza di authentication token valido
+     */
+    private void automaticLogin() {
+        if (doAutomaticLogin) {
+            holder.showProgressAnimation.showProgress(true);
+            AutomaticLoginTask task = new AutomaticLoginTask(getContext(), new AutomaticLoginTaskListener());
+            task.execute();
+        }
+    }
+
+    private void handleGeneralErrors(Exception e) {
+        if(e instanceof ConnectException) {
+            Toast.makeText(getContext(), getString(R.string.error_connection_failed), Toast.LENGTH_SHORT)
+                    .show();
+        } else {
+            Log.e(TAG, "Eccezione non gestita dal general handler", e);
+        }
+    }
+
+    private void openNavigationActivity() {
+        Intent intent = new Intent(getActivity(), NavigationActivity.class);
+        startActivity(intent);
+    }
+
+    private class LoginTaskListener implements TaskListener<Void> {
+        @Override
+        public void onTaskSuccess(Void v) {
+            openNavigationActivity();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            // @TODO Cambiare messaggio a seconda dell'errore
+            Log.e(TAG, "Login Error", e);
+            // holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
+            // holder.passwordField.requestFocus();
+            handleGeneralErrors(e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+    }
+
+    private class AutomaticLoginTaskListener implements TaskListener<Void> {
+        @Override
+        public void onTaskSuccess(Void aVoid) {
+            openNavigationActivity();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.e(TAG, "Automatic login error", e);
+            handleGeneralErrors(e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+            holder.showProgressAnimation.showProgress(false);
+            doAutomaticLogin = false;
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            holder.showProgressAnimation.showProgress(false);
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.dii.ids.application.main.authentication;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -223,6 +224,7 @@ public class SignupFragment extends BaseFragment {
     private class SignupTaskListener implements TaskListener<Void> {
         @Override
         public void onTaskSuccess(Void aVoid) {
+            Intent
             FragmentManager fm = getActivity().getSupportFragmentManager();
             fm.popBackStack();
         }

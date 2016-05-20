@@ -45,6 +45,10 @@ public class WescapeSessionManager implements SessionManager {
         return accessToken;
     }
 
+    /**
+     * Mantiene il token aggiornato
+     * @throws Exception
+     */
     private void keepTokenUpdated() throws Exception {
         Token currentToken = tokenStorage.get();
         if(currentToken == null) {

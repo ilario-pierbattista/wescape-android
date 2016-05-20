@@ -11,6 +11,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiBuilder {
+    // @TODO Passare in produzione
     private static final boolean DEV_ENVIRONMENT = true;
 
     public static WescapeService buildWescapeService(Context context) {
@@ -27,7 +28,6 @@ public class ApiBuilder {
             endpoint = "app_dev.php/";
         }
 
-        // @TODO Usare l'endpoint di produzione
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ipAddress + "/" + endpoint)
                 .addConverterFactory(GsonConverterFactory.create())
