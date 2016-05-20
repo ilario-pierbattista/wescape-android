@@ -175,7 +175,7 @@ public class PinView extends SubsamplingScaleImageView {
 
     private void drawPin(Canvas canvas, MapPin pin) {
         //Bitmap bmpPin = Utils.getBitmapFromAsset(context, mPin.getPinImgSrc());
-        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.marker_icon);
+        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.marker_icon_google);
 
         float w = (density / 1200f) * bmpPin.getWidth();
         float h = (density / 1200f) * bmpPin.getHeight();
