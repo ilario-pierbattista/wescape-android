@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +21,11 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.adapters.NodeAdapter;
 import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class SelectionFragment extends BaseFragment {
@@ -104,18 +105,11 @@ public class SelectionFragment extends BaseFragment {
             }
         });
 
-
-        //@TODO: cambiare i contenuti statici con chiamata alle API
-        ArrayList<Node> nodesList = new ArrayList<>();
-        Node nodo1 = new Node();
-        Node nodo2 = new Node();
-        Node nodo3 = new Node();
-        nodo1.setName("150");
-        nodo2.setName("150");
-        nodo3.setName("145");
-        nodesList.add(nodo1);
-        nodesList.add(nodo2);
-        nodesList.add(nodo3);
+        Log.i("dio cane", "Prova");
+        List<Node> nodesList = NodeRepository.findAll();
+        for (Node node : nodesList) {
+            Log.i("dio cane", node.toString());
+        }
 
         NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
         holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
@@ -135,7 +129,7 @@ public class SelectionFragment extends BaseFragment {
 
         // Il fragment di selezione dalla mappa dovrà tornare un risultato al fragment home
         HomeFragment homeFragment = (HomeFragment) fragmentManager
-                .findFragmentByTag(HomeFragment.FRAGMENT_TAG);
+                .findFragmentByTag(HomeFragment.TAG);
 
         fragment = SelectionFromMapFragment.newInstance();
         fragment.setTargetFragment(homeFragment, getArguments().getInt(SELECTION_REQUEST_CODE));

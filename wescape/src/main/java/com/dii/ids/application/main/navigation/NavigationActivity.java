@@ -19,7 +19,7 @@ public class NavigationActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             HomeFragment homeFragment = HomeFragment.newInstance();
             FragmentManager fm = getSupportFragmentManager();
-            fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.FRAGMENT_TAG)
+            fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.TAG)
                     .commit();
         }
     }

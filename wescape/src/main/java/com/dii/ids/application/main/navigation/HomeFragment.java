@@ -51,8 +51,7 @@ import java.util.Random;
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
  */
 public class HomeFragment extends BaseFragment {
-    public static final String FRAGMENT_TAG = HomeFragment.class.getSimpleName();
-    public static final String LOG_TAG = HomeFragment.class.getSimpleName();
+    public static final String TAG = HomeFragment.class.getSimpleName();
     public static final String INTENT_KEY_POSITION = "position";
     private static String originText;
     private static String destinationText;
@@ -153,8 +152,7 @@ public class HomeFragment extends BaseFragment {
 
                 @Override
                 public void onTaskComplete() {
-                    NodeRepository nodeRepository = new NodeRepository();
-                    List<Node> nodes = nodeRepository.findAll();
+                    List<Node> nodes = NodeRepository.findAll();
 
                     for (Node node : nodes) {
                         Log.i(TAG, node.toString());
@@ -195,7 +193,7 @@ public class HomeFragment extends BaseFragment {
                     break;
             }
         } catch (NullPointerException ee) {
-            Log.e(LOG_TAG, "NullPointer", ee);
+            Log.e(TAG, "NullPointer", ee);
         }
     }
 
