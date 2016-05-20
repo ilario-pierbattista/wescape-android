@@ -6,5 +6,5 @@ import com.raizlabs.android.dbflow.annotation.Database;
 public class WescapeDatabase {
     public static final String NAME = "WescapeDatabase"; // we will add the .db extension
 
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 }

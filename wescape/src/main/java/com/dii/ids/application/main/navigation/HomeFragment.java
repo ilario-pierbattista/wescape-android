@@ -25,10 +25,13 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.entity.repository.EdgeRepository;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
@@ -42,6 +45,7 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
@@ -316,17 +320,6 @@ public class HomeFragment extends BaseFragment {
             } else {
                 originText = getString(R.string.navigation_select_origin);
             }
-
-            // @TODO Porchetto a tutto volume
-            ArrayList<PointF> points = new ArrayList<>(
-                    Arrays.asList(
-                            new PointF(400f, 500f),
-                            new PointF(800f, 500f),
-                            new PointF(300f, 200f),
-                            new PointF(100f, 900f),
-                            new PointF(300f, 700f)));
-
-            holder.mapImage.setPath(points);
         }
 
         @Override
@@ -353,7 +346,6 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskSuccess(final List<Node> nodes) {
-
             Transaction transaction = database.beginTransactionAsync(new ITransaction() {
                 @Override
                 public void execute(DatabaseWrapper databaseWrapper) {
@@ -364,11 +356,14 @@ public class HomeFragment extends BaseFragment {
             }).build();
 
             transaction.execute();
+
+            DownloadEdgesTask task = new DownloadEdgesTask(getContext(), new EdgesDownloaderTaskListener());
+            task.execute();
         }
 
         @Override
         public void onTaskError(Exception e) {
-            Log.e(TAG, "Download fallito", e);
+            Log.e(TAG, "Download nodes fallito", e);
         }
 
         @Override
@@ -386,11 +381,46 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    private class EdgesDownloaderTaskListener implements TaskListener<List<Edge>> {
+        @Override
+        public void onTaskSuccess(final List<Edge> edges) {
+            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    for (Edge edge: edges) {
+                        edge.save(databaseWrapper);
+                    }
+                }
+            }).build();
+            transaction.execute();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.e(TAG, "Download edges fallito", e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+            List<Edge> edges = EdgeRepository.findAll();
+            for (Edge edge : edges) {
+                Log.i(TAG, edge.toString());
+            }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
+        }
+    }
+
     private class MinimumPathListener implements TaskListener<Algorithm.SearchResult> {
 
         @Override
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
+            Collection<Node> nodes = searchResult.getGoalNodes();
+            holder.mapImage.setPath(nodes);
         }
 
         @Override

@@ -13,7 +13,7 @@
     <string name="action_emergency">Emergenza</string>
     <string name="error_incorrect_password_confirm">La password di conferma non corrisponde</string>
     <string name="description_request_reset">Inserisci l\'indirizzo email utilizzato in fase di registrazione e ti spediremo le istruzioni per ripristinare la password</string>
-    <string name="action_reset_request">Ripristina Password</string>
+    <string name="action_reset_request">Richiedi una nuova password</string>
     <string name="prompt_secretcode">Codice Segreto</string>
     <string name="action_reset_passwd">Conferma Password</string>
     <string name="description_reset_password">Inserisci una nuova password nei campi sottostanti (ti abbiamo inviato un\'email con il codice segreto)</string>
@@ -45,6 +45,10 @@
     <string name="error_connection_failed">Connessione fallita. Controllare la connettività ad internet.</string>
     <string name="no_node_in_range">Questa zona non è selezionabile</string>
     <string name="selected_node">Nodo selezionato:</string>
+    <string name="error_email_not_found">Non esiste alcun account associato a questa email</string>
+    <string name="error_wrong_secret_code">Il codice segreto non è valido</string>
+    <string name="error_secret_code_expired">Codice scaduto</string>
+    <string name="action_reset_password">Reimposta password</string>
     <string name="computing_route">Calcolando il percorso migliore</string>
     <string name="please_wait">Attendere per favore...</string>
 </resources>

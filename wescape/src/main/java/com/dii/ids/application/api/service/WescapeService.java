@@ -4,6 +4,7 @@ import com.dii.ids.application.api.form.CreateUserForm;
 import com.dii.ids.application.api.form.LoginForm;
 import com.dii.ids.application.api.form.RefreshTokenForm;
 import com.dii.ids.application.api.form.RequestPasswordForm;
+import com.dii.ids.application.api.form.ResetPasswordForm;
 import com.dii.ids.application.api.response.StatusResponse;
 import com.dii.ids.application.api.response.TokenResponse;
 import com.dii.ids.application.api.response.UserResponse;
@@ -33,6 +34,9 @@ public interface WescapeService {
 
     @POST("/api/v1/users/password/request")
     Call<StatusResponse> requestPasswordReset(@Body RequestPasswordForm requestPasswordForm);
+
+    @POST("/api/v1/users/password/reset")
+    Call<StatusResponse> resetPassword(@Body ResetPasswordForm resetPasswordForm);
 
     @GET("/api/v1/nodes.json")
     Call<List<Node>> listNodes(@Header("Authorization") String authorization);

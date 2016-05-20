@@ -7,8 +7,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +24,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
-import com.dii.ids.application.interfaces.AsyncTaskCallbacksInterface;
+import com.dii.ids.application.api.auth.exception.reset.WrongEmailException;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.ResetRequestTask;
@@ -36,49 +38,14 @@ import com.dii.ids.application.validators.EmailValidator;
  * this fragment.
  */
 public class ResetRequestFragment extends BaseFragment {
-    private static final String ARG_PARAM1 = "email";
+    public static final String TAG = ResetRequestTask.class.getName();
+    private static final String EMAIL = "email";
 
-    private String email;
+    private String inputEmail;
     private ViewHolder holder;
     private EmailAutocompleter autocompleter;
-    private ResetRequestTask asyncTask;
 
     private OnFragmentInteractionListener mListener;
-
-    private TaskListener<Void> listener =
-            new TaskListener<Void>() {
-                @Override
-                public void onTaskSuccess(Void aVoid) {
-                    ResetPasswordFragment fragment;
-
-                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
-
-                    transaction.replace(R.id.authentication_content_pane, fragment)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                            .addToBackStack(null)
-                            .commit();
-                }
-
-                @Override
-                public void onTaskError(Exception e) {
-
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    holder.showProgressAnimation.showProgress(false);
-                }
-
-                @Override
-                public void onTaskCancelled() {
-
-                }
-            };
-
-    public ResetRequestFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -90,7 +57,7 @@ public class ResetRequestFragment extends BaseFragment {
     public static ResetRequestFragment newInstance(String email) {
         ResetRequestFragment fragment = new ResetRequestFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, email);
+        args.putString(EMAIL, email);
         fragment.setArguments(args);
         return fragment;
     }
@@ -119,7 +86,7 @@ public class ResetRequestFragment extends BaseFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            email = getArguments().getString(ARG_PARAM1);
+            inputEmail = getArguments().getString(EMAIL);
         }
     }
 
@@ -136,8 +103,8 @@ public class ResetRequestFragment extends BaseFragment {
         autocompleter = new EmailAutocompleter(this, holder.emailField);
         autocompleter.populateAutoComplete();
 
-        if (email != null) {
-            holder.emailField.setText(email);
+        if (inputEmail != null) {
+            holder.emailField.setText(inputEmail);
         }
 
         holder.emailField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -161,47 +128,46 @@ public class ResetRequestFragment extends BaseFragment {
             }
         });
 
+        holder.resetPasswordButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                hideKeyboard(view);
+                resetPassword();
+            }
+        });
+
         return view;
     }
 
     /**
      * Attempts to sign in or register the account specified by the login form. If there are form
-     * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
-     * attempt is made.
+     * errors (invalid inputEmail, missing fields, etc.), the errors are presented and no actual
+     * login attempt is made.
      */
     private void requestReset() {
-        EmailValidator emailValidator = new EmailValidator();
+        inputEmail = getValidEmailAddress();
 
-        // Reset errors.
-        holder.emailFieldLayout.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = holder.emailField.getText().toString();
-
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            holder.emailFieldLayout.setError(getString(R.string.error_field_required));
-            focusView = holder.emailField;
-            cancel = true;
-        } else if (!emailValidator.isValid(email)) {
-            holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
-            focusView = holder.emailField;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
+        if (inputEmail != null) {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             holder.showProgressAnimation.showProgress(true);
-            asyncTask = new ResetRequestTask(getContext(), listener);
-            asyncTask.execute(email);
+            ResetRequestTask resetRequestTask = new ResetRequestTask(
+                    getContext(), new ResetRequestTaskListener());
+            resetRequestTask.execute(inputEmail);
+        }
+    }
+
+    private void resetPassword() {
+        inputEmail = getValidEmailAddress();
+
+        if (inputEmail != null) {
+            ResetPasswordFragment fragment = ResetPasswordFragment.newInstance(inputEmail);
+
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            fm.beginTransaction()
+                    .replace(R.id.authentication_content_pane, fragment)
+                    .addToBackStack(null)
+                    .commit();
         }
     }
 
@@ -213,18 +179,28 @@ public class ResetRequestFragment extends BaseFragment {
 
     @Nullable
     private String getValidEmailAddress() {
+        EmailValidator emailValidator = new EmailValidator();
         String email = holder.emailField.getText().toString();
-        if (new EmailValidator().isValid(email)) {
-            return email;
-        } else {
-            return null;
-        }
-    }
+        View focusView = null;
+        boolean error = false;
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
+        if (TextUtils.isEmpty(email)) {
+            holder.emailFieldLayout.setError(getString(R.string.error_field_required));
+            focusView = holder.emailField;
+            error = true;
+        } else if (!emailValidator.isValid(email)) {
+            holder.emailFieldLayout.setError(getString(R.string.error_invalid_email));
+            focusView = holder.emailField;
+            error = true;
+        }
+
+        if (error) {
+            focusView.requestFocus();
+            Log.i(TAG, "Invalid");
+            return null;
+        } else {
+            Log.i(TAG, "Valid");
+            return email;
         }
     }
 
@@ -237,16 +213,52 @@ public class ResetRequestFragment extends BaseFragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
 
-    public class ViewHolder {
+    private class ResetRequestTaskListener implements TaskListener<Void> {
+        @Override
+        public void onTaskSuccess(Void aVoid) {
+            ResetPasswordFragment fragment;
+
+            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+            fragment = ResetPasswordFragment.newInstance(getValidEmailAddress());
+
+            transaction.replace(R.id.authentication_content_pane, fragment)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .addToBackStack(null)
+                    .commit();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            handleGeneralErrors(e);
+            if (e instanceof WrongEmailException) {
+                holder.emailFieldLayout.setError(getString(R.string.error_email_not_found));
+                holder.emailField.requestFocus();
+            } else {
+                Log.e(TAG, "Errore non gestito", e);
+            }
+        }
+
+        @Override
+        public void onTaskComplete() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+    }
+
+    public class ViewHolder extends BaseFragment.ViewHolder {
         private final ProgressBar progressBar;
         private final ScrollView scrollView;
         private final AutoCompleteTextView emailField;
         private final TextInputLayout emailFieldLayout;
         private final Button resetRequestButton;
+        private final Button resetPasswordButton;
         private ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View v) {
@@ -255,6 +267,7 @@ public class ResetRequestFragment extends BaseFragment {
             emailField = (AutoCompleteTextView) v.findViewById(R.id.reset_request_email_text_input);
             emailFieldLayout = (TextInputLayout) v.findViewById(R.id.reset_request_email_text_input_layout);
             resetRequestButton = (Button) v.findViewById(R.id.request_reset_button);
+            resetPasswordButton = find(v, R.id.go_to_reset_fragment_button);
         }
     }
 }

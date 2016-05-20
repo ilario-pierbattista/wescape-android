@@ -7,9 +7,13 @@ import com.dii.ids.application.api.WescapeErrorCodes;
 import com.dii.ids.application.api.auth.Client;
 import com.dii.ids.application.api.auth.UserManager;
 import com.dii.ids.application.api.auth.exception.DuplicatedEmailException;
+import com.dii.ids.application.api.auth.exception.reset.ExpiredSecretException;
+import com.dii.ids.application.api.auth.exception.reset.WrongEmailException;
+import com.dii.ids.application.api.auth.exception.reset.WrongSecretCodeException;
 import com.dii.ids.application.api.form.ClientForm;
 import com.dii.ids.application.api.form.CreateUserForm;
 import com.dii.ids.application.api.form.RequestPasswordForm;
+import com.dii.ids.application.api.form.ResetPasswordForm;
 import com.dii.ids.application.api.response.StatusResponse;
 import com.dii.ids.application.api.response.UserResponse;
 import com.dii.ids.application.api.service.WescapeService;
@@ -56,14 +60,39 @@ public class WescapeUserManager implements UserManager {
         Call<StatusResponse> call = service.requestPasswordReset(requestPasswordForm);
         Response<StatusResponse> response = call.execute();
 
-        if(response.code() != HttpURLConnection.HTTP_ACCEPTED) {
-            throw new Exception();
+        switch (response.code()) {
+            case HttpURLConnection.HTTP_ACCEPTED:
+                break;
+            case WescapeErrorCodes.RESET_WRONG_EMAIL:
+                throw new WrongEmailException();
+            default:
+                throw new Exception();
         }
     }
 
     @Override
     public void resetPassword(String email, String secretCode, String password) throws Exception {
+        ResetPasswordForm resetPasswordForm = new ResetPasswordForm();
+        resetPasswordForm.setClient(createClientForm())
+                .setEmail(email)
+                .setNew_password(password)
+                .setReset_password_token(secretCode);
 
+        Call<StatusResponse> call = service.resetPassword(resetPasswordForm);
+        Response<StatusResponse> response = call.execute();
+
+        switch (response.code()) {
+            case HttpURLConnection.HTTP_OK:
+                break;
+            case WescapeErrorCodes.RESET_WRONG_EMAIL:
+                throw new WrongEmailException();
+            case WescapeErrorCodes.RESET_WRONG_SECRET:
+                throw new WrongSecretCodeException();
+            case WescapeErrorCodes.RESET_EXPIRED_SECRET:
+                throw new ExpiredSecretException();
+            default:
+                throw new Exception();
+        }
     }
 
     private ClientForm createClientForm() {
