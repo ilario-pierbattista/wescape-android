@@ -50,7 +50,7 @@
                 style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nodo selezionato:"
+                android:text="@string/selected_node"
                 android:textColor="@color/lightGreyBackground"/>
 
             <TextView
@@ -59,7 +59,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:text="155/6"
                 android:textColor="@color/white"/>
 
         </LinearLayout>

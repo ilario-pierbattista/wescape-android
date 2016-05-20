@@ -113,4 +113,6 @@
     <string name="error_duplicated_email">This email address is already in use</string>
     <string name="error_signup_general">Some error occurred while signing up</string>
     <string name="error_connection_failed">Connection error. Check internet connectivity.</string>
+    <string name="no_node_in_range">This point is not selectable</string>
+    <string name="selected_node">Selected node:</string>
 </resources>
