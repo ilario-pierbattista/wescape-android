@@ -1,8 +1,10 @@
 package com.dii.ids.application.main.authentication.tasks;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.dii.ids.application.api.auth.Authenticator;
+import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
 import com.dii.ids.application.listener.TaskListener;
 
 /**
@@ -11,13 +13,13 @@ import com.dii.ids.application.listener.TaskListener;
 public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
     private static final String TAG = UserLoginTask.class.getName();
     private TaskListener<Void> listener;
-    private Authenticator authenticator;
     private Exception thrownException;
+    private Authenticator authenticator;
 
     public UserLoginTask(
-            Authenticator authenticator,
+            Context context,
             TaskListener<Void> listener) {
-        this.authenticator = authenticator;
+        this.authenticator = new WescapeAuthenticator(context);
         this.listener = listener;
     }
 
