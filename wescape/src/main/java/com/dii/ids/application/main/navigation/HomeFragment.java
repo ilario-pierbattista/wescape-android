@@ -58,117 +58,6 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
-    private DownloadNodesTask downloadNodesTask;
-
-    private TaskListener<Bitmap> mapDownloaderListener =
-            new TaskListener<Bitmap>() {
-                @Override
-                public void onTaskSuccess(Bitmap image) {
-                    holder.mapImage.setImage(ImageSource.bitmap(image));
-                    holder.mapImage.setMinimumDpi(40);
-
-                    // @TODO Porchetto a tutto volume
-                    MapPin mapPin = new MapPin(500f, 900f, 1);
-                    MapPin mapPin1 = new MapPin(550f, 1000f, 2);
-
-                    final ArrayList<MapPin> MapPins = new ArrayList();
-                    MapPins.add(mapPin);
-                    MapPins.add(mapPin1);
-
-                    ArrayList<PointF> points = new ArrayList<>(
-                            Arrays.asList(
-                                    new PointF(400f, 500f),
-                                    new PointF(800f, 500f),
-                                    new PointF(300f, 200f),
-                                    new PointF(100f, 900f),
-                                    new PointF(300f, 700f)));
-
-                    holder.mapImage.setPath(points);
-
-                    holder.mapImage.setMultiplePins(MapPins);
-
-                    // @TODO Spostare il gestore della gesture nel fragment di competenza
-                    final GestureDetector gestureDetector = new GestureDetector(getActivity(),
-                                                                                new GestureDetector.SimpleOnGestureListener() {
-                                                                                    @Override
-                                                                                    public boolean onSingleTapConfirmed(MotionEvent e) {
-                                                                                        if (holder.mapImage.isReady()) {
-                                                                                            PointF sCoord = holder.mapImage.viewToSourceCoord(
-                                                                                                    e.getX(), e.getY());
-                                                                                            //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                                                                                            //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
-                                                                                        } else {
-                                                                                            Toast.makeText(
-                                                                                                    getActivity().getApplicationContext(),
-                                                                                                    "Image is not ready",
-                                                                                                    Toast.LENGTH_SHORT).show();
-                                                                                        }
-                                                                                        return true;
-                                                                                    }
-                                                                                });
-
-                    holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            return gestureDetector.onTouchEvent(event);
-                        }
-                    });
-                }
-
-                @Override
-                public void onTaskError(Exception e) {
-                    Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                                   Toast.LENGTH_LONG).show();
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    mapsDownloaderTask = null;
-                }
-
-                @Override
-                public void onTaskCancelled() {
-                    mapsDownloaderTask = null;
-                }
-            };
-
-    private TaskListener<List<Node>> nodesDownloaderListener =
-            new TaskListener<List<Node>>() {
-                @Override
-                public void onTaskSuccess(final List<Node> nodes) {
-
-                    Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                        @Override
-                        public void execute(DatabaseWrapper databaseWrapper) {
-                            for (Node node : nodes) {
-                                node.save(databaseWrapper);
-                            }
-                        }
-                    }).build();
-
-                    transaction.execute();
-                }
-
-                @Override
-                public void onTaskError(Exception e) {
-                    Log.i(TAG, "Download fallito");
-                    Log.e(TAG, e.toString());
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    List<Node> nodes = NodeRepository.findAll();
-
-                    for (Node node : nodes) {
-                        Log.i(TAG, node.toString());
-                    }
-                }
-
-                @Override
-                public void onTaskCancelled() {
-
-                }
-            };
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -214,7 +103,7 @@ public class HomeFragment extends BaseFragment {
 
         setupViewUI();
 
-        downloadNodesTask = new DownloadNodesTask(getContext(), nodesDownloaderListener);
+        DownloadNodesTask downloadNodesTask = new DownloadNodesTask(getContext(), new NodesDownloaderListener());
         downloadNodesTask.execute();
 
         return view;
@@ -265,36 +154,10 @@ public class HomeFragment extends BaseFragment {
         }
 
         // @TODO Sostituire con qualcosa di meno insensato
-        mapsDownloaderTask = new MapsDownloaderTask(getContext(), mapDownloaderListener);
+        mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
         mapsDownloaderTask.execute(floors[idx]);
-    }
-
-    /**
-     * Responsible for navigation start button
-     */
-    private class NavigationButtonListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            if (origin == null || destination == null) {
-                if (origin == null) {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                   Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                                   Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                if (origin.getId() == destination.getId()) {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                                   Toast.LENGTH_SHORT).show();
-                } else {
-                    openNavigatorFragment();
-                }
-            }
-        }
     }
 
     private void openSelectionFragment(View v) {
@@ -400,6 +263,148 @@ public class HomeFragment extends BaseFragment {
                 }
             });
             emergency = false;
+        }
+    }
+
+    /**
+     * Responsible for navigation start button
+     */
+    private class NavigationButtonListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if (origin == null || destination == null) {
+                if (origin == null) {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
+                                   Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
+                                   Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                if (origin.getId() == destination.getId()) {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
+                                   Toast.LENGTH_SHORT).show();
+                } else {
+                    openNavigatorFragment();
+                }
+            }
+        }
+    }
+
+    /**
+     * Responsible for downloading maps
+     */
+    private class MapsDownloaderListener implements TaskListener<Bitmap> {
+
+        @Override
+        public void onTaskSuccess(Bitmap image) {
+            holder.mapImage.setImage(ImageSource.bitmap(image));
+            holder.mapImage.setMinimumDpi(40);
+
+            // @TODO Porchetto a tutto volume
+            MapPin mapPin = new MapPin(500f, 900f, 1);
+            MapPin mapPin1 = new MapPin(550f, 1000f, 2);
+
+            final ArrayList<MapPin> MapPins = new ArrayList();
+            MapPins.add(mapPin);
+            MapPins.add(mapPin1);
+
+            ArrayList<PointF> points = new ArrayList<>(
+                    Arrays.asList(
+                            new PointF(400f, 500f),
+                            new PointF(800f, 500f),
+                            new PointF(300f, 200f),
+                            new PointF(100f, 900f),
+                            new PointF(300f, 700f)));
+
+            holder.mapImage.setPath(points);
+
+            holder.mapImage.setMultiplePins(MapPins);
+
+            // @TODO Spostare il gestore della gesture nel fragment di competenza
+            final GestureDetector gestureDetector = new GestureDetector(getActivity(),
+                                                                        new GestureDetector.SimpleOnGestureListener() {
+                                                                            @Override
+                                                                            public boolean onSingleTapConfirmed(MotionEvent e) {
+                                                                                if (holder.mapImage.isReady()) {
+                                                                                    PointF sCoord = holder.mapImage.viewToSourceCoord(
+                                                                                            e.getX(), e.getY());
+                                                                                    //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                                                                                    //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                                                                                } else {
+                                                                                    Toast.makeText(
+                                                                                            getActivity().getApplicationContext(),
+                                                                                            "Image is not ready",
+                                                                                            Toast.LENGTH_SHORT).show();
+                                                                                }
+                                                                                return true;
+                                                                            }
+                                                                        });
+
+            holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return gestureDetector.onTouchEvent(event);
+                }
+            });
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
+                           Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onTaskComplete() {
+            mapsDownloaderTask = null;
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            mapsDownloaderTask = null;
+        }
+    }
+
+    /**
+     * Responsible for downloading nodes
+     */
+    private class NodesDownloaderListener implements TaskListener<List<Node>> {
+
+        @Override
+        public void onTaskSuccess(final List<Node> nodes) {
+
+            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    for (Node node : nodes) {
+                        node.save(databaseWrapper);
+                    }
+                }
+            }).build();
+
+            transaction.execute();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.i(TAG, "Download fallito");
+            Log.e(TAG, e.toString());
+        }
+
+        @Override
+        public void onTaskComplete() {
+            List<Node> nodes = NodeRepository.findAll();
+
+            for (Node node : nodes) {
+                Log.i(TAG, node.toString());
+            }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
         }
     }
 
