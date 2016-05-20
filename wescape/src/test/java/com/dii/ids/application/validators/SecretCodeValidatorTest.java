@@ -9,8 +9,9 @@ import static org.junit.Assert.*;
 public class SecretCodeValidatorTest {
     private SecretCodeValidator validator;
     public static final String[] validCodes = {
-            "34565",
-            "335444"
+            "4AD60",
+            "AAAAA",
+            "00000"
     };
     public static final String[] invalidCodes = {
             "",

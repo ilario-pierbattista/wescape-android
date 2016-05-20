@@ -28,11 +28,8 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
-import com.dii.ids.application.main.navigation.HomeFragment;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
-
-import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
@@ -46,8 +43,7 @@ public class SignupFragment extends BaseFragment {
     public static final String INTENT_KEY_PASSWORD = "password";
     private static final String ARG_PARAM1 = "email";
 
-    private String email, password;
-    private UserSignupTask signupTask;
+    private String email;
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
     private OnFragmentInteractionListener mListener;
@@ -209,7 +205,7 @@ public class SignupFragment extends BaseFragment {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             holder.showProgressAnimation.showProgress(true);
-            signupTask = new UserSignupTask(getContext(), new SignupTaskListener());
+            UserSignupTask signupTask = new UserSignupTask(getContext(), new SignupTaskListener());
             signupTask.execute(email, password);
         }
     }
@@ -244,6 +240,7 @@ public class SignupFragment extends BaseFragment {
 
         @Override
         public void onTaskError(Exception e) {
+            handleGeneralErrors(e);
             if (e instanceof DuplicatedEmailException) {
                 holder.emailFieldLayout.setError(getString(R.string.error_duplicated_email));
                 holder.emailField.requestFocus();

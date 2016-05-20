@@ -8,10 +8,14 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
+import com.dii.ids.application.R;
 import com.dii.ids.application.db.WescapeDatabase;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
+
+import java.net.ConnectException;
 
 public abstract class BaseFragment extends Fragment {
 
@@ -54,23 +58,13 @@ public abstract class BaseFragment extends Fragment {
         return getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
 
-    /**
-     * Restituisce il bundle dei metadati dichiarati nel manifest
-     *
-     * @return Bundle di metadati
-     */
-    @Deprecated
-    protected Bundle getMetaData() {
-        if (metaData == null) {
-            try {
-                metaData = (getContext().getPackageManager().getApplicationInfo(
-                        getContext().getPackageName(), PackageManager.GET_META_DATA
-                )).metaData;
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Errore nel caricare i metadati", e);
-            }
+    protected void handleGeneralErrors(Exception e) {
+        if (e instanceof ConnectException) {
+            Toast.makeText(getContext(), getString(R.string.error_connection_failed), Toast.LENGTH_SHORT)
+                    .show();
+        } else {
+            Log.e(TAG, "Eccezione non gestita dal general handler", e);
         }
-        return metaData;
     }
 
     public static abstract class ViewHolder {

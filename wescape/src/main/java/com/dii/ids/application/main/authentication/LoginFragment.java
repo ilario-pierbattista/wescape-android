@@ -288,15 +288,6 @@ public class LoginFragment extends BaseFragment {
         }
     }
 
-    private void handleGeneralErrors(Exception e) {
-        if (e instanceof ConnectException) {
-            Toast.makeText(getContext(), getString(R.string.error_connection_failed), Toast.LENGTH_SHORT)
-                    .show();
-        } else {
-            Log.e(TAG, "Eccezione non gestita dal general handler", e);
-        }
-    }
-
     private void openNavigationActivity() {
         Intent intent = new Intent(getActivity(), NavigationActivity.class);
         startActivity(intent);
