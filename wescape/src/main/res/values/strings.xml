@@ -107,4 +107,6 @@
 
     <string name="pref_title_vibrate" translatable="false">Vibrate</string>
     <string name="search_hint">Search for a point</string>
+    <string name="error_duplicated_email">This email address is already in use</string>
+    <string name="error_signup_general">Some error occurred while signing up</string>
 </resources>

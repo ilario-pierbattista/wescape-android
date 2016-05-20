@@ -11,14 +11,25 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiBuilder {
+    private static final boolean DEV_ENVIRONMENT = true;
+
     public static WescapeService buildWescapeService(Context context) {
+        return ApiBuilder.buildWescapeService(context, DEV_ENVIRONMENT);
+    }
+
+    public static WescapeService buildWescapeService(Context context, boolean development) {
         // @TODO Aggiungere la validazione dell'indirizzo IP
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String ipAddress = preferences.getString(SettingsActivity.WESCAPE_HOSTNAME, "10.42.0.1");
+        String endpoint = "";
+        if (development) {
+            endpoint = "app_dev.php/";
+        }
 
+        // @TODO Usare l'endpoint di produzione
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://" + ipAddress + "/")
+                .baseUrl("http://" + ipAddress + "/" + endpoint)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

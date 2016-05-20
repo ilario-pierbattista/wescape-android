@@ -3,8 +3,10 @@ package com.dii.ids.application.api.auth.wescape;
 import android.content.Context;
 
 import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.WescapeErrorCodes;
 import com.dii.ids.application.api.auth.Client;
 import com.dii.ids.application.api.auth.UserManager;
+import com.dii.ids.application.api.auth.exception.DuplicatedEmailException;
 import com.dii.ids.application.api.form.ClientForm;
 import com.dii.ids.application.api.form.CreateUserForm;
 import com.dii.ids.application.api.form.RequestPasswordForm;
@@ -36,9 +38,13 @@ public class WescapeUserManager implements UserManager {
         Call<UserResponse> call = service.createUser(createUserForm);
         Response<UserResponse> response = call.execute();
 
-        if(response.code() != HttpURLConnection.HTTP_CREATED) {
-            // @TODO Impostare un'eccezione più specializzata
-            throw new Exception();
+        switch (response.code()) {
+            case HttpURLConnection.HTTP_CREATED:
+                break;
+            case WescapeErrorCodes.SIGNUP_DUPLICATED_EMAIL:
+                throw new DuplicatedEmailException();
+            default:
+                throw new Exception();
         }
     }
 

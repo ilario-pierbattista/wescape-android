@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.api.auth.exception.DuplicatedEmailException;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
@@ -35,6 +36,7 @@ import com.dii.ids.application.validators.PasswordValidator;
  * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class SignupFragment extends BaseFragment {
+    public static final String TAG = SignupFragment.class.getName();
     private static final String ARG_PARAM1 = "email";
 
     private String email;
@@ -52,7 +54,12 @@ public class SignupFragment extends BaseFragment {
 
                 @Override
                 public void onTaskError(Exception e) {
-                    Log.e(TAG, "Error", e);
+                    if(e instanceof DuplicatedEmailException) {
+                        holder.emailFieldLayout.setError(getString(R.string.error_duplicated_email));
+                        holder.emailField.requestFocus();
+                    } else {
+                        holder.generalErrorTextView.setText(R.string.error_signup_general);
+                    }
                 }
 
                 @Override
@@ -248,7 +255,7 @@ public class SignupFragment extends BaseFragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    public static class ViewHolder {
+    public static class ViewHolder extends BaseFragment.ViewHolder {
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
         public final AutoCompleteTextView emailField;
@@ -258,6 +265,7 @@ public class SignupFragment extends BaseFragment {
         public final EditText passwordConfirmField;
         public final TextInputLayout passwordConfirmFieldLayout;
         public final Button signupButton;
+        public final TextView generalErrorTextView;
         private ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View v) {
@@ -270,6 +278,7 @@ public class SignupFragment extends BaseFragment {
             passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
             passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
             signupButton = (Button) v.findViewById(R.id.signup_button);
+            generalErrorTextView = find(v, R.id.general_error_text_view);
         }
     }
 }
