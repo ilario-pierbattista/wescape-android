@@ -12,7 +12,9 @@ public class MapPin {
         this.id = id;
     }
 
-    public MapPin() {
+    public MapPin(float X, float Y) {
+        this.X = X;
+        this.Y = Y;
     }
 
     public float getX() {

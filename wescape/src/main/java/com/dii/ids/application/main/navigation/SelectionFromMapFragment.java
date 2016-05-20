@@ -30,7 +30,6 @@ import com.dii.ids.application.utils.units.UnitConverter;
 import org.apache.commons.lang3.SerializationUtils;
 
 public class SelectionFromMapFragment extends BaseFragment {
-    public static final int STARTING_FLOOR = 155;
     public static final int POSITION_ACQUIRED = 1;
     public static final int POSITION_NOT_ACQUIRED = 0;
     public static final String TAG = SelectionFromMapFragment.class.getSimpleName();

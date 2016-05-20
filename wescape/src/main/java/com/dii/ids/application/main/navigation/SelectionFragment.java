@@ -10,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -111,24 +112,27 @@ public class SelectionFragment extends BaseFragment {
         holder.nodeListView.setAdapter(nodeAdapter);
         holder.nodeListView.setTextFilterEnabled(true);
         holder.nodeListView.setOnItemClickListener(new NodeListListener());
-
+        changeSearchFieldHintBehaviour();
 
         return view;
     }
 
-    /**
-     * Responsible for handling click in nodes listView
-     */
-    private class NodeListListener implements AdapterView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Node node = (Node) holder.nodeListView.getItemAtPosition(position);
-            Intent data = new Intent();
-            data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
-            getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
-            FragmentManager fm = getActivity().getSupportFragmentManager();
-            fm.popBackStack();
-        }
+    private void changeSearchFieldHintBehaviour() {
+        holder.searchFieldTextView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                holder.searchFieldTextView.setHint("");
+                return false;
+            }
+        });
+        holder.searchFieldTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus){
+                    holder.searchFieldTextView.setHint(R.string.search_hint);
+                }
+            }
+        });
     }
 
     /**
@@ -189,6 +193,21 @@ public class SelectionFragment extends BaseFragment {
             String searchQuery = holder.searchFieldTextView.getText().toString();
             NodeAdapter adapter = (NodeAdapter) holder.nodeListView.getAdapter();
             adapter.getFilter().filter(s);
+        }
+    }
+
+    /**
+     * Responsible for handling click in nodes listView
+     */
+    private class NodeListListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Node node = (Node) holder.nodeListView.getItemAtPosition(position);
+            Intent data = new Intent();
+            data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
+            getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            fm.popBackStack();
         }
     }
 
