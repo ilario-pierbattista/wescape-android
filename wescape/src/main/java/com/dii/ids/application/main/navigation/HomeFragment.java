@@ -88,19 +88,24 @@ public class HomeFragment extends BaseFragment {
                     holder.mapImage.setMultiplePins(MapPins);
 
                     // @TODO Spostare il gestore della gesture nel fragment di competenza
-                    final GestureDetector gestureDetector = new GestureDetector(getActivity(), new GestureDetector.SimpleOnGestureListener() {
-                        @Override
-                        public boolean onSingleTapConfirmed(MotionEvent e) {
-                            if (holder.mapImage.isReady()) {
-                                PointF sCoord = holder.mapImage.viewToSourceCoord(e.getX(), e.getY());
-                                //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                                //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(getActivity().getApplicationContext(), "Image is not ready", Toast.LENGTH_SHORT).show();
-                            }
-                            return true;
-                        }
-                    });
+                    final GestureDetector gestureDetector = new GestureDetector(getActivity(),
+                                                                                new GestureDetector.SimpleOnGestureListener() {
+                                                                                    @Override
+                                                                                    public boolean onSingleTapConfirmed(MotionEvent e) {
+                                                                                        if (holder.mapImage.isReady()) {
+                                                                                            PointF sCoord = holder.mapImage.viewToSourceCoord(
+                                                                                                    e.getX(), e.getY());
+                                                                                            //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                                                                                            //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                                                                                        } else {
+                                                                                            Toast.makeText(
+                                                                                                    getActivity().getApplicationContext(),
+                                                                                                    "Image is not ready",
+                                                                                                    Toast.LENGTH_SHORT).show();
+                                                                                        }
+                                                                                        return true;
+                                                                                    }
+                                                                                });
 
                     holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
                         @Override
@@ -112,7 +117,8 @@ public class HomeFragment extends BaseFragment {
 
                 @Override
                 public void onTaskError(Exception e) {
-                    Toast.makeText(getContext(), getString(R.string.error_network_download_image), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), getString(R.string.error_network_download_image),
+                                   Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -238,12 +244,7 @@ public class HomeFragment extends BaseFragment {
             }
         });
 
-        holder.startFabButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openNavigatorFragment();
-            }
-        });
+        holder.startFabButton.setOnClickListener(new NavigationButtonListener());
 
         if (emergency) {
             holder.revealView.setBackgroundColor(color(R.color.regularRed));
@@ -268,6 +269,32 @@ public class HomeFragment extends BaseFragment {
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
         mapsDownloaderTask.execute(floors[idx]);
+    }
+
+    /**
+     * Responsible for navigation start button
+     */
+    private class NavigationButtonListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            if (origin == null || destination == null) {
+                if (origin == null) {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
+                                   Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
+                                   Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                if (origin.getId() == destination.getId()) {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
+                                   Toast.LENGTH_SHORT).show();
+                } else {
+                    openNavigatorFragment();
+                }
+            }
+        }
     }
 
     private void openSelectionFragment(View v) {
@@ -344,12 +371,13 @@ public class HomeFragment extends BaseFragment {
     private void toggleEmergency() {
         int red = R.color.regularRed;
         int blue = R.color.regularBlue;
+        destination = null;
         ColorStateList toRed = getResources().getColorStateList(red),
                 toBlue = getResources().getColorStateList(blue);
         FabAnimation fabAnimation = new FabAnimation();
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                holder.revealBackgroundView,
-                holder.toolbar);
+                                                                 holder.revealBackgroundView,
+                                                                 holder.toolbar);
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));

@@ -37,4 +37,7 @@
     <string name="search_hint" translatable="false">Cerca un punto</string>
     <string name="title_activity_settings">Impostazioni</string>
     <string name="toast_hidden_menu_feedback">Mantieni premuto per aprire le preferenze</string>
+    <string name="select_different_nodes">Il punto di partenza deve essere diverso da quello di arrivo</string>
+    <string name="select_start_point">Seleziona un punto di partenza</string>
+    <string name="select_end_point">Seleziona un punto di arrivo</string>
 </resources>
