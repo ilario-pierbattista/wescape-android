@@ -27,10 +27,13 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.entity.repository.EdgeRepository;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
@@ -351,10 +354,8 @@ public class HomeFragment extends BaseFragment {
      * Responsible for downloading nodes
      */
     private class NodesDownloaderListener implements TaskListener<List<Node>> {
-
         @Override
         public void onTaskSuccess(final List<Node> nodes) {
-
             Transaction transaction = database.beginTransactionAsync(new ITransaction() {
                 @Override
                 public void execute(DatabaseWrapper databaseWrapper) {
@@ -365,6 +366,9 @@ public class HomeFragment extends BaseFragment {
             }).build();
 
             transaction.execute();
+
+            DownloadEdgesTask task = new DownloadEdgesTask(getContext(), new EdgesDownloaderTaskListener());
+            task.execute();
         }
 
         @Override
@@ -378,6 +382,39 @@ public class HomeFragment extends BaseFragment {
 
             for (Node node : nodes) {
                 Log.i(TAG, node.toString());
+            }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
+        }
+    }
+
+    private class EdgesDownloaderTaskListener implements TaskListener<List<Edge>> {
+        @Override
+        public void onTaskSuccess(final List<Edge> edges) {
+            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+                @Override
+                public void execute(DatabaseWrapper databaseWrapper) {
+                    for (Edge edge: edges) {
+                        edge.save(databaseWrapper);
+                    }
+                }
+            }).build();
+            transaction.execute();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.e(TAG, "Download fallito", e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+            List<Edge> edges = EdgeRepository.findAll();
+            for (Edge edge : edges) {
+                Log.i(TAG, edge.toString());
             }
         }
 

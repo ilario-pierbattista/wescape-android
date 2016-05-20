@@ -14,11 +14,11 @@ public class Edge extends BaseModel {
     private int id;
 
     @Column
-    @ForeignKey
+    @ForeignKey(saveForeignKeyModel = false)
     private Node begin;
 
     @Column
-    @ForeignKey
+    @ForeignKey(saveForeignKeyModel = false)
     private Node end;
 
     @Column
@@ -130,5 +130,21 @@ public class Edge extends BaseModel {
     public Edge setC(double c) {
         this.c = c;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "id=" + id +
+                ", begin=" + begin +
+                ", end=" + end +
+                ", length=" + length +
+                ", width=" + width +
+                ", stairs=" + stairs +
+                ", v=" + v +
+                ", i=" + i +
+                ", los=" + los +
+                ", c=" + c +
+                '}';
     }
 }
