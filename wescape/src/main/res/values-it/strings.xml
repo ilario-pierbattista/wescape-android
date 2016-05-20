@@ -49,4 +49,6 @@
     <string name="error_wrong_secret_code">Il codice segreto non è valido</string>
     <string name="error_secret_code_expired">Codice scaduto</string>
     <string name="action_reset_password">Reimposta password</string>
+    <string name="computing_route">Calcolando il percorso migliore</string>
+    <string name="please_wait">Attendere per favore...</string>
 </resources>

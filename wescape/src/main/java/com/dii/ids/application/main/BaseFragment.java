@@ -23,6 +23,7 @@ public abstract class BaseFragment extends Fragment {
     public static final String META_CLIENT_ID_KEY = "com.dii.ids.application.WESCAPE_CLIENT_ID";
     public static final String META_CLIENT_SECRET_KEY = "com.dii.ids.application.WESCAPE_CLIENT_SECRET";
 
+    public static final int STARTING_FLOOR = 155;
     public static final int QR_READER_DIALOG_REQUEST_CODE = 100;
     public static final int ORIGIN_SELECTION_REQUEST_CODE = 200;
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
@@ -62,8 +63,6 @@ public abstract class BaseFragment extends Fragment {
         if (e instanceof ConnectException) {
             Toast.makeText(getContext(), getString(R.string.error_connection_failed), Toast.LENGTH_SHORT)
                     .show();
-        } else {
-            Log.e(TAG, "Eccezione non gestita dal general handler", e);
         }
     }
 

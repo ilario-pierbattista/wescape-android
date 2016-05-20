@@ -33,6 +33,7 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
+import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -58,6 +59,7 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private boolean emergency = false;
     private DownloadMapsTask downloadMapsTask;
+    private MinimumPathTask minimumPathTask;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -153,11 +155,17 @@ public class HomeFragment extends BaseFragment {
             holder.destinationView.setClickable(true);
         }
 
-        // @TODO Sostituire con qualcosa di meno insensato
         downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
-        int floors[] = {145, 150, 155};
-        int idx = new Random().nextInt(floors.length);
-        downloadMapsTask.execute(floors[idx]);
+        if (origin != null) {
+            if (destination != null) {
+                minimumPathTask = new MinimumPathTask(getContext());
+                minimumPathTask.execute(origin, destination);
+            } else {
+                downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
+            }
+        } else {
+            downloadMapsTask.execute(STARTING_FLOOR);
+        }
     }
 
     private void openSelectionFragment(View v) {
@@ -302,14 +310,15 @@ public class HomeFragment extends BaseFragment {
             holder.mapImage.setImage(ImageSource.bitmap(image));
             holder.mapImage.setMinimumDpi(40);
 
+            if (origin != null) {
+                originText = origin.getName();
+                MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
+                holder.mapImage.setSinglePin(startPin);
+            } else {
+                originText = getString(R.string.navigation_select_origin);
+            }
+
             // @TODO Porchetto a tutto volume
-            MapPin mapPin = new MapPin(500f, 900f, 1);
-            MapPin mapPin1 = new MapPin(550f, 1000f, 2);
-
-            final ArrayList<MapPin> MapPins = new ArrayList();
-            MapPins.add(mapPin);
-            MapPins.add(mapPin1);
-
             ArrayList<PointF> points = new ArrayList<>(
                     Arrays.asList(
                             new PointF(400f, 500f),
@@ -319,35 +328,6 @@ public class HomeFragment extends BaseFragment {
                             new PointF(300f, 700f)));
 
             holder.mapImage.setPath(points);
-
-            holder.mapImage.setMultiplePins(MapPins);
-
-            // @TODO Spostare il gestore della gesture nel fragment di competenza
-            final GestureDetector gestureDetector = new GestureDetector(getActivity(),
-                    new GestureDetector.SimpleOnGestureListener() {
-                        @Override
-                        public boolean onSingleTapConfirmed(MotionEvent e) {
-                            if (holder.mapImage.isReady()) {
-                                PointF sCoord = holder.mapImage.viewToSourceCoord(
-                                        e.getX(), e.getY());
-                                //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                                //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
-                            } else {
-                                Toast.makeText(
-                                        getActivity().getApplicationContext(),
-                                        "Image is not ready",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                            return true;
-                        }
-                    });
-
-            holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    return gestureDetector.onTouchEvent(event);
-                }
-            });
         }
 
         @Override

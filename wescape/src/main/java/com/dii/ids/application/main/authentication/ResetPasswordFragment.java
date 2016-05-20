@@ -205,7 +205,8 @@ public class ResetPasswordFragment extends BaseFragment {
         public void onTaskError(Exception e) {
             handleGeneralErrors(e);
             if (e instanceof WrongEmailException) {
-                Log.e(TAG, "Email integrity error", e);
+                holder.emailFieldLayout.setError(getString(R.string.error_email_not_found));
+                holder.emailField.requestFocus();
             } else if (e instanceof WrongSecretCodeException) {
                 holder.secretCodeFieldLayout.setError(getString(R.string.error_wrong_secret_code));
                 holder.secretCodeField.requestFocus();

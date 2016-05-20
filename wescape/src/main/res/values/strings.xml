@@ -119,4 +119,6 @@
     <string name="error_wrong_secret_code">Secret code does not match</string>
     <string name="error_secret_code_expired">Code expired</string>
     <string name="action_reset_password">Reset Password</string>
+    <string name="computing_route">Computing best route</string>
+    <string name="please_wait">Please wait...</string>
 </resources>
