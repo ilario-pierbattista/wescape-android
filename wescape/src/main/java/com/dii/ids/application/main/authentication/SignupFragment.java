@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,34 +45,6 @@ public class SignupFragment extends BaseFragment {
     private EmailAutocompleter emailAutocompleter;
     private OnFragmentInteractionListener mListener;
 
-    private TaskListener<Void> signupTaskListener =
-            new TaskListener<Void>() {
-                @Override
-                public void onTaskSuccess(Void aVoid) {
-
-                }
-
-                @Override
-                public void onTaskError(Exception e) {
-                    if(e instanceof DuplicatedEmailException) {
-                        holder.emailFieldLayout.setError(getString(R.string.error_duplicated_email));
-                        holder.emailField.requestFocus();
-                    } else {
-                        holder.generalErrorTextView.setText(R.string.error_signup_general);
-                    }
-                }
-
-                @Override
-                public void onTaskComplete() {
-                    holder.showProgressAnimation.showProgress(false);
-                }
-
-                @Override
-                public void onTaskCancelled() {
-                    holder.showProgressAnimation.showProgress(false);
-                }
-            };
-
     public SignupFragment() {
         // Required empty public constructor
     }
@@ -84,20 +56,12 @@ public class SignupFragment extends BaseFragment {
      * @param email Parameter 1.
      * @return A new instance of fragment SignupFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static SignupFragment newInstance(String email) {
         SignupFragment fragment = new SignupFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, email);
         fragment.setArguments(args);
         return fragment;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
     }
 
     /**
@@ -191,6 +155,7 @@ public class SignupFragment extends BaseFragment {
         holder.emailFieldLayout.setError(null);
         holder.passwordFieldLayout.setError(null);
         holder.passwordConfirmFieldLayout.setError(null);
+        holder.generalErrorTextView.setText(null);
 
         // Store values at the time of the login attempt.
         String email = holder.emailField.getText().toString();
@@ -237,7 +202,7 @@ public class SignupFragment extends BaseFragment {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             holder.showProgressAnimation.showProgress(true);
-            signupTask = new UserSignupTask(getContext(), signupTaskListener);
+            signupTask = new UserSignupTask(getContext(), new SignupTaskListener());
             signupTask.execute(email, password);
         }
     }
@@ -253,6 +218,34 @@ public class SignupFragment extends BaseFragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private class SignupTaskListener implements TaskListener<Void> {
+        @Override
+        public void onTaskSuccess(Void aVoid) {
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            fm.popBackStack();
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            if (e instanceof DuplicatedEmailException) {
+                holder.emailFieldLayout.setError(getString(R.string.error_duplicated_email));
+                holder.emailField.requestFocus();
+            } else {
+                holder.generalErrorTextView.setText(R.string.error_signup_general);
+            }
+        }
+
+        @Override
+        public void onTaskComplete() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            holder.showProgressAnimation.showProgress(false);
+        }
     }
 
     public static class ViewHolder extends BaseFragment.ViewHolder {
