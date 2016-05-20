@@ -42,4 +42,6 @@
     <string name="select_end_point">Seleziona un punto di arrivo</string>
     <string name="error_duplicated_email">Questo indirizzo email è già in uso</string>
     <string name="error_signup_general">Si è verificato qualche errore durante la registrazione</string>
+    <string name="no_node_in_range">Questa zona non è selezionabile</string>
+    <string name="selected_node">Nodo selezionato:</string>
 </resources>

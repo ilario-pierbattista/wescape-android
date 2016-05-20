@@ -31,8 +31,8 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
-import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -57,7 +57,7 @@ public class HomeFragment extends BaseFragment {
     private static Node origin = null, destination = null;
     private ViewHolder holder;
     private boolean emergency = false;
-    private MapsDownloaderTask mapsDownloaderTask;
+    private DownloadMapsTask downloadMapsTask;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -154,10 +154,10 @@ public class HomeFragment extends BaseFragment {
         }
 
         // @TODO Sostituire con qualcosa di meno insensato
-        mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
+        downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
         int floors[] = {145, 150, 155};
         int idx = new Random().nextInt(floors.length);
-        mapsDownloaderTask.execute(floors[idx]);
+        downloadMapsTask.execute(floors[idx]);
     }
 
     private void openSelectionFragment(View v) {
@@ -239,8 +239,8 @@ public class HomeFragment extends BaseFragment {
                 toBlue = getResources().getColorStateList(blue);
         FabAnimation fabAnimation = new FabAnimation();
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                                                                 holder.revealBackgroundView,
-                                                                 holder.toolbar);
+                holder.revealBackgroundView,
+                holder.toolbar);
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
@@ -276,15 +276,15 @@ public class HomeFragment extends BaseFragment {
             if (origin == null || destination == null) {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             } else {
                 if (origin.getId() == destination.getId()) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -324,23 +324,23 @@ public class HomeFragment extends BaseFragment {
 
             // @TODO Spostare il gestore della gesture nel fragment di competenza
             final GestureDetector gestureDetector = new GestureDetector(getActivity(),
-                                                                        new GestureDetector.SimpleOnGestureListener() {
-                                                                            @Override
-                                                                            public boolean onSingleTapConfirmed(MotionEvent e) {
-                                                                                if (holder.mapImage.isReady()) {
-                                                                                    PointF sCoord = holder.mapImage.viewToSourceCoord(
-                                                                                            e.getX(), e.getY());
-                                                                                    //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
-                                                                                    //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
-                                                                                } else {
-                                                                                    Toast.makeText(
-                                                                                            getActivity().getApplicationContext(),
-                                                                                            "Image is not ready",
-                                                                                            Toast.LENGTH_SHORT).show();
-                                                                                }
-                                                                                return true;
-                                                                            }
-                                                                        });
+                    new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onSingleTapConfirmed(MotionEvent e) {
+                            if (holder.mapImage.isReady()) {
+                                PointF sCoord = holder.mapImage.viewToSourceCoord(
+                                        e.getX(), e.getY());
+                                //Toast.makeText(getActivity().getApplicationContext(), "Tap on [" +
+                                //      Double.toString(sCoord.x) + "," + Double.toString(sCoord.y), Toast.LENGTH_SHORT).show();
+                            } else {
+                                Toast.makeText(
+                                        getActivity().getApplicationContext(),
+                                        "Image is not ready",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            return true;
+                        }
+                    });
 
             holder.mapImage.setOnTouchListener(new View.OnTouchListener() {
                 @Override
@@ -353,17 +353,17 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskError(Exception e) {
             Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                           Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void onTaskComplete() {
-            mapsDownloaderTask = null;
+            downloadMapsTask = null;
         }
 
         @Override
         public void onTaskCancelled() {
-            mapsDownloaderTask = null;
+            downloadMapsTask = null;
         }
     }
 
