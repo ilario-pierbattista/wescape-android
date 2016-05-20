@@ -35,7 +35,6 @@ import com.dii.ids.application.validators.PasswordValidator;
  * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
  */
 public class SignupFragment extends BaseFragment {
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "email";
 
     private String email;
