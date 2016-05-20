@@ -27,9 +27,7 @@ import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.db.WescapeDatabase;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
@@ -37,9 +35,6 @@ import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
-import com.raizlabs.android.dbflow.config.DatabaseDefinition;
-import com.raizlabs.android.dbflow.config.FlowManager;
-import com.raizlabs.android.dbflow.structure.database.DatabaseHelperDelegate;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -59,7 +54,7 @@ public class HomeFragment extends BaseFragment {
     public static final String INTENT_KEY_POSITION = "position";
     private static String originText;
     private static String destinationText;
-    private static Position origin = null, destination = null;
+    private static Node origin = null, destination = null;
     private ViewHolder holder;
     private boolean emergency = false;
     private MapsDownloaderTask mapsDownloaderTask;
@@ -178,7 +173,7 @@ public class HomeFragment extends BaseFragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Position position;
+        Node node;
         byte[] serializedData;
 
         try {
@@ -186,14 +181,14 @@ public class HomeFragment extends BaseFragment {
             if (serializedData == null) {
                 throw new NullPointerException("Null array data");
             }
-            position = (Position) SerializationUtils.deserialize(serializedData);
+            node = (Node) SerializationUtils.deserialize(serializedData);
 
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
-                    origin = position;
+                    origin = node;
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
-                    destination = position;
+                    destination = node;
                     break;
             }
         } catch (NullPointerException ee) {
@@ -225,13 +220,12 @@ public class HomeFragment extends BaseFragment {
         holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
         holder.destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
-        //@TODO Cambiare con le label dei checkpoint
         originText = origin == null ?
                 getString(R.string.navigation_select_origin) :
-                Integer.toString(origin.floor);
+                origin.getName();
         destinationText = destination == null ?
                 getString(R.string.navigation_select_destination) :
-                Integer.toString(destination.floor);
+                destination.getName();
 
         holder.originViewText.setText(originText);
         holder.destinationViewText.setText(destinationText);
@@ -292,6 +286,7 @@ public class HomeFragment extends BaseFragment {
         }
 
         selectionFragment = SelectionFragment.newInstance(code);
+        selectionFragment.setTargetFragment(this, code);
 
         fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)

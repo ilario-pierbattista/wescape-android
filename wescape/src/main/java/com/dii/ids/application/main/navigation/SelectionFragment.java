@@ -26,18 +26,17 @@ import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.adapters.NodeAdapter;
 import com.dii.ids.application.main.navigation.adapters.StaticListAdapter;
 
+import org.apache.commons.lang3.SerializationUtils;
+
 import java.util.List;
 
 public class SelectionFragment extends BaseFragment {
-    public static final String FRAGMENT_TAG = SelectionFragment.class.getSimpleName();
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     private static final String SELECTION_REQUEST_CODE = "selection_request_code";
+    public static final int POSITION_ACQUIRED = 1;
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
-    private String mSearchQuery;
-    private List<Node> mNodes;
-    private List<Node> mNodesFiltered;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
@@ -105,17 +104,31 @@ public class SelectionFragment extends BaseFragment {
             }
         });
 
-        Log.i("dio cane", "Prova");
+        // Setup list of nodes
         List<Node> nodesList = NodeRepository.findAll();
-        for (Node node : nodesList) {
-            Log.i("dio cane", node.toString());
-        }
-
         NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
         holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
         holder.nodeListView.setAdapter(nodeAdapter);
         holder.nodeListView.setTextFilterEnabled(true);
+        holder.nodeListView.setOnItemClickListener(new NodeListListener());
+
+
         return view;
+    }
+
+    /**
+     * Responsible for handling click in nodes listView
+     */
+    private class NodeListListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            Node node = (Node) holder.nodeListView.getItemAtPosition(position);
+            Intent data = new Intent();
+            data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
+            getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
+            FragmentManager fm = getActivity().getSupportFragmentManager();
+            fm.popBackStack();
+        }
     }
 
     /**
@@ -173,7 +186,7 @@ public class SelectionFragment extends BaseFragment {
 
         @Override
         public void afterTextChanged(Editable s) {
-            mSearchQuery = holder.searchFieldTextView.getText().toString();
+            String searchQuery = holder.searchFieldTextView.getText().toString();
             NodeAdapter adapter = (NodeAdapter) holder.nodeListView.getAdapter();
             adapter.getFilter().filter(s);
         }
