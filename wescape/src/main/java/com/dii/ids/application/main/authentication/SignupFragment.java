@@ -28,8 +28,11 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.UserSignupTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
+import com.dii.ids.application.main.navigation.HomeFragment;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
+
+import org.apache.commons.lang3.SerializationUtils;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
@@ -38,9 +41,12 @@ import com.dii.ids.application.validators.PasswordValidator;
  */
 public class SignupFragment extends BaseFragment {
     public static final String TAG = SignupFragment.class.getName();
+    public static final int ACCOUNT_CREATED = 1;
+    public static final String INTENT_KEY_EMAIL = "email";
+    public static final String INTENT_KEY_PASSWORD = "password";
     private static final String ARG_PARAM1 = "email";
 
-    private String email;
+    private String email, password;
     private UserSignupTask signupTask;
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
@@ -221,10 +227,17 @@ public class SignupFragment extends BaseFragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class SignupTaskListener implements TaskListener<Void> {
+    private class SignupTaskListener implements TaskListener<String[]> {
         @Override
-        public void onTaskSuccess(Void aVoid) {
-            Intent
+        public void onTaskSuccess(String[] credentials) {
+            String email = credentials[0];
+            String password = credentials[1];
+
+            Intent data = new Intent();
+            data.putExtra(INTENT_KEY_EMAIL, email);
+            data.putExtra(INTENT_KEY_PASSWORD, password);
+            getTargetFragment().onActivityResult(getTargetRequestCode(), ACCOUNT_CREATED, data);
+
             FragmentManager fm = getActivity().getSupportFragmentManager();
             fm.popBackStack();
         }

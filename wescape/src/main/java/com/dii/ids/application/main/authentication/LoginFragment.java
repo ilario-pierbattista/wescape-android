@@ -134,6 +134,18 @@ public class LoginFragment extends BaseFragment {
         return view;
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SIGNUP_CREDENTIAL_REQUEST) {
+            if (resultCode == SignupFragment.ACCOUNT_CREATED) {
+                String email = data.getStringExtra(SignupFragment.INTENT_KEY_EMAIL);
+                String passwod = data.getStringExtra(SignupFragment.INTENT_KEY_PASSWORD);
+                triggerLoginTask(email, passwod);
+                doAutomaticLogin = false;
+            }
+        }
+    }
+
     /**
      * Attempts to sign in or register the account specified by the login form. If there are form
      * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
@@ -277,7 +289,7 @@ public class LoginFragment extends BaseFragment {
     }
 
     private void handleGeneralErrors(Exception e) {
-        if(e instanceof ConnectException) {
+        if (e instanceof ConnectException) {
             Toast.makeText(getContext(), getString(R.string.error_connection_failed), Toast.LENGTH_SHORT)
                     .show();
         } else {

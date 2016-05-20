@@ -12,11 +12,12 @@ import com.dii.ids.application.listener.TaskListener;
  */
 public class UserSignupTask extends AsyncTask<String, Void, Boolean> {
     private UserManager userManager;
-    private TaskListener<Void> listener;
+    private TaskListener<String[]> listener;
     private Exception thrownException;
+    private String email, password;
 
     public UserSignupTask(Context context,
-                          TaskListener<Void> listener) {
+                          TaskListener<String[]> listener) {
         userManager = new WescapeUserManager(context);
         this.listener = listener;
     }
@@ -24,8 +25,8 @@ public class UserSignupTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected Boolean doInBackground(String... params) {
         try {
-            String email = params[0];
-            String password = params[1];
+            email = params[0];
+            password = params[1];
 
             userManager.signup(email, password);
         } catch (Exception e) {
@@ -38,7 +39,10 @@ public class UserSignupTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            listener.onTaskSuccess(null);
+            String[] credentials = new String[2];
+            credentials[0] = email;
+            credentials[1] = password;
+            listener.onTaskSuccess(credentials);
         } else {
             listener.onTaskError(thrownException);
         }
