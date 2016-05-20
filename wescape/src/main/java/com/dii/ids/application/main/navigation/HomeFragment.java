@@ -11,12 +11,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -45,7 +43,8 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
+
+import es.usc.citius.hipster.algorithm.Algorithm;
 
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
@@ -158,7 +157,7 @@ public class HomeFragment extends BaseFragment {
         downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
         if (origin != null) {
             if (destination != null) {
-                minimumPathTask = new MinimumPathTask(getContext());
+                minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
                 minimumPathTask.execute(origin, destination);
             } else {
                 downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
@@ -379,6 +378,29 @@ public class HomeFragment extends BaseFragment {
             for (Node node : nodes) {
                 Log.i(TAG, node.toString());
             }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
+        }
+    }
+
+    private class MinimumPathListener implements TaskListener<Algorithm.SearchResult> {
+
+        @Override
+        public void onTaskSuccess(Algorithm.SearchResult searchResult) {
+            Log.i(TAG, searchResult.toString());
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.e(TAG, "Errore nel calcolo del percorso minimo", e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+
         }
 
         @Override
