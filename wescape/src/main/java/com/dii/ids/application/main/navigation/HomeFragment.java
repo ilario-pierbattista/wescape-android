@@ -33,6 +33,7 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
+import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
@@ -58,6 +59,7 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private boolean emergency = false;
     private DownloadMapsTask downloadMapsTask;
+    private MinimumPathTask minimumPathTask;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -155,7 +157,12 @@ public class HomeFragment extends BaseFragment {
 
         downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
         if (origin != null) {
-            downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
+            if (destination != null) {
+                minimumPathTask = new MinimumPathTask(getContext());
+                minimumPathTask.execute(origin, destination);
+            } else {
+                downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
+            }
         } else {
             downloadMapsTask.execute(STARTING_FLOOR);
         }

@@ -45,4 +45,6 @@
     <string name="error_connection_failed">Connessione fallita. Controllare la connettività ad internet.</string>
     <string name="no_node_in_range">Questa zona non è selezionabile</string>
     <string name="selected_node">Nodo selezionato:</string>
+    <string name="computing_route">Calcolando il percorso migliore</string>
+    <string name="please_wait">Attendere per favore...</string>
 </resources>

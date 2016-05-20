@@ -115,4 +115,6 @@
     <string name="error_connection_failed">Connection error. Check internet connectivity.</string>
     <string name="no_node_in_range">This point is not selectable</string>
     <string name="selected_node">Selected node:</string>
+    <string name="computing_route">Computing best route</string>
+    <string name="please_wait">Please wait...</string>
 </resources>
