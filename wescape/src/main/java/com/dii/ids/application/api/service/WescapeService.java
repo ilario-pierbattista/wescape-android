@@ -12,11 +12,15 @@ import com.dii.ids.application.entity.Node;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
+import retrofit2.http.Path;
+import retrofit2.http.Streaming;
 
 public interface WescapeService {
     @POST("/oauth/v2/token")
@@ -36,4 +40,8 @@ public interface WescapeService {
 
     @GET("/api/v1/edges.json")
     Call<List<Edge>> listEdges(@Header("Authorization") String authorization);
+
+    @GET("/static/maps/{floor}")
+    @Streaming
+    Call<ResponseBody> downloadFloorMap(@Path("floor") int floor);
 }

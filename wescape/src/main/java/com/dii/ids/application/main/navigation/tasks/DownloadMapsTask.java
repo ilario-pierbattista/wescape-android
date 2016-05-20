@@ -6,21 +6,25 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.dii.ids.application.api.ApiBuilder;
+import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.listener.TaskListener;
-import com.dii.ids.application.api.EndPointsProvider;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
-    private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
+public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
+    private static final String LOG_TAG = DownloadMapsTask.class.getSimpleName();
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
     private static SimpleDiskCache imageCache = null;
@@ -28,16 +32,16 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     private TaskListener<Bitmap> listener;
     private Context context;
     private Exception thrownException;
+    private WescapeService service;
 
-    public MapsDownloaderTask(Context context, TaskListener<Bitmap> listener) {
+    public DownloadMapsTask(Context context, TaskListener<Bitmap> listener) {
         this.context = context;
         this.listener = listener;
+        this.service = ApiBuilder.buildWescapeService(context);
     }
 
     @Override
     protected Boolean doInBackground(Integer... params) {
-        EndPointsProvider endPoints = new EndPointsProvider();
-        HttpURLConnection connection;
         int floor = params[0];
 
         if (imageCache == null) {
@@ -45,30 +49,25 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
                 imageCache = initCache();
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Errore", e);
+                thrownException = e;
                 return false;
             }
         }
 
-        // Generazione dell'url
-        URL url = endPoints.downloadMap(floor);
-        if (url == null) {
-            Log.e(LOG_TAG, "Url malformato");
-            return false;
-        }
-
         try {
-            image = getBitmapFromMemCache(url.toString());
+            Call<ResponseBody> call = service.downloadFloorMap(floor);
+            image = getBitmapFromMemCache(call.request().url().toString());
             if (image == null) {
-                connection = (HttpURLConnection) url.openConnection();
-                image = BitmapFactory.decodeStream(connection.getInputStream());
-                addBitmapToMemoryCache(url.toString(), image);
+                Response<ResponseBody> response = call.execute();
+                InputStream inputStream = response.body().byteStream();
+                image = BitmapFactory.decodeStream(inputStream);
+                addBitmapToMemoryCache(call.request().url().toString(), image);
             }
         } catch (IOException e) {
             thrownException = e;
             return false;
         }
 
-        // TODO: register the new account here.
         return true;
     }
 

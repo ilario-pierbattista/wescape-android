@@ -20,7 +20,7 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
 
@@ -32,7 +32,7 @@ public class SelectionFromMapFragment extends BaseFragment {
     public static final int POSITION_ACQUIRED = 1;
     public static final int POSITION_NOT_ACQUIRED = 0;
     private static final String LOG_TAG = SelectionFromMapFragment.class.getSimpleName();
-    private MapsDownloaderTask mapsTask;
+    private DownloadMapsTask mapsTask;
     private ViewHolder holder;
     private PointF tappedCoordinates;
     private int displayedFloor = STARTING_FLOOR;
@@ -139,7 +139,7 @@ public class SelectionFromMapFragment extends BaseFragment {
 
         toogleConfirmButtonState();
 
-        mapsTask = new MapsDownloaderTask(getContext(), taskListener);
+        mapsTask = new DownloadMapsTask(getContext(), taskListener);
         mapsTask.execute(STARTING_FLOOR);
         holder.floor155Button.setTextColor(color(R.color.linkText));
 
@@ -190,7 +190,7 @@ public class SelectionFromMapFragment extends BaseFragment {
         int floor = Integer.parseInt(button.getText().toString());
         displayedFloor = floor;
         if (mapsTask == null) {
-            mapsTask = new MapsDownloaderTask(getContext(), taskListener);
+            mapsTask = new DownloadMapsTask(getContext(), taskListener);
             mapsTask.execute(floor);
         }
     }
