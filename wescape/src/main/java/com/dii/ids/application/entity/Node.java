@@ -7,9 +7,10 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Table(database = WescapeDatabase.class)
-public class Node extends BaseModel implements Serializable {
+public class Node extends BaseModel implements Serializable{
 
     @PrimaryKey
     private int id;

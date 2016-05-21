@@ -43,12 +43,14 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.text.CollationElementIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
+import es.usc.citius.hipster.model.impl.WeightedNode;
 
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
@@ -368,11 +370,11 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-            List<Node> nodes = NodeRepository.findAll();
+            /* List<Node> nodes = NodeRepository.findAll();
 
             for (Node node : nodes) {
                 Log.i(TAG, node.toString());
-            }
+            } */
         }
 
         @Override
@@ -402,10 +404,10 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-            List<Edge> edges = EdgeRepository.findAll();
+            /* List<Edge> edges = EdgeRepository.findAll();
             for (Edge edge : edges) {
                 Log.i(TAG, edge.toString());
-            }
+            } */
         }
 
         @Override
@@ -419,8 +421,10 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
-            Collection<Node> nodes = searchResult.getGoalNodes();
-            holder.mapImage.setPath(nodes);
+            List<List<Node>> optimalPaths = searchResult.getOptimalPaths();
+            List<Node> bestPath = optimalPaths.get(0);
+
+            holder.mapImage.setPath(bestPath);
         }
 
         @Override
