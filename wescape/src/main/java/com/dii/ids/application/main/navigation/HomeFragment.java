@@ -3,7 +3,6 @@ package com.dii.ids.application.main.navigation;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -43,8 +42,6 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -310,13 +307,13 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskSuccess(Bitmap image) {
-            holder.mapImage.setImage(ImageSource.bitmap(image));
-            holder.mapImage.setMinimumDpi(40);
+            holder.mapView.setImage(ImageSource.bitmap(image));
+            holder.mapView.setMinimumDpi(40);
 
             if (origin != null) {
                 originText = origin.getName();
                 MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
-                holder.mapImage.setSinglePin(startPin);
+                holder.mapView.setSinglePin(startPin);
             } else {
                 originText = getString(R.string.navigation_select_origin);
             }
@@ -420,7 +417,7 @@ public class HomeFragment extends BaseFragment {
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
             Collection<Node> nodes = searchResult.getGoalNodes();
-            holder.mapImage.setPath(nodes);
+            holder.mapView.setPath(nodes);
         }
 
         @Override
@@ -456,7 +453,7 @@ public class HomeFragment extends BaseFragment {
         public final TextView destinationViewPlaceholder;
         public final ImageView destinationViewIcon;
         public final TextView originViewPlaceholder;
-        public final PinView mapImage;
+        public final PinView mapView;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -464,7 +461,7 @@ public class HomeFragment extends BaseFragment {
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
-            mapImage = (PinView) view.findViewById(R.id.navigation_map_image);
+            mapView = (PinView) view.findViewById(R.id.navigation_map_image);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
