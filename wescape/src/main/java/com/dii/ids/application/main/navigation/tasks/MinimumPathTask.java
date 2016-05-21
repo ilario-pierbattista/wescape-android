@@ -37,7 +37,6 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
 
     @Override
     protected void onPreExecute() {
-
         dialog = new MaterialDialog.Builder(context)
                 .title(context.getString(R.string.computing_route))
                 .content(context.getString(R.string.please_wait))
@@ -75,6 +74,7 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
                     .build();
 
             searchResult = Hipster.createDijkstra(problem).search(endNode);
+            Thread.sleep(1000);
             return (searchResult != null);
         } catch (Exception e) {
             thrownException = e;

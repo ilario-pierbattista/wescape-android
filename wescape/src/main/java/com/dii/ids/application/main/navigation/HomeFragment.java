@@ -19,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
@@ -56,6 +55,7 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private boolean emergency = false;
     private DownloadMapsTask downloadMapsTask;
+    private Bitmap mapImage;
     private MinimumPathTask minimumPathTask;
 
     public static HomeFragment newInstance() {
@@ -304,6 +304,7 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskSuccess(Bitmap image) {
+            mapImage = image;
             holder.mapView.setImage(ImageSource.bitmap(image));
             holder.mapView.setMinimumDpi(40);
 
@@ -415,7 +416,7 @@ public class HomeFragment extends BaseFragment {
             Log.i(TAG, searchResult.toString());
             List<List<Node>> optimalPaths = searchResult.getOptimalPaths();
             List<Node> bestPath = optimalPaths.get(0);
-
+            downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
             holder.mapView.setPath(bestPath);
         }
 
