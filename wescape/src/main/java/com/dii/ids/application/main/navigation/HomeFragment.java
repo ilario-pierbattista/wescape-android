@@ -26,8 +26,6 @@ import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.entity.repository.EdgeRepository;
-import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
@@ -42,7 +40,6 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
-import java.util.Collection;
 import java.util.List;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
@@ -365,11 +362,11 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-            List<Node> nodes = NodeRepository.findAll();
+            /* List<Node> nodes = NodeRepository.findAll();
 
             for (Node node : nodes) {
                 Log.i(TAG, node.toString());
-            }
+            } */
         }
 
         @Override
@@ -399,10 +396,10 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-            List<Edge> edges = EdgeRepository.findAll();
+            /* List<Edge> edges = EdgeRepository.findAll();
             for (Edge edge : edges) {
                 Log.i(TAG, edge.toString());
-            }
+            } */
         }
 
         @Override
@@ -416,8 +413,10 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
-            Collection<Node> nodes = searchResult.getGoalNodes();
-            holder.mapView.setPath(nodes);
+            List<List<Node>> optimalPaths = searchResult.getOptimalPaths();
+            List<Node> bestPath = optimalPaths.get(0);
+
+            holder.mapView.setPath(bestPath);
         }
 
         @Override

@@ -16,6 +16,7 @@ import com.dii.ids.application.entity.Node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class PinView extends SubsamplingScaleImageView {
     private static final String TAG = PinView.class.getName();
@@ -93,12 +94,14 @@ public class PinView extends SubsamplingScaleImageView {
         return multiplePins;
     }
 
-    public void setPath(Collection<Node> path) {
+    public void setPath(List<Node> path) {
         ArrayList<PointF> points = new ArrayList<>(path.size());
         for (Node node : path) {
             points.add(new PointF(node.getX(), node.getY()));
         }
         this.path = points;
+        initialise();
+        invalidate();
     }
 
     private void initialise() {
