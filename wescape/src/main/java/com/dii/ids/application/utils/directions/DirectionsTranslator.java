@@ -31,7 +31,8 @@ public class DirectionsTranslator {
     }
 
     private int getDirectionForNextNode(Node prev, Node current, Node next) {
-
+        //TODO cambiare
+        return 0;
     }
 
     private double calculateAngle(Node prev, Node current, Node next) {
@@ -49,7 +50,8 @@ public class DirectionsTranslator {
         double cosineAngle = Math.acos(
                 (Math.pow(d12, 2) + Math.pow(d13, 2) - Math.pow(d23, 2)) /
                         (2 * d12 * d13));
-        
+        //TODO: cambiare
+        return 0;
     }
 
     public List<Integer> getDirections() {
