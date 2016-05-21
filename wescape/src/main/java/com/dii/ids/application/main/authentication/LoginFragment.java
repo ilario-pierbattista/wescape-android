@@ -38,7 +38,7 @@ import com.dii.ids.application.validators.PasswordValidator;
 import java.net.ConnectException;
 
 public class LoginFragment extends BaseFragment {
-    private static final String TAG = LoginFragment.class.getName();
+    public static final String TAG = LoginFragment.class.getName();
     public static final int SIGNUP_CREDENTIAL_REQUEST = 300;
     private static final int CLICK_TO_OPEN = 8, CLICK_TO_FEEDBACK = 4;
 

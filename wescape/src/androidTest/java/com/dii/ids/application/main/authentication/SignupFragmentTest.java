@@ -1,11 +1,13 @@
 package com.dii.ids.application.main.authentication;
 
+import android.content.Context;
 import android.support.test.filters.LargeTest;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.dii.ids.application.CustomMatchers;
 import com.dii.ids.application.R;
+import com.dii.ids.application.api.auth.wescape.TokenStorage;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +27,13 @@ public class SignupFragmentTest {
     @Rule
     public ActivityTestRule<AuthenticationActivity> activityTestRule =
             new ActivityTestRule<>(AuthenticationActivity.class);
+
+    @Before
+    public void deleteToken() {
+        Context context = activityTestRule.getActivity();
+        TokenStorage tokenStorage = new TokenStorage(context);
+        tokenStorage.delete();
+    }
 
     @Before
     public void reachFragment() {

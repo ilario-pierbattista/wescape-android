@@ -42,6 +42,7 @@ public class AuthenticationActivity extends AppCompatActivity
             android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.authentication_content_pane, loginFragment)
+                    .addToBackStack(loginFragment.TAG)
                     .commit();
         }
 
