@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -86,16 +86,90 @@
             android:src="@drawable/wescape_logo"/>
     </LinearLayout>
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/navigation_fab_start"
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_directions"
-        android:tint="@color/white"
-        app:backgroundTint="@color/regularBlue"/>
+        android:background="@color/white"
+        android:elevation="@dimen/standard_elevation"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-</android.support.design.widget.CoordinatorLayout>
+            <Button
+                android:id="@+id/floor_button_155"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="155"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
+
+            <Button
+                android:id="@+id/floor_button_150"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="150"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
+
+            <Button
+                android:id="@+id/floor_button_145"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="145"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/fab_margin">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/navigation_fab_paths"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/ic_layers"
+            android:tint="@color/black"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/navigation_fab_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_directions"
+            android:tint="@color/white"
+            app:backgroundTint="@color/regularBlue"/>
+    </LinearLayout>
+
+</RelativeLayout>

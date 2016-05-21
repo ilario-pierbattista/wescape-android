@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -19,11 +20,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entity.Edge;
+import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
@@ -33,12 +36,15 @@ import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.views.MapPin;
 import com.dii.ids.application.main.navigation.views.PinView;
+import com.dii.ids.application.utils.dijkstra.Solution;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
@@ -52,11 +58,17 @@ public class HomeFragment extends BaseFragment {
     private static String originText;
     private static String destinationText;
     private static Node origin = null, destination = null;
+    private List<List<Node>> paths = null;
+    private List<Node> optimalPath = null;
+    private MaterialDialog dialog;
     private ViewHolder holder;
     private boolean emergency = false;
     private DownloadMapsTask downloadMapsTask;
     private Bitmap mapImage;
     private MinimumPathTask minimumPathTask;
+
+    private HashMap<Integer, Map> piantine;
+    private HashMap<Integer, List<Node>> percorsoOttimoPerPiano;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -133,6 +145,12 @@ public class HomeFragment extends BaseFragment {
         });
 
         holder.startFabButton.setOnClickListener(new NavigationButtonListener());
+
+        if (paths == null) {
+            holder.pathsFabButton.hide();
+        }
+
+        holder.pathsFabButton.setOnClickListener(new PathButtonListener());
 
         if (emergency) {
             holder.revealView.setBackgroundColor(color(R.color.regularRed));
@@ -244,8 +262,8 @@ public class HomeFragment extends BaseFragment {
                 toBlue = getResources().getColorStateList(blue);
         FabAnimation fabAnimation = new FabAnimation();
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                holder.revealBackgroundView,
-                holder.toolbar);
+                                                                 holder.revealBackgroundView,
+                                                                 holder.toolbar);
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
@@ -281,15 +299,15 @@ public class HomeFragment extends BaseFragment {
             if (origin == null || destination == null) {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 }
             } else {
                 if (origin.getId() == destination.getId()) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -300,12 +318,12 @@ public class HomeFragment extends BaseFragment {
     /**
      * Responsible for downloading maps
      */
-    private class MapsDownloaderListener implements TaskListener<Bitmap> {
+    private class MapsDownloaderListener implements TaskListener<Map> {
 
         @Override
-        public void onTaskSuccess(Bitmap image) {
-            mapImage = image;
-            holder.mapView.setImage(ImageSource.bitmap(image));
+        public void onTaskSuccess(Map map) {
+            mapImage = map.getImage();
+            holder.mapView.setImage(ImageSource.bitmap(mapImage));
             holder.mapView.setMinimumDpi(40);
 
             if (origin != null) {
@@ -320,7 +338,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskError(Exception e) {
             Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                    Toast.LENGTH_LONG).show();
+                           Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -382,7 +400,7 @@ public class HomeFragment extends BaseFragment {
             Transaction transaction = database.beginTransactionAsync(new ITransaction() {
                 @Override
                 public void execute(DatabaseWrapper databaseWrapper) {
-                    for (Edge edge: edges) {
+                    for (Edge edge : edges) {
                         edge.save(databaseWrapper);
                     }
                 }
@@ -414,10 +432,13 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
-            List<List<Node>> optimalPaths = searchResult.getOptimalPaths();
-            List<Node> bestPath = optimalPaths.get(0);
+            paths = searchResult.getOptimalPaths();
+            optimalPath = paths.get(0);
+            List<List<Node>> optimalPathByFloor = Solution.getSolutionDividedByFloor(optimalPath);
+
             downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
-            holder.mapView.setPath(bestPath);
+            holder.mapView.setPath(optimalPath);
+            holder.pathsFabButton.show();
         }
 
         @Override
@@ -436,6 +457,37 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    private class PathButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Context context = getContext();
+            ArrayList<String> options = new ArrayList<>(paths.size());
+            for (int i = 0; i < paths.size(); i++) {
+                options.add("Percorso " + String.valueOf(i + 1));
+            }
+
+            dialog = new MaterialDialog.Builder(context)
+                    .title(context.getString(R.string.select_path))
+                    .items(options)
+                    .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                        @Override
+                        public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                            /**
+                             * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
+                             * returning false here won't allow the newly selected radio button to actually be selected.
+                             **/
+                            return true;
+                        }
+                    })
+                    .widgetColorRes(R.color.regularBlue)
+                    .positiveText(R.string.action_confirm)
+                    .positiveColorRes(R.color.darkBlue)
+                    .negativeText(R.string.action_back)
+                    .negativeColorRes(R.color.black)
+                    .show();
+        }
+    }
+
     /**
      * Classe wrapper degli elementi della vista
      */
@@ -443,6 +495,7 @@ public class HomeFragment extends BaseFragment {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
         public final FloatingActionButton startFabButton;
+        public final FloatingActionButton pathsFabButton;
         public final View revealView;
         public final View revealBackgroundView;
         public final View destinationView;
@@ -459,6 +512,7 @@ public class HomeFragment extends BaseFragment {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
             toolbarTitle = (TextView) view.findViewById(R.id.navigation_toolbar_textview_title);
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
+            pathsFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_paths);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
             mapView = (PinView) view.findViewById(R.id.navigation_map_image);

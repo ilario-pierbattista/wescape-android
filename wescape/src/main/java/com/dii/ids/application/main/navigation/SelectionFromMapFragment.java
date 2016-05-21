@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
@@ -137,11 +138,11 @@ public class SelectionFromMapFragment extends BaseFragment {
         }
     }
 
-    private class MapsDownloaderListener implements TaskListener<Bitmap> {
+    private class MapsDownloaderListener implements TaskListener<Map> {
 
         @Override
-        public void onTaskSuccess(Bitmap image) {
-            holder.mapView.setImage(ImageSource.bitmap(image));
+        public void onTaskSuccess(Map map) {
+            holder.mapView.setImage(ImageSource.bitmap(map.getImage()));
             holder.mapView.setMinimumDpi(40);
             holder.mapView.resetPins();
             disableConfirmButtonState();

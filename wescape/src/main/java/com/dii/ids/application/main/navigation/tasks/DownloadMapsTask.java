@@ -8,6 +8,8 @@ import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.service.WescapeService;
+import com.dii.ids.application.entity.Map;
+import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
@@ -28,13 +30,13 @@ public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
     private static SimpleDiskCache imageCache = null;
-    private Bitmap image;
-    private TaskListener<Bitmap> listener;
+    private Map map;
+    private TaskListener<Map> listener;
     private Context context;
     private Exception thrownException;
     private WescapeService service;
 
-    public DownloadMapsTask(Context context, TaskListener<Bitmap> listener) {
+    public DownloadMapsTask(Context context, TaskListener<Map> listener) {
         this.context = context;
         this.listener = listener;
         this.service = ApiBuilder.buildWescapeService(context);
@@ -56,7 +58,10 @@ public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
 
         try {
             Call<ResponseBody> call = service.downloadFloorMap(floor);
-            image = getBitmapFromMemCache(call.request().url().toString());
+
+            Bitmap image = getBitmapFromMemCache(call.request().url().toString());
+            map = new Map(String.valueOf(floor), image);
+
             if (image == null) {
                 Response<ResponseBody> response = call.execute();
                 InputStream inputStream = response.body().byteStream();
@@ -74,7 +79,7 @@ public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
     @Override
     protected void onPostExecute(final Boolean success) {
         if (success) {
-            listener.onTaskSuccess(image);
+            listener.onTaskSuccess(map);
         } else {
             listener.onTaskError(thrownException);
         }

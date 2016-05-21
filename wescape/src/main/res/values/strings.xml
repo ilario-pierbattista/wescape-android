@@ -121,4 +121,5 @@
     <string name="action_reset_password">Reset Password</string>
     <string name="computing_route">Computing best route</string>
     <string name="please_wait">Please wait...</string>
+    <string name="select_path">Select a path</string>
 </resources>
