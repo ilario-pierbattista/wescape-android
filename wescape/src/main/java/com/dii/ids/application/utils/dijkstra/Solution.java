@@ -3,6 +3,7 @@ package com.dii.ids.application.utils.dijkstra;
 import com.dii.ids.application.entity.Node;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Solution {
@@ -13,16 +14,16 @@ public class Solution {
      * @param solutionPath A list on nodes representing the solution
      * @return A List with solution divided by floor
      */
-    public static List<List<Node>> getSolutionDividedByFloor(List<Node> solutionPath) {
+    public static HashMap<String, List<Node>> getSolutionDividedByFloor(List<Node> solutionPath) {
         String floor = "";
-        List<List<Node>> solution = new ArrayList<>();
+        HashMap<String, List<Node>> solution = new HashMap<>();
         for (Node node : solutionPath) {
             if (!node.getFloor().equals(floor)) {
                 floor = node.getFloor();
-                solution.add(new ArrayList<Node>());
+                solution.put(floor, new ArrayList<Node>());
             }
-            int index = solution.size() == 0 ? 0 : solution.size() - 1;
-            solution.get(index).add(node);
+            //String index = solution.size() == 0 ? String.valueOf(0) : String.valueOf(solution.size() - 1);
+            solution.get(node.getFloor()).add(node);
         }
 
         return solution;

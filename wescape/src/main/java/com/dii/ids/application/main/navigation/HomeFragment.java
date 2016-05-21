@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -17,9 +18,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
@@ -46,6 +49,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
 
@@ -67,8 +71,8 @@ public class HomeFragment extends BaseFragment {
     private Bitmap mapImage;
     private MinimumPathTask minimumPathTask;
 
-    private HashMap<Integer, Map> piantine;
-    private HashMap<Integer, List<Node>> percorsoOttimoPerPiano;
+    private HashMap<String, Bitmap> piantine;
+    private HashMap<String, List<Node>> percorsoOttimoPerPiano;
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -113,6 +117,7 @@ public class HomeFragment extends BaseFragment {
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
 
         setupViewUI();
+        downloadMaps();
 
         DownloadNodesTask downloadNodesTask = new DownloadNodesTask(getContext(), new NodesDownloaderListener());
         downloadNodesTask.execute();
@@ -180,6 +185,47 @@ public class HomeFragment extends BaseFragment {
             }
         } else {
             downloadMapsTask.execute(STARTING_FLOOR);
+        }
+    }
+
+    /**
+     * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
+     */
+    private void downloadMaps() {
+        if (piantine == null) {
+            piantine = new HashMap<>();
+        }
+
+        //TODO: rendere l'array di piani costanti globali
+        int[] piani = {145, 150, 155};
+        for (int piano : piani) {
+            DownloadMapsTask task = new DownloadMapsTask(getContext(), new MapListener());
+            task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
+        }
+    }
+
+    private class MapListener implements TaskListener<Map> {
+        @Override
+        public void onTaskSuccess(Map map) {
+            Log.i("Piantina", map.getImage().toString());
+            piantine.put(map.getFloor(), map.getImage());
+            Log.i("Piantina", String.valueOf(piantine.size()));
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
+                           Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onTaskComplete() {
+
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
         }
     }
 
@@ -434,11 +480,17 @@ public class HomeFragment extends BaseFragment {
             Log.i(TAG, searchResult.toString());
             paths = searchResult.getOptimalPaths();
             optimalPath = paths.get(0);
-            List<List<Node>> optimalPathByFloor = Solution.getSolutionDividedByFloor(optimalPath);
+            percorsoOttimoPerPiano = Solution.getSolutionDividedByFloor(optimalPath);
 
-            downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
-            holder.mapView.setPath(optimalPath);
+            //downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
+            holder.mapView.setImage(ImageSource.bitmap(piantine.get(origin.getFloor())));
+            MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
+            holder.mapView.setSinglePin(startPin);
+            holder.mapView.setPath(percorsoOttimoPerPiano.get(origin.getFloor()));
             holder.pathsFabButton.show();
+
+            //Setup listener bottoni piani
+            setupFloorButtonListener();
         }
 
         @Override
@@ -448,12 +500,47 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-
         }
 
         @Override
         public void onTaskCancelled() {
 
+        }
+    }
+
+    /**
+     * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
+     */
+    private void setupFloorButtonListener() {
+        ViewGroup buttonContainer = holder.floorButtonContainer;
+        Set<String> pianiNellaSoluzione = percorsoOttimoPerPiano.keySet();
+        for (int i = 0; i < buttonContainer.getChildCount(); i++) {
+            View v = buttonContainer.getChildAt(i);
+            if (v instanceof Button) {
+                Button button = (Button) v;
+                boolean flag = false;
+                for (String piano : pianiNellaSoluzione) {
+                    if (piano.equals(button.getText())) {
+                        flag = true;
+                    }
+                }
+                if (flag) {
+                    button.setOnClickListener(new FloorButtonListener());
+                } else {
+                    button.setVisibility(View.GONE);
+                }
+
+            }
+        }
+    }
+
+    private class FloorButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Button button = (Button) v;
+            String floor = String.valueOf(button.getText());
+            holder.mapView.setImage(ImageSource.bitmap(piantine.get(floor)));
+            holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
         }
     }
 
@@ -507,6 +594,7 @@ public class HomeFragment extends BaseFragment {
         public final ImageView destinationViewIcon;
         public final TextView originViewPlaceholder;
         public final PinView mapView;
+        public final ViewGroup floorButtonContainer;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -516,6 +604,7 @@ public class HomeFragment extends BaseFragment {
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
             mapView = (PinView) view.findViewById(R.id.navigation_map_image);
+            floorButtonContainer = (ViewGroup) view.findViewById(R.id.floor_button_container);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
