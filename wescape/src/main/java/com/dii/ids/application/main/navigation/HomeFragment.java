@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Set;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
+import es.usc.citius.hipster.util.examples.maze.Maze2D;
 
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
@@ -64,7 +65,6 @@ public class HomeFragment extends BaseFragment {
     private static Node origin = null, destination = null;
     private List<List<Node>> paths = null;
     private List<Node> optimalPath = null;
-    private MaterialDialog dialog;
     private ViewHolder holder;
     private boolean emergency = false;
     private DownloadMapsTask downloadMapsTask;
@@ -481,6 +481,11 @@ public class HomeFragment extends BaseFragment {
             paths = searchResult.getOptimalPaths();
             optimalPath = paths.get(0);
             percorsoOttimoPerPiano = Solution.getSolutionDividedByFloor(optimalPath);
+            for (java.util.Map.Entry<String, List<Node>> entry : percorsoOttimoPerPiano.entrySet()) {
+                for (Node node : entry.getValue()) {
+                    System.out.println("Key = " + entry.getKey() + ", Value = " + node);
+                }
+            }
 
             //downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
             holder.mapView.setImage(ImageSource.bitmap(piantine.get(origin.getFloor())));
@@ -529,7 +534,6 @@ public class HomeFragment extends BaseFragment {
                 } else {
                     button.setVisibility(View.GONE);
                 }
-
             }
         }
     }
@@ -539,6 +543,18 @@ public class HomeFragment extends BaseFragment {
         public void onClick(View v) {
             Button button = (Button) v;
             String floor = String.valueOf(button.getText());
+
+            // TODO: prevedere colore diverso per pin partenza/arrivo
+            if (floor.equals(origin.getFloor())) {
+                MapPin mapPin = new MapPin((float) origin.getX(), (float) origin.getY());
+                holder.mapView.setSinglePin(mapPin);
+            } else if (floor.equals(destination.getFloor())) {
+                MapPin mapPin = new MapPin((float) destination.getX(), (float) destination.getY());
+                holder.mapView.setSinglePin(mapPin);
+            } else {
+                holder.mapView.resetPins();
+            }
+
             holder.mapView.setImage(ImageSource.bitmap(piantine.get(floor)));
             holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
         }
@@ -553,7 +569,7 @@ public class HomeFragment extends BaseFragment {
                 options.add("Percorso " + String.valueOf(i + 1));
             }
 
-            dialog = new MaterialDialog.Builder(context)
+            MaterialDialog dialog = new MaterialDialog.Builder(context)
                     .title(context.getString(R.string.select_path))
                     .items(options)
                     .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
