@@ -154,7 +154,8 @@
         android:orientation="vertical"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/fab_margin">
+        android:padding="@dimen/fab_margin"
+        android:clipToPadding="false">
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/navigation_fab_paths"
