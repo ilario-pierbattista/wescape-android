@@ -71,6 +71,7 @@ public class HomeFragment extends BaseFragment {
     private DownloadMapsTask downloadMapsTask;
     private Bitmap mapImage;
     private MinimumPathTask minimumPathTask;
+    private String currentFloor = null;
 
     private HashMap<String, Bitmap> piantine;
     private HashMap<String, List<Node>> percorsoOttimoPerPiano;
@@ -498,8 +499,10 @@ public class HomeFragment extends BaseFragment {
                 }
             }
 
-            holder.mapView.setImage(ImageSource.bitmap(piantine.get(origin.getFloor())));
-            MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
+            currentFloor = origin.getFloor();
+            holder.mapView.setImage(piantine.get(currentFloor));
+
+            MapPin startPin = new MapPin(origin.toPointF());
             holder.mapView.setSinglePin(startPin);
             holder.mapView.setPath(percorsoOttimoPerPiano.get(origin.getFloor()));
             holder.pathsFabButton.show();
@@ -583,20 +586,31 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onClick(View v) {
             Button button = (Button) v;
-            String floor = String.valueOf(button.getText());
+            String floor = button.getText().toString();
 
-            if (floor.equals(origin.getFloor())) {
-                MapPin mapPin = new MapPin((float) origin.getX(), (float) origin.getY());
-                holder.mapView.setSinglePin(mapPin, PinView.Colors.RED);
-            } else if (floor.equals(destination.getFloor())) {
-                MapPin mapPin = new MapPin((float) destination.getX(), (float) destination.getY());
-                holder.mapView.setSinglePin(mapPin, PinView.Colors.BLUE);
-            } else {
-                holder.mapView.resetPins();
+            if(!floor.equals(currentFloor)) {
+                currentFloor = floor;
+
+                Bitmap map = piantine.get(floor);
+                Bitmap mapCopy = map.copy(map.getConfig(), true);
+
+                holder.mapView.setImage(mapCopy);
+
+                MapPin originPin = new MapPin(origin.toPointF());
+                MapPin destinationPin = new MapPin(destination.toPointF());
+
+
+                // @TODO Disegnare entrambi i pin quando sono sullo stesso piano
+                if (floor.equals(origin.getFloor())) {
+                    holder.mapView.setSinglePin(originPin, PinView.Colors.RED);
+                } else if (floor.equals(destination.getFloor())) {
+                    holder.mapView.setSinglePin(destinationPin, PinView.Colors.BLUE);
+                } else {
+                    holder.mapView.resetPins();
+                }
+
+                holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
             }
-
-            holder.mapView.setImage(ImageSource.bitmap(piantine.get(floor)));
-            holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
         }
     }
 

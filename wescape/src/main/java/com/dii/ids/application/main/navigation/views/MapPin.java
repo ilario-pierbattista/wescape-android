@@ -17,6 +17,17 @@ public class MapPin {
         this.Y = Y;
     }
 
+    public MapPin(PointF pointF, int id) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+        this.id = id;
+    }
+
+    public MapPin(PointF pointF) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+    }
+
     public float getX() {
         return X;
     }

@@ -1,5 +1,8 @@
 package com.dii.ids.application.entity;
 
+import android.graphics.Point;
+import android.graphics.PointF;
+
 import com.dii.ids.application.db.WescapeDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
@@ -35,6 +38,10 @@ public class Node extends BaseModel implements Serializable{
 
     @Column
     private int meter_y;
+
+    public PointF toPointF() {
+        return new PointF(x, y);
+    }
 
     public int getId() {
         return id;

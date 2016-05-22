@@ -10,6 +10,7 @@ import android.graphics.PointF;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
@@ -53,6 +54,10 @@ public class PinView extends SubsamplingScaleImageView {
         initialise();
 
         initDrawing();
+    }
+
+    public void setImage(Bitmap image) {
+        setImage(ImageSource.bitmap(image));
     }
 
     /**
