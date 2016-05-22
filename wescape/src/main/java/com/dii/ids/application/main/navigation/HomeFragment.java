@@ -542,6 +542,7 @@ public class HomeFragment extends BaseFragment {
         Set<String> pianiNellaSoluzione = percorsoOttimoPerPiano.keySet();
         HashMap<String, Button> buttons = getFloorButtons();
 
+        buttons.get(currentFloor).setTextColor(color(R.color.linkText));
         for (String key : buttons.keySet()) {
             buttons.get(key).setVisibility(View.GONE);
         }
@@ -595,6 +596,8 @@ public class HomeFragment extends BaseFragment {
         public void onClick(View v) {
             Button button = (Button) v;
             String floor = button.getText().toString();
+            unselectButtons();
+            button.setTextColor(color(R.color.linkText));
 
             if (!floor.equals(currentFloor)) {
                 currentFloor = floor;
@@ -619,6 +622,13 @@ public class HomeFragment extends BaseFragment {
                 }
 
                 holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
+            }
+        }
+
+        private void unselectButtons() {
+            HashMap<String, Button> buttons = getFloorButtons();
+            for (String key : buttons.keySet()) {
+                buttons.get(key).setTextColor(color(R.color.black));
             }
         }
     }
