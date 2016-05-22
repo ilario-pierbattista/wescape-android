@@ -73,6 +73,7 @@ public class HomeFragment extends BaseFragment {
     private Bitmap mapImage;
     private MinimumPathTask minimumPathTask;
     private String currentFloor = null;
+    private int indexOfPathSelected;
 
     private HashMap<String, Bitmap> piantine;
     private HashMap<String, List<Node>> percorsoOttimoPerPiano;
@@ -492,7 +493,9 @@ public class HomeFragment extends BaseFragment {
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
             paths = searchResult.getOptimalPaths();
-            optimalPath = paths.get(0);
+            indexOfPathSelected = 0;
+            optimalPath = paths.get(indexOfPathSelected);
+
             percorsoOttimoPerPiano = Solution.getSolutionDividedByFloor(optimalPath);
 
             currentFloor = origin.getFloor();
@@ -635,7 +638,7 @@ public class HomeFragment extends BaseFragment {
             MaterialDialog dialog = new MaterialDialog.Builder(context)
                     .title(context.getString(R.string.select_path))
                     .items(options)
-                    .itemsCallbackSingleChoice(-1, new MaterialDialog.ListCallbackSingleChoice() {
+                    .itemsCallbackSingleChoice(indexOfPathSelected, new MaterialDialog.ListCallbackSingleChoice() {
                         @Override
                         public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                             /**
