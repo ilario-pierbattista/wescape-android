@@ -5,6 +5,9 @@ import android.graphics.PointF;
 public class MapPin {
     float X, Y;
     int id;
+    Colors color = Colors.RED;
+
+    public enum Colors {BLUE, RED}
 
     public MapPin(float X, float Y, int id) {
         this.X = X;
@@ -26,6 +29,20 @@ public class MapPin {
     public MapPin(PointF pointF) {
         this.X = pointF.x;
         this.Y = pointF.y;
+    }
+
+    public MapPin(PointF pointF, Colors color) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+        this.color = color;
+    }
+
+    public Colors getColor() {
+        return color;
+    }
+
+    public void setColor(Colors color) {
+        this.color = color;
     }
 
     public float getX() {

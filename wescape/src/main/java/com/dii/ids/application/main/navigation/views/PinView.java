@@ -25,7 +25,6 @@ public class PinView extends SubsamplingScaleImageView {
     private ArrayList<MapPin> multiplePins;
     private ArrayList<DrawPin> drawnPins;
     private Context context;
-    private Colors color;
     private float density;
     private Paint paint;
     private ArrayList<PointF> path;
@@ -78,23 +77,10 @@ public class PinView extends SubsamplingScaleImageView {
      */
     public void setSinglePin(MapPin pin) {
         this.singlePin = pin;
-        this.color = color;
         initialise();
         invalidate();
     }
 
-    /**
-     * Set a single pin with color
-     *
-     * @param pin
-     * @param color
-     */
-    public void setSinglePin(MapPin pin, Colors color) {
-        this.singlePin = pin;
-        this.color = color;
-        initialise();
-        invalidate();
-    }
 
     /**
      * Get the single pin
@@ -137,6 +123,7 @@ public class PinView extends SubsamplingScaleImageView {
             return;
         }
 
+        // The path has to be drawn before the pin, unless it will cover the pin
         if (path != null) {
             drawPath(canvas, path);
         }
@@ -205,8 +192,8 @@ public class PinView extends SubsamplingScaleImageView {
     private void drawPin(Canvas canvas, MapPin pin) {
         //Bitmap bmpPin = Utils.getBitmapFromAsset(context, mPin.getPinImgSrc());
         int markerResource = R.drawable.marker_icon_google;
-        if (color != null) {
-            switch (color) {
+        if (pin.getColor() != null) {
+            switch (pin.getColor()) {
                 case RED: {
                     markerResource = R.drawable.marker_icon_google;
                     break;
@@ -253,10 +240,5 @@ public class PinView extends SubsamplingScaleImageView {
         drawnPins = new ArrayList<>();
         paint = new Paint();
         paint.setAntiAlias(true);
-    }
-
-    public enum Colors {
-        BLUE,
-        RED
     }
 }

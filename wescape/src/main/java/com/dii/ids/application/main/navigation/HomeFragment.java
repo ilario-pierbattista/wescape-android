@@ -48,6 +48,7 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -413,7 +414,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskSuccess(final List<Node> nodes) {
             List<Node> savedNodes = NodeRepository.findAll();
-            if(savedNodes.size() != nodes.size()) {
+            if (savedNodes.size() != nodes.size()) {
                 NodeRepository.deleteAll();
             }
 
@@ -493,17 +494,21 @@ public class HomeFragment extends BaseFragment {
             paths = searchResult.getOptimalPaths();
             optimalPath = paths.get(0);
             percorsoOttimoPerPiano = Solution.getSolutionDividedByFloor(optimalPath);
-            for (java.util.Map.Entry<String, List<Node>> entry : percorsoOttimoPerPiano.entrySet()) {
-                for (Node node : entry.getValue()) {
-                    System.out.println("Key = " + entry.getKey() + ", Value = " + node);
-                }
-            }
 
             currentFloor = origin.getFloor();
             holder.mapView.setImage(piantine.get(currentFloor));
 
+
             MapPin startPin = new MapPin(origin.toPointF());
-            holder.mapView.setSinglePin(startPin);
+            // Gestisce il posizionamento dei pin se partenza e arrivo sono sullo stesso piano
+            if (origin.getFloor().equals(destination.getFloor())) {
+                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
+                ArrayList<MapPin> pins = new ArrayList<>(Arrays.asList(startPin, destinationPin));
+                holder.mapView.setMultiplePins(pins);
+            } else {
+                holder.mapView.setSinglePin(startPin);
+            }
+
             holder.mapView.setPath(percorsoOttimoPerPiano.get(origin.getFloor()));
             holder.pathsFabButton.show();
 
@@ -534,7 +539,7 @@ public class HomeFragment extends BaseFragment {
         Set<String> pianiNellaSoluzione = percorsoOttimoPerPiano.keySet();
         HashMap<String, Button> buttons = getFloorButtons();
 
-        for(String key : buttons.keySet()) {
+        for (String key : buttons.keySet()) {
             buttons.get(key).setVisibility(View.GONE);
         }
 
@@ -555,7 +560,7 @@ public class HomeFragment extends BaseFragment {
             destinationSolution = (onePointSolution && solutionPerFloor.get(0).equals(destination));
             originSolution = (onePointSolution && solutionPerFloor.get(0).equals(origin));
 
-            if(multiplePointSolution || destinationSolution || originSolution) {
+            if (multiplePointSolution || destinationSolution || originSolution) {
                 buttons.get(floor).setVisibility(View.VISIBLE);
                 buttons.get(floor).setOnClickListener(new FloorButtonListener());
             }
@@ -588,7 +593,7 @@ public class HomeFragment extends BaseFragment {
             Button button = (Button) v;
             String floor = button.getText().toString();
 
-            if(!floor.equals(currentFloor)) {
+            if (!floor.equals(currentFloor)) {
                 currentFloor = floor;
 
                 Bitmap map = piantine.get(floor);
@@ -596,15 +601,16 @@ public class HomeFragment extends BaseFragment {
 
                 holder.mapView.setImage(mapCopy);
 
-                MapPin originPin = new MapPin(origin.toPointF());
-                MapPin destinationPin = new MapPin(destination.toPointF());
+                MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
+                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
+                ArrayList<MapPin> pins = new ArrayList<>(Arrays.asList(originPin, destinationPin));
 
-
-                // @TODO Disegnare entrambi i pin quando sono sullo stesso piano
-                if (floor.equals(origin.getFloor())) {
-                    holder.mapView.setSinglePin(originPin, PinView.Colors.RED);
-                } else if (floor.equals(destination.getFloor())) {
-                    holder.mapView.setSinglePin(destinationPin, PinView.Colors.BLUE);
+                boolean isOrigin = floor.equals(origin.getFloor());
+                boolean isDestination = floor.equals(destination.getFloor());
+                if (isOrigin) {
+                    holder.mapView.setSinglePin(originPin);
+                } else if (isDestination) {
+                    holder.mapView.setSinglePin(destinationPin);
                 } else {
                     holder.mapView.resetPins();
                 }
