@@ -24,6 +24,7 @@ public class PinView extends SubsamplingScaleImageView {
     private ArrayList<MapPin> multiplePins;
     private ArrayList<DrawPin> drawnPins;
     private Context context;
+    private Colors color;
     private float density;
     private Paint paint;
     private ArrayList<PointF> path;
@@ -72,6 +73,20 @@ public class PinView extends SubsamplingScaleImageView {
      */
     public void setSinglePin(MapPin pin) {
         this.singlePin = pin;
+        this.color = color;
+        initialise();
+        invalidate();
+    }
+
+    /**
+     * Set a single pin with color
+     *
+     * @param pin
+     * @param color
+     */
+    public void setSinglePin(MapPin pin, Colors color) {
+        this.singlePin = pin;
+        this.color = color;
         initialise();
         invalidate();
     }
@@ -117,16 +132,16 @@ public class PinView extends SubsamplingScaleImageView {
             return;
         }
 
+        if (path != null) {
+            drawPath(canvas, path);
+        }
+
         if (singlePin == null && multiplePins != null) {
             for (MapPin pin : multiplePins) {
                 drawPin(canvas, pin);
             }
         } else if (singlePin != null) {
             drawPin(canvas, singlePin);
-        }
-
-        if (path != null) {
-            drawPath(canvas, path);
         }
     }
 
@@ -184,7 +199,24 @@ public class PinView extends SubsamplingScaleImageView {
 
     private void drawPin(Canvas canvas, MapPin pin) {
         //Bitmap bmpPin = Utils.getBitmapFromAsset(context, mPin.getPinImgSrc());
-        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.marker_icon_google);
+        int markerResource = R.drawable.marker_icon_google;
+        if (color != null) {
+            switch (color) {
+                case RED: {
+                    markerResource = R.drawable.marker_icon_google;
+                    break;
+                }
+                case BLUE: {
+                    markerResource = R.drawable.marker_icon_google_blue;
+                    break;
+                }
+                default: {
+                    markerResource = R.drawable.marker_icon_google;
+                }
+            }
+        }
+
+        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), markerResource);
 
         float w = (density / 1200f) * bmpPin.getWidth();
         float h = (density / 1200f) * bmpPin.getHeight();
@@ -216,5 +248,10 @@ public class PinView extends SubsamplingScaleImageView {
         drawnPins = new ArrayList<>();
         paint = new Paint();
         paint.setAntiAlias(true);
+    }
+
+    public enum Colors {
+        BLUE,
+        RED
     }
 }

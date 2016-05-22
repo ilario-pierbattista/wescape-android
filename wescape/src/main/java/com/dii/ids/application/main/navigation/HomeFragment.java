@@ -31,6 +31,7 @@ import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
@@ -186,6 +187,8 @@ public class HomeFragment extends BaseFragment {
         } else {
             downloadMapsTask.execute(STARTING_FLOOR);
         }
+
+        holder.floorButtonContainer.setVisibility(View.GONE);
     }
 
     /**
@@ -204,6 +207,9 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Listner che riempie la hasmap delle piantine
+     */
     private class MapListener implements TaskListener<Map> {
         @Override
         public void onTaskSuccess(Map map) {
@@ -405,6 +411,11 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskSuccess(final List<Node> nodes) {
+            List<Node> savedNodes = NodeRepository.findAll();
+            if(savedNodes.size() != nodes.size()) {
+                NodeRepository.deleteAll();
+            }
+
             Transaction transaction = database.beginTransactionAsync(new ITransaction() {
                 @Override
                 public void execute(DatabaseWrapper databaseWrapper) {
@@ -487,7 +498,6 @@ public class HomeFragment extends BaseFragment {
                 }
             }
 
-            //downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
             holder.mapView.setImage(ImageSource.bitmap(piantine.get(origin.getFloor())));
             MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
             holder.mapView.setSinglePin(startPin);
@@ -517,25 +527,56 @@ public class HomeFragment extends BaseFragment {
      * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
      */
     private void setupFloorButtonListener() {
-        ViewGroup buttonContainer = holder.floorButtonContainer;
+        holder.floorButtonContainer.setVisibility(View.VISIBLE);
         Set<String> pianiNellaSoluzione = percorsoOttimoPerPiano.keySet();
+        HashMap<String, Button> buttons = getFloorButtons();
+
+        for(String key : buttons.keySet()) {
+            buttons.get(key).setVisibility(View.GONE);
+        }
+
+        // Soluzione per piano non vuota -> visualizzare il piano
+        // Soluzione per piano con un solo punto
+        //              -> destinazione => visualizzare il piano
+        //              -> != destinazione => nascondere il piano
+        // Soluzione per piano vuota -> nascondere il piano
+
+        List<Node> solutionPerFloor;
+        boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
+
+        for (String floor : pianiNellaSoluzione) {
+            solutionPerFloor = percorsoOttimoPerPiano.get(floor);
+
+            onePointSolution = solutionPerFloor.size() == 1;
+            multiplePointSolution = solutionPerFloor.size() > 1;
+            destinationSolution = (onePointSolution && solutionPerFloor.get(0).equals(destination));
+            originSolution = (onePointSolution && solutionPerFloor.get(0).equals(origin));
+
+            if(multiplePointSolution || destinationSolution || originSolution) {
+                buttons.get(floor).setVisibility(View.VISIBLE);
+                buttons.get(floor).setOnClickListener(new FloorButtonListener());
+            }
+        }
+    }
+
+    /**
+     * Ritorna la lista dei bottoni dei piani
+     *
+     * @return
+     */
+    private HashMap<String, Button> getFloorButtons() {
+        ViewGroup buttonContainer = holder.floorButtonContainer;
+        HashMap<String, Button> result = new HashMap<>();
+
         for (int i = 0; i < buttonContainer.getChildCount(); i++) {
             View v = buttonContainer.getChildAt(i);
             if (v instanceof Button) {
                 Button button = (Button) v;
-                boolean flag = false;
-                for (String piano : pianiNellaSoluzione) {
-                    if (piano.equals(button.getText())) {
-                        flag = true;
-                    }
-                }
-                if (flag) {
-                    button.setOnClickListener(new FloorButtonListener());
-                } else {
-                    button.setVisibility(View.GONE);
-                }
+                result.put(button.getText().toString(), button);
             }
         }
+
+        return result;
     }
 
     private class FloorButtonListener implements View.OnClickListener {
@@ -544,13 +585,12 @@ public class HomeFragment extends BaseFragment {
             Button button = (Button) v;
             String floor = String.valueOf(button.getText());
 
-            // TODO: prevedere colore diverso per pin partenza/arrivo
             if (floor.equals(origin.getFloor())) {
                 MapPin mapPin = new MapPin((float) origin.getX(), (float) origin.getY());
-                holder.mapView.setSinglePin(mapPin);
+                holder.mapView.setSinglePin(mapPin, PinView.Colors.RED);
             } else if (floor.equals(destination.getFloor())) {
                 MapPin mapPin = new MapPin((float) destination.getX(), (float) destination.getY());
-                holder.mapView.setSinglePin(mapPin);
+                holder.mapView.setSinglePin(mapPin, PinView.Colors.BLUE);
             } else {
                 holder.mapView.resetPins();
             }
@@ -560,6 +600,9 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Listener per gestire la selezione di un percorso diverso
+     */
     private class PathButtonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {

@@ -4,6 +4,7 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Node_Table;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
+import java.sql.SQLInput;
 import java.util.List;
 
 public class NodeRepository {
@@ -22,6 +23,12 @@ public class NodeRepository {
                 .select()
                 .from(Node.class)
                 .queryList();
+    }
+
+    public static void deleteAll() {
+        SQLite.delete()
+                .from(Node.class)
+                .execute();
     }
 
     /**
