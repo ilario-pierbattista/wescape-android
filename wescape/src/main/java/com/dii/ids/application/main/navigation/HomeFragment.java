@@ -609,7 +609,6 @@ public class HomeFragment extends BaseFragment {
 
                 MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
                 MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
-                ArrayList<MapPin> pins = new ArrayList<>(Arrays.asList(originPin, destinationPin));
 
                 boolean isOrigin = floor.equals(origin.getFloor());
                 boolean isDestination = floor.equals(destination.getFloor());
