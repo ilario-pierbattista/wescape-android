@@ -138,6 +138,7 @@ public class Node extends BaseModel implements Serializable{
                 ", y=" + y +
                 ", meter_x=" + meter_x +
                 ", meter_y=" + meter_y +
+                ", type='" + type + '\'' +
                 '}';
     }
 

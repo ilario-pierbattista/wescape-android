@@ -18,13 +18,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
@@ -38,9 +36,8 @@ import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
-import com.dii.ids.application.main.navigation.views.MapPin;
-import com.dii.ids.application.main.navigation.views.PinView;
 import com.dii.ids.application.utils.dijkstra.Solution;
+import com.dii.ids.application.views.MapView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
 import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
@@ -48,13 +45,10 @@ import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
-import es.usc.citius.hipster.util.examples.maze.Maze2D;
 
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
@@ -66,17 +60,12 @@ public class HomeFragment extends BaseFragment {
     private static String destinationText;
     private static Node origin = null, destination = null;
     private List<List<Node>> paths = null;
-    private List<Node> optimalPath = null;
     private ViewHolder holder;
-    private boolean emergency = false;
-    private DownloadMapsTask downloadMapsTask;
-    private Bitmap mapImage;
-    private MinimumPathTask minimumPathTask;
-    private String currentFloor = null;
-    private int indexOfPathSelected;
-
+    private HashMap<Integer, DownloadMapsTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
-    private HashMap<String, List<Node>> percorsoOttimoPerPiano;
+    private int indexOfPathSelected;
+    private boolean emergency = false;
+
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -100,9 +89,12 @@ public class HomeFragment extends BaseFragment {
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
+                    Log.i(TAG, node.toString());
+                    holder.mapView.setOrigin(origin);
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
+                    holder.mapView.setDestination(destination);
                     break;
             }
         } catch (NullPointerException ee) {
@@ -120,7 +112,7 @@ public class HomeFragment extends BaseFragment {
         originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
 
-        setupViewUI();
+        holder.setupUI();
         downloadMaps();
 
         DownloadNodesTask downloadNodesTask = new DownloadNodesTask(getContext(), new NodesDownloaderListener());
@@ -129,70 +121,7 @@ public class HomeFragment extends BaseFragment {
         return view;
     }
 
-    private void setupViewUI() {
-        holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
-        holder.originViewIcon.setImageResource(R.drawable.ic_my_location);
-        holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
-        holder.destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
-        originText = origin == null ?
-                getString(R.string.navigation_select_origin) :
-                origin.getName();
-        destinationText = destination == null ?
-                getString(R.string.navigation_select_destination) :
-                destination.getName();
-
-        holder.originViewText.setText(originText);
-        holder.destinationViewText.setText(destinationText);
-
-        // Setup listeners
-        holder.originView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSelectionFragment(v);
-            }
-        });
-
-        holder.startFabButton.setOnClickListener(new NavigationButtonListener());
-
-        if (paths == null) {
-            holder.pathsFabButton.hide();
-        }
-
-        holder.pathsFabButton.setOnClickListener(new PathButtonListener());
-
-        if (emergency) {
-            holder.revealView.setBackgroundColor(color(R.color.regularRed));
-            holder.revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
-            holder.toolbarTitle.setText(R.string.action_emergency);
-            holder.destinationViewText.setText(R.string.description_destination_emergency);
-            holder.destinationView.setClickable(false);
-
-        } else {
-            holder.destinationView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openSelectionFragment(v);
-                }
-            });
-            holder.destinationView.setClickable(true);
-        }
-
-        downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
-        if (origin != null) {
-            if (destination != null) {
-                minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
-                minimumPathTask.execute(origin, destination);
-            } else {
-                downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
-            }
-        } else {
-            downloadMapsTask.execute(STARTING_FLOOR);
-        }
-
-        holder.floorButtonContainer.setVisibility(View.GONE);
-    }
 
     /**
      * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
@@ -204,9 +133,11 @@ public class HomeFragment extends BaseFragment {
 
         //TODO: rendere l'array di piani costanti globali
         int[] piani = {145, 150, 155};
+
+        downloadMapsTasks = new HashMap<>();
         for (int piano : piani) {
-            DownloadMapsTask task = new DownloadMapsTask(getContext(), new MapListener());
-            task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
+            downloadMapsTasks.put(piano, new DownloadMapsTask(getContext(), new MapListener()));
+            downloadMapsTasks.get(piano).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
         }
     }
 
@@ -219,6 +150,7 @@ public class HomeFragment extends BaseFragment {
             Log.i("Piantina", map.getImage().toString());
             piantine.put(map.getFloor(), map.getImage());
             Log.i("Piantina", String.valueOf(piantine.size()));
+            downloadMapsTasks.remove(map.getFloorInt());
         }
 
         @Override
@@ -229,7 +161,10 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-
+            if(downloadMapsTasks.isEmpty()) {
+                Log.i(TAG, "Imposto piantine");
+                holder.mapView.setPiantine(piantine);
+            }
         }
 
         @Override
@@ -371,43 +306,6 @@ public class HomeFragment extends BaseFragment {
     }
 
     /**
-     * Responsible for downloading maps
-     */
-    private class MapsDownloaderListener implements TaskListener<Map> {
-
-        @Override
-        public void onTaskSuccess(Map map) {
-            mapImage = map.getImage();
-            holder.mapView.setImage(ImageSource.bitmap(mapImage));
-            holder.mapView.setMinimumDpi(40);
-
-            if (origin != null) {
-                originText = origin.getName();
-                MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
-                holder.mapView.setSinglePin(startPin);
-            } else {
-                originText = getString(R.string.navigation_select_origin);
-            }
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                           Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onTaskComplete() {
-            downloadMapsTask = null;
-        }
-
-        @Override
-        public void onTaskCancelled() {
-            downloadMapsTask = null;
-        }
-    }
-
-    /**
      * Responsible for downloading nodes
      */
     private class NodesDownloaderListener implements TaskListener<List<Node>> {
@@ -494,29 +392,18 @@ public class HomeFragment extends BaseFragment {
             Log.i(TAG, searchResult.toString());
             paths = searchResult.getOptimalPaths();
             indexOfPathSelected = 0;
-            optimalPath = paths.get(indexOfPathSelected);
+            List<Node> optimalPath = paths.get(indexOfPathSelected);
 
-            percorsoOttimoPerPiano = Solution.getSolutionDividedByFloor(optimalPath);
+            holder.mapView.setOrigin(origin);
+            holder.mapView.setDestination(destination);
 
-            currentFloor = origin.getFloor();
-            holder.mapView.setImage(piantine.get(currentFloor));
-
-
-            MapPin startPin = new MapPin(origin.toPointF());
-            // Gestisce il posizionamento dei pin se partenza e arrivo sono sullo stesso piano
-            if (origin.getFloor().equals(destination.getFloor())) {
-                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
-                ArrayList<MapPin> pins = new ArrayList<>(Arrays.asList(startPin, destinationPin));
-                holder.mapView.setMultiplePins(pins);
-            } else {
-                holder.mapView.setSinglePin(startPin);
+            for (String floor : piantine.keySet()) {
+                Log.i(TAG, floor + " " + piantine.get(floor).toString());
             }
-
-            holder.mapView.setPath(percorsoOttimoPerPiano.get(origin.getFloor()));
+            holder.mapView.setPiantine(piantine);
+            Log.i(TAG, "Percorso minimo!");
+            holder.mapView.setMultiFloorPath(Solution.getSolutionDividedByFloor(optimalPath));
             holder.pathsFabButton.show();
-
-            //Setup listener bottoni piani
-            setupFloorButtonListener();
         }
 
         @Override
@@ -534,103 +421,7 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
-     */
-    private void setupFloorButtonListener() {
-        holder.floorButtonContainer.setVisibility(View.VISIBLE);
-        Set<String> pianiNellaSoluzione = percorsoOttimoPerPiano.keySet();
-        HashMap<String, Button> buttons = getFloorButtons();
 
-        buttons.get(currentFloor).setTextColor(color(R.color.linkText));
-        for (String key : buttons.keySet()) {
-            buttons.get(key).setVisibility(View.GONE);
-        }
-
-        // Soluzione per piano non vuota -> visualizzare il piano
-        // Soluzione per piano con un solo punto
-        //              -> destinazione => visualizzare il piano
-        //              -> != destinazione => nascondere il piano
-        // Soluzione per piano vuota -> nascondere il piano
-
-        List<Node> solutionPerFloor;
-        boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
-
-        for (String floor : pianiNellaSoluzione) {
-            solutionPerFloor = percorsoOttimoPerPiano.get(floor);
-
-            onePointSolution = solutionPerFloor.size() == 1;
-            multiplePointSolution = solutionPerFloor.size() > 1;
-            destinationSolution = (onePointSolution && solutionPerFloor.get(0).equals(destination));
-            originSolution = (onePointSolution && solutionPerFloor.get(0).equals(origin));
-
-            if (multiplePointSolution || destinationSolution || originSolution) {
-                buttons.get(floor).setVisibility(View.VISIBLE);
-                buttons.get(floor).setOnClickListener(new FloorButtonListener());
-            }
-        }
-    }
-
-    /**
-     * Ritorna la lista dei bottoni dei piani
-     *
-     * @return
-     */
-    private HashMap<String, Button> getFloorButtons() {
-        ViewGroup buttonContainer = holder.floorButtonContainer;
-        HashMap<String, Button> result = new HashMap<>();
-
-        for (int i = 0; i < buttonContainer.getChildCount(); i++) {
-            View v = buttonContainer.getChildAt(i);
-            if (v instanceof Button) {
-                Button button = (Button) v;
-                result.put(button.getText().toString(), button);
-            }
-        }
-
-        return result;
-    }
-
-    private class FloorButtonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Button button = (Button) v;
-            String floor = button.getText().toString();
-            unselectButtons();
-            button.setTextColor(color(R.color.linkText));
-
-            if (!floor.equals(currentFloor)) {
-                currentFloor = floor;
-
-                Bitmap map = piantine.get(floor);
-                Bitmap mapCopy = map.copy(map.getConfig(), true);
-
-                holder.mapView.setImage(mapCopy);
-
-                MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
-                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
-
-                boolean isOrigin = floor.equals(origin.getFloor());
-                boolean isDestination = floor.equals(destination.getFloor());
-                if (isOrigin) {
-                    holder.mapView.setSinglePin(originPin);
-                } else if (isDestination) {
-                    holder.mapView.setSinglePin(destinationPin);
-                } else {
-                    holder.mapView.resetPins();
-                }
-
-                holder.mapView.setPath(percorsoOttimoPerPiano.get(floor));
-            }
-        }
-
-        private void unselectButtons() {
-            HashMap<String, Button> buttons = getFloorButtons();
-            for (String key : buttons.keySet()) {
-                buttons.get(key).setTextColor(color(R.color.black));
-            }
-        }
-    }
 
     /**
      * Listener per gestire la selezione di un percorso diverso
@@ -669,7 +460,7 @@ public class HomeFragment extends BaseFragment {
     /**
      * Classe wrapper degli elementi della vista
      */
-    public static class ViewHolder {
+    public class ViewHolder extends BaseFragment.ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
         public final FloatingActionButton startFabButton;
@@ -684,8 +475,7 @@ public class HomeFragment extends BaseFragment {
         public final TextView destinationViewPlaceholder;
         public final ImageView destinationViewIcon;
         public final TextView originViewPlaceholder;
-        public final PinView mapView;
-        public final ViewGroup floorButtonContainer;
+        public final MapView mapView;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
@@ -694,8 +484,7 @@ public class HomeFragment extends BaseFragment {
             pathsFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_paths);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
-            mapView = (PinView) view.findViewById(R.id.navigation_map_image);
-            floorButtonContainer = (ViewGroup) view.findViewById(R.id.floor_button_container);
+            mapView = find(view, R.id.navigation_map);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
@@ -705,6 +494,70 @@ public class HomeFragment extends BaseFragment {
             originViewText = (TextView) originView.findViewById(R.id.text);
             originViewPlaceholder = (TextView) originView.findViewById(R.id.placeholder);
             originViewIcon = (ImageView) originView.findViewById(R.id.icon);
+        }
+
+        /**
+         * Setup dell'interfaccia
+         */
+        private void setupUI() {
+            originViewPlaceholder.setText(R.string.navigation_starting_from);
+            originViewIcon.setImageResource(R.drawable.ic_my_location);
+            destinationViewPlaceholder.setText(R.string.navigation_going_to);
+            destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
+
+            originText = origin == null ?
+                    getString(R.string.navigation_select_origin) :
+                    origin.getName();
+            destinationText = destination == null ?
+                    getString(R.string.navigation_select_destination) :
+                    destination.getName();
+
+            originViewText.setText(originText);
+            destinationViewText.setText(destinationText);
+
+            // Setup listeners
+            originView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openSelectionFragment(v);
+                }
+            });
+
+            startFabButton.setOnClickListener(new NavigationButtonListener());
+
+            if (paths == null) {
+                pathsFabButton.hide();
+            }
+
+            pathsFabButton.setOnClickListener(new PathButtonListener());
+
+            if (emergency) {
+                revealView.setBackgroundColor(color(R.color.regularRed));
+                revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
+                startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
+                toolbarTitle.setText(R.string.action_emergency);
+                destinationViewText.setText(R.string.description_destination_emergency);
+                destinationView.setClickable(false);
+
+            } else {
+                destinationView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openSelectionFragment(v);
+                    }
+                });
+                destinationView.setClickable(true);
+            }
+
+            if (origin != null) {
+                if (destination != null) {
+                    MinimumPathTask minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
+                    minimumPathTask.execute(origin, destination);
+                } else {
+                    holder.mapView.setOrigin(origin);
+                    holder.mapView.changeFloor(origin.getFloor());
+                }
+            }
         }
     }
 }
