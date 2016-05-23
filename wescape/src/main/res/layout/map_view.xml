@@ -2,78 +2,71 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <com.dii.ids.application.main.navigation.views.PinView
+        android:id="@+id/navigation_map_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:src="@drawable/wescape_logo"/>
+
+    <LinearLayout
+        android:id="@+id/floor_button_container"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        android:layout_margin="@dimen/fab_margin"
+        android:background="@color/white"
+        android:elevation="@dimen/standard_elevation"
+        android:orientation="vertical">
 
-        <com.dii.ids.application.main.navigation.views.PinView
-            android:id="@+id/navigation_map_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/wescape_logo"/>
-
-        <RelativeLayout
-            android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/floor_button_155"
+            android:layout_width="55dp"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
-            android:background="@color/white"
-            android:elevation="@dimen/standard_elevation"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:background="@drawable/borderless_white_button"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:text="155"/>
 
-            <LinearLayout
-                android:id="@+id/floor_button_container"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/dividerGrey"/>
 
-                <Button
-                    android:id="@+id/floor_button_155"
-                    android:layout_width="55dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/borderless_white_button"
-                    android:elevation="0dp"
-                    android:stateListAnimator="@null"
-                    android:text="155"/>
+        <Button
+            android:id="@+id/floor_button_150"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/borderless_white_button"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:text="150"/>
 
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/dividerGrey"/>
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/dividerGrey"/>
 
-                <Button
-                    android:id="@+id/floor_button_150"
-                    android:layout_width="55dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/borderless_white_button"
-                    android:elevation="0dp"
-                    android:stateListAnimator="@null"
-                    android:text="150"/>
+        <Button
+            android:id="@+id/floor_button_145"
+            android:layout_width="55dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/borderless_white_button"
+            android:elevation="0dp"
+            android:stateListAnimator="@null"
+            android:text="145"/>
 
-                <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/dividerGrey"/>
+    </LinearLayout>
 
-                <Button
-                    android:id="@+id/floor_button_145"
-                    android:layout_width="55dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:background="@drawable/borderless_white_button"
-                    android:elevation="0dp"
-                    android:stateListAnimator="@null"
-                    android:text="145"/>
-
-            </LinearLayout>
-
-        </RelativeLayout>
     </RelativeLayout>
-
 
 </merge>
