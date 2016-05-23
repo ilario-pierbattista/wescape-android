@@ -1,7 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -24,8 +23,8 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.SelectablePointsTask;
-import com.dii.ids.application.main.navigation.views.MapPin;
-import com.dii.ids.application.main.navigation.views.PinView;
+import com.dii.ids.application.views.MapPin;
+import com.dii.ids.application.views.PinView;
 import com.dii.ids.application.utils.units.UnitConverter;
 
 import org.apache.commons.lang3.SerializationUtils;

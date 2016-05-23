@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.navigation.views;
+package com.dii.ids.application.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,7 +16,6 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public class PinView extends SubsamplingScaleImageView {

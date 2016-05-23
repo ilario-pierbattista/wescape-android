@@ -78,7 +78,8 @@
         </FrameLayout>
 
 
-        <com.dii.ids.application.view.MapView
+        <com.dii.ids.application.views.MapView
+            android:id="@+id/navigation_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
