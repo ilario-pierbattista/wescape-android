@@ -441,11 +441,10 @@ public class HomeFragment extends BaseFragment {
                     .itemsCallbackSingleChoice(indexOfPathSelected, new MaterialDialog.ListCallbackSingleChoice() {
                         @Override
                         public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                            /**
-                             * If you use alwaysCallSingleChoiceCallback(), which is discussed below,
-                             * returning false here won't allow the newly selected radio button to actually be selected.
-                             **/
-                            return true;
+                            //TODO: decommentare quando verranno ritornati piu percorsi
+//                            indexOfPathSelected = which;
+//                            HashMap<String, List<Node>> path = Solution.getSolutionDividedByFloor(paths.get(which));
+//                            holder.mapView.setMultiFloorPath(path);
                         }
                     })
                     .widgetColorRes(R.color.regularBlue)
