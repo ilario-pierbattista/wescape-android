@@ -39,6 +39,9 @@ public class Node extends BaseModel implements Serializable{
     @Column
     private int meter_y;
 
+    @Column
+    private String type;
+
     public PointF toPointF() {
         return new PointF(x, y);
     }
@@ -112,6 +115,15 @@ public class Node extends BaseModel implements Serializable{
 
     public Node setMeter_y(int meter_y) {
         this.meter_y = meter_y;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public Node setType(String type) {
+        this.type = type;
         return this;
     }
 
