@@ -5,7 +5,10 @@ public enum Actions {
     GO_AHEAD,
     TURN_RIGHT,
     TURN_LEFT,
+    TURN_BACK_RIGHT,
+    TURN_BACK_LEFT,
     GO_UPSTAIRS,
     GO_DOWNSTAIRS,
-    EXIT
+    EXIT,
+    DESTINATION_REACHED
 }
