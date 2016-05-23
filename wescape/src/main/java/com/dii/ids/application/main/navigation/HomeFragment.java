@@ -445,6 +445,7 @@ public class HomeFragment extends BaseFragment {
 //                            indexOfPathSelected = which;
 //                            HashMap<String, List<Node>> path = Solution.getSolutionDividedByFloor(paths.get(which));
 //                            holder.mapView.setMultiFloorPath(path);
+                            return true;
                         }
                     })
                     .widgetColorRes(R.color.regularBlue)
