@@ -52,7 +52,7 @@ public class Node extends BaseModel implements Serializable {
         return isEmergencyExit() || type.equals(TYPE_EXIT);
     }
 
-    public boolean
+    // @TODO completare
 
     public PointF toPointF() {
         return new PointF(x, y);
