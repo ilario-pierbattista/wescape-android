@@ -1,10 +1,14 @@
 package com.dii.ids.application.utils.dijkstra;
 
+import android.util.Log;
+
 import com.dii.ids.application.entity.Node;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class Solution {
 
@@ -27,5 +31,34 @@ public class Solution {
         }
 
         return solution;
+    }
+
+
+    public static List<Node> getOrderedSolution(Node origin, Node destination, HashMap<String, List<Node>> multiFloorPath) {
+        int originFloor = origin.getFloorInt();
+        int destinationFloor = destination.getFloorInt();
+        boolean ascendant = originFloor <= destinationFloor;
+
+        Set<String> floorSet = multiFloorPath.keySet();
+        ArrayList<Integer> floors = new ArrayList<>(floorSet.size());
+        for (String floor : floorSet) {
+            floors.add(Integer.parseInt(floor));
+        }
+
+        if (ascendant) {
+            Collections.sort(floors);
+        } else {
+            Collections.sort(floors, Collections.<Integer>reverseOrder());
+        }
+
+        List<Node> orderedSolution = new ArrayList<>();
+        for (Integer floor : floors) {
+            String f = String.valueOf(floor);
+            for (Node node : multiFloorPath.get(f)) {
+                orderedSolution.add(node);
+            }
+        }
+
+        return orderedSolution;
     }
 }

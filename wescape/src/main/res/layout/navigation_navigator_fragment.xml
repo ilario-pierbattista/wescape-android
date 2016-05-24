@@ -74,6 +74,7 @@
             android:orientation="horizontal">
 
             <ImageButton
+                android:id="@+id/previous_button"
                 android:layout_width="55dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -88,6 +89,7 @@
                 android:background="@color/dividerGrey"/>
 
             <ImageButton
+                android:id="@+id/next_button"
                 android:layout_width="55dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

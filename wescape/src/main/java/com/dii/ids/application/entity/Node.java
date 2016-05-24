@@ -68,8 +68,17 @@ public class Node extends BaseModel implements Serializable{
         return floor;
     }
 
+    public int getFloorInt() {
+        return Integer.parseInt(getFloor());
+    }
+
     public Node setFloor(String floor) {
         this.floor = floor;
+        return this;
+    }
+
+    public Node setFloorInt(int floor) {
+        this.floor = String.valueOf(floor);
         return this;
     }
 
