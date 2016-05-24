@@ -1,6 +1,5 @@
 package com.dii.ids.application.entity;
 
-import android.graphics.Point;
 import android.graphics.PointF;
 
 import com.dii.ids.application.db.WescapeDatabase;
@@ -10,10 +9,13 @@ import com.raizlabs.android.dbflow.annotation.Table;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import java.io.Serializable;
-import java.util.List;
 
 @Table(database = WescapeDatabase.class)
-public class Node extends BaseModel implements Serializable{
+public class Node extends BaseModel implements Serializable {
+    public static final String TYPE_GENERAL = "G";
+    public static final String TYPE_EXIT = "U";
+    public static final String TYPE_ROOM = "R";
+    public static final String TYPE_EMERGENCY = "E";
 
     @PrimaryKey
     private int id;
@@ -41,6 +43,22 @@ public class Node extends BaseModel implements Serializable{
 
     @Column
     private String type;
+
+    public boolean isEmergencyExit() {
+        return type != null && type.equals(TYPE_EMERGENCY);
+    }
+
+    public boolean isExit() {
+        return type != null && (isEmergencyExit() || type.equals(TYPE_EXIT));
+    }
+
+    public boolean isRoom() {
+        return type != null && type.equals(TYPE_ROOM);
+    }
+
+    public boolean isGeneral() {
+        return type != null && type.equals(TYPE_GENERAL);
+    }
 
     public PointF toPointF() {
         return new PointF(x, y);
