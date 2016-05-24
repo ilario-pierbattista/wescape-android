@@ -94,7 +94,7 @@ public class MapView extends LinearLayout {
     }
 
     public void nextStep() {
-        if (currentNode < orderedSolution.size() - 2) {
+        if (currentNode < orderedSolution.size() - 1) {
             currentNode++;
         }
 
@@ -102,7 +102,7 @@ public class MapView extends LinearLayout {
     }
 
     public void prevStep() {
-        if (currentNode > 0 && currentNode < orderedSolution.size() - 1) {
+        if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
             currentNode--;
         }
 
