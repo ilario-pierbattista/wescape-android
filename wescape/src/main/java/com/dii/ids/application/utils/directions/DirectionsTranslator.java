@@ -169,6 +169,7 @@ public class DirectionsTranslator {
         return directions;
     }
 
+    // @TODO Questo metodo non dovrebbe essere in HumanDirection?
     public HumanDirection getHumanDirection(Actions action) {
         HumanDirection humanDirection = new HumanDirection();
         switch (action) {
