@@ -135,6 +135,7 @@ public class NavigatorFragment extends Fragment {
         public final ImageButton nextButton;
         public final ImageButton previousButton;
         public final TextView indicationTextView;
+        public final TextView nextNodeTextView;
         public final ImageView indicationSymbol;
 
         public ViewHolder(View view) {
@@ -144,6 +145,7 @@ public class NavigatorFragment extends Fragment {
             nextButton = (ImageButton) view.findViewById(R.id.next_button);
             previousButton = (ImageButton) view.findViewById(R.id.previous_button);
             indicationTextView = (TextView) view.findViewById(R.id.indication_text);
+            nextNodeTextView = (TextView) view.findViewById(R.id.next_node_text);
             indicationSymbol = (ImageView) view.findViewById(R.id.indication_icon);
 
         }
