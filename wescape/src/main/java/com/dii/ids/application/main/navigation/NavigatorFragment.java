@@ -100,6 +100,7 @@ public class NavigatorFragment extends Fragment {
 
         HumanDirection humanDirection = translator.getHumanDirection(actions.get(0));
         holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
 
         return view;
     }
@@ -123,7 +124,7 @@ public class NavigatorFragment extends Fragment {
 
             HumanDirection humanDirection = translator.getHumanDirection(actions.get(index));
             holder.indicationTextView.setText(humanDirection.getDirection());
-            // TODO: bisogna settare anche l'icona
+            holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
         }
     }
 
