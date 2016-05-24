@@ -1,15 +1,15 @@
-package com.dii.ids.application.utils.dijkstra;
+package com.dii.ids.application.navigation;
 
 import com.dii.ids.application.entity.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Path extends ArrayList<Node> {
+public class Path extends ArrayList<Checkpoint> {
     public Path() {
     }
 
-    public Path(List<Node> nodes) {
+    public Path(List<Checkpoint> nodes) {
         addAll(nodes);
     }
 
@@ -25,12 +25,12 @@ public class Path extends ArrayList<Node> {
         multiFloorPath.setOrigin(get(0));
         multiFloorPath.setDestination(get(size() - 1));
 
-        for (Node node : this) {
-            if (!node.getFloor().equals(floor)) {
-                floor = node.getFloor();
+        for (Checkpoint checkpoint : this) {
+            if (!checkpoint.getFloor().equals(floor)) {
+                floor = checkpoint.getFloor();
                 multiFloorPath.put(floor, new Path());
             }
-            multiFloorPath.get(node.getFloor()).add(node);
+            multiFloorPath.get(checkpoint.getFloor()).add(checkpoint);
         }
 
         return multiFloorPath;

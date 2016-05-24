@@ -1,4 +1,4 @@
-package com.dii.ids.application.utils.directions;
+package com.dii.ids.application.navigation.directions;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -6,9 +6,8 @@ import android.support.annotation.Nullable;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.utils.algebra.TridimensionalVector;
+import com.dii.ids.application.navigation.algebra.TridimensionalVector;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DirectionsTranslator {

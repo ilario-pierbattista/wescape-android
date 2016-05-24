@@ -3,6 +3,7 @@ package com.dii.ids.application.entity;
 import android.graphics.PointF;
 
 import com.dii.ids.application.db.WescapeDatabase;
+import com.dii.ids.application.navigation.Checkpoint;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
@@ -11,7 +12,7 @@ import com.raizlabs.android.dbflow.structure.BaseModel;
 import java.io.Serializable;
 
 @Table(database = WescapeDatabase.class)
-public class Node extends BaseModel implements Serializable {
+public class Node extends BaseModel implements Serializable, Checkpoint {
     public static final String TYPE_GENERAL = "G";
     public static final String TYPE_EXIT = "U";
     public static final String TYPE_ROOM = "R";

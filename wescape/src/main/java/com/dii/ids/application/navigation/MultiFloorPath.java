@@ -1,4 +1,4 @@
-package com.dii.ids.application.utils.dijkstra;
+package com.dii.ids.application.navigation;
 
 import com.dii.ids.application.entity.Node;
 
@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class MultiFloorPath extends HashMap<String, Path> {
-    private Node origin;
-    private Node destination;
+    private Checkpoint origin;
+    private Checkpoint destination;
 
     public MultiFloorPath() {
     }
@@ -18,7 +18,7 @@ public class MultiFloorPath extends HashMap<String, Path> {
         return toPath(origin, destination);
     }
 
-    public Path toPath(Node origin, Node destination) {
+    public Path toPath(Checkpoint origin, Checkpoint destination) {
         int originFloor = origin.getFloorInt();
         int destinationFloor = destination.getFloorInt();
         boolean ascendant = originFloor <= destinationFloor;
@@ -38,28 +38,28 @@ public class MultiFloorPath extends HashMap<String, Path> {
         Path path = new Path();
         for (Integer floor : floors) {
             String f = String.valueOf(floor);
-            for (Node node : get(f)) {
-                path.add(node);
+            for (Checkpoint checkpoint : get(f)) {
+                path.add(checkpoint);
             }
         }
 
         return path;
     }
 
-    public Node getOrigin() {
+    public Checkpoint getOrigin() {
         return origin;
     }
 
-    public MultiFloorPath setOrigin(Node origin) {
+    public MultiFloorPath setOrigin(Checkpoint origin) {
         this.origin = origin;
         return this;
     }
 
-    public Node getDestination() {
+    public Checkpoint getDestination() {
         return destination;
     }
 
-    public MultiFloorPath setDestination(Node destination) {
+    public MultiFloorPath setDestination(Checkpoint destination) {
         this.destination = destination;
         return this;
     }

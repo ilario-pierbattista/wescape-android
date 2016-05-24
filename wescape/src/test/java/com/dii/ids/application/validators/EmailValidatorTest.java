@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class EmailValidatorTest {
-    private EmailValidator validator;
     public static final String[] validEmails = {
             "prova@email"
     };
@@ -13,6 +12,7 @@ public class EmailValidatorTest {
             "",
             "email"
     };
+    private EmailValidator validator;
 
     @Before
     public void setup() {

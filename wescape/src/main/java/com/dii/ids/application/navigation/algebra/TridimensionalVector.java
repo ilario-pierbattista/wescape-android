@@ -1,4 +1,4 @@
-package com.dii.ids.application.utils.algebra;
+package com.dii.ids.application.navigation.algebra;
 
 import android.graphics.PointF;
 

@@ -11,8 +11,8 @@ import android.widget.LinearLayout;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.utils.dijkstra.MultiFloorPath;
-import com.dii.ids.application.utils.dijkstra.Path;
+import com.dii.ids.application.navigation.MultiFloorPath;
+import com.dii.ids.application.navigation.Path;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class SecretCodeValidatorTest {
-    private SecretCodeValidator validator;
     public static final String[] validCodes = {
             "4AD60A",
             "AAAAAA",
@@ -17,6 +16,7 @@ public class SecretCodeValidatorTest {
             "3445",
             "a4"
     };
+    private SecretCodeValidator validator;
 
     @Before
     public void setUp() throws Exception {

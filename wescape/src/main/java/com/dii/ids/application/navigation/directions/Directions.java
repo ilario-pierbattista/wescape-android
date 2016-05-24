@@ -1,4 +1,4 @@
-package com.dii.ids.application.utils.directions;
+package com.dii.ids.application.navigation.directions;
 
 import java.util.ArrayList;
 

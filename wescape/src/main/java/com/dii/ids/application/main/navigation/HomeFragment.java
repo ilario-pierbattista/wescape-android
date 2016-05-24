@@ -36,8 +36,8 @@ import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
-import com.dii.ids.application.utils.dijkstra.MultiFloorPath;
-import com.dii.ids.application.utils.dijkstra.Path;
+import com.dii.ids.application.navigation.MultiFloorPath;
+import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
@@ -125,7 +125,6 @@ public class HomeFragment extends BaseFragment {
     }
 
 
-
     /**
      * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
      */
@@ -142,73 +141,6 @@ public class HomeFragment extends BaseFragment {
             downloadMapsTasks.put(piano, new DownloadMapsTask(getContext(), new MapListener()));
             downloadMapsTasks.get(piano).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
         }
-    }
-
-    /**
-     * Listner che riempie la hasmap delle piantine
-     */
-    private class MapListener implements TaskListener<Map> {
-        @Override
-        public void onTaskSuccess(Map map) {
-            Log.i("Piantina", map.getImage().toString());
-            piantine.put(map.getFloor(), map.getImage());
-            Log.i("Piantina", String.valueOf(piantine.size()));
-            downloadMapsTasks.remove(map.getFloorInt());
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                           Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onTaskComplete() {
-            if(downloadMapsTasks.isEmpty()) {
-                Log.i(TAG, "Imposto piantine");
-                holder.mapView.setPiantine(piantine);
-            }
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
-
-    private void openSelectionFragment(View v) {
-        SelectionFragment selectionFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        int code = 1;
-        switch (v.getId()) {
-            case R.id.navigation_input_origin:
-                code = ORIGIN_SELECTION_REQUEST_CODE;
-                break;
-            case R.id.navigation_input_destination:
-                code = DESTINATION_SELECTION_REQUEST_CODE;
-                break;
-        }
-
-        selectionFragment = SelectionFragment.newInstance(code);
-        selectionFragment.setTargetFragment(this, code);
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, minPathSolution);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
     }
 
     @Override
@@ -255,8 +187,8 @@ public class HomeFragment extends BaseFragment {
                 toBlue = getResources().getColorStateList(blue);
         FabAnimation fabAnimation = new FabAnimation();
         ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                                                                 holder.revealBackgroundView,
-                                                                 holder.toolbar);
+                holder.revealBackgroundView,
+                holder.toolbar);
 
         if (!emergency) {
             toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
@@ -282,6 +214,73 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    private void openSelectionFragment(View v) {
+        SelectionFragment selectionFragment;
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        int code = 1;
+        switch (v.getId()) {
+            case R.id.navigation_input_origin:
+                code = ORIGIN_SELECTION_REQUEST_CODE;
+                break;
+            case R.id.navigation_input_destination:
+                code = DESTINATION_SELECTION_REQUEST_CODE;
+                break;
+        }
+
+        selectionFragment = SelectionFragment.newInstance(code);
+        selectionFragment.setTargetFragment(this, code);
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, minPathSolution);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    /**
+     * Listner che riempie la hasmap delle piantine
+     */
+    private class MapListener implements TaskListener<Map> {
+        @Override
+        public void onTaskSuccess(Map map) {
+            Log.i("Piantina", map.getImage().toString());
+            piantine.put(map.getFloor(), map.getImage());
+            Log.i("Piantina", String.valueOf(piantine.size()));
+            downloadMapsTasks.remove(map.getFloorInt());
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onTaskComplete() {
+            if (downloadMapsTasks.isEmpty()) {
+                Log.i(TAG, "Imposto piantine");
+                holder.mapView.setPiantine(piantine);
+            }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
+        }
+    }
+
     /**
      * Responsible for navigation start button
      */
@@ -292,15 +291,15 @@ public class HomeFragment extends BaseFragment {
             if (origin == null || destination == null) {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             } else {
                 if (origin.getId() == destination.getId()) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -424,7 +423,6 @@ public class HomeFragment extends BaseFragment {
 
         }
     }
-
 
 
     /**

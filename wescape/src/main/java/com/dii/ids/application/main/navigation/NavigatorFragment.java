@@ -15,11 +15,11 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.utils.dijkstra.MultiFloorPath;
-import com.dii.ids.application.utils.dijkstra.Path;
-import com.dii.ids.application.utils.directions.Directions;
-import com.dii.ids.application.utils.directions.DirectionsTranslator;
-import com.dii.ids.application.utils.directions.HumanDirection;
+import com.dii.ids.application.navigation.MultiFloorPath;
+import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.navigation.directions.Directions;
+import com.dii.ids.application.navigation.directions.DirectionsTranslator;
+import com.dii.ids.application.navigation.directions.HumanDirection;
 import com.dii.ids.application.views.MapView;
 
 import java.util.ArrayList;
