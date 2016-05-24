@@ -1,5 +1,6 @@
 package com.dii.ids.application.utils.directions;
 
+import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -45,10 +46,22 @@ public class DirectionsTranslator {
                                             @Nullable Node next) {
         // Si inizia la navigazione (il nodo precedente è nullo)
         if(prev == null) {
-            return Actions.GO_AHEAD;
+            if(current.isRoom()) {
+                return Actions.EXIT;
+            } else {
+                return Actions.GO_AHEAD;
+            }
         }
 
         // La navigazione finisce (il nodo successivo è nullo)
+        if(next == null) {
+            return Actions.DESTINATION_REACHED;
+        }
+
+        // Punto corrente generale
+        if(current.isGeneral()) {
+            return getPlaneAngleAction(prev, current, next);
+        }
 
         return Actions.GO_AHEAD;
     }
@@ -78,6 +91,19 @@ public class DirectionsTranslator {
             } else {
                 return Actions.TURN_LEFT;
             }
+        }
+    }
+
+    private Actions getStaisActon(Node current, Node next) {
+        int currentFloor, nextFloor;
+
+        currentFloor = Integer.parseInt(current.getFloor());
+        nextFloor = Integer.parseInt(next.getFloor());
+
+        if(nextFloor > currentFloor) {
+            return Actions.GO_UPSTAIRS;
+        } else {
+            return Actions.GO_DOWNSTAIRS;
         }
     }
 

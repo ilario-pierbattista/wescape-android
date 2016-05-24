@@ -45,14 +45,20 @@ public class Node extends BaseModel implements Serializable {
     private String type;
 
     public boolean isEmergencyExit() {
-        return type.equals(TYPE_EMERGENCY);
+        return type != null && type.equals(TYPE_EMERGENCY);
     }
 
     public boolean isExit() {
-        return isEmergencyExit() || type.equals(TYPE_EXIT);
+        return type != null && (isEmergencyExit() || type.equals(TYPE_EXIT));
     }
 
-    // @TODO completare
+    public boolean isRoom() {
+        return type != null && type.equals(TYPE_ROOM);
+    }
+
+    public boolean isGeneral() {
+        return type != null && type.equals(TYPE_GENERAL);
+    }
 
     public PointF toPointF() {
         return new PointF(x, y);
