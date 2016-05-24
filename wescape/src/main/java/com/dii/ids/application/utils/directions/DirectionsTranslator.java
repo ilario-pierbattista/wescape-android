@@ -1,6 +1,5 @@
 package com.dii.ids.application.utils.directions;
 
-import android.support.annotation.IntegerRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -15,12 +14,17 @@ public class DirectionsTranslator {
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
 
     private List<Node> nodes;
-    private List<Integer> directions;
+    private List<Actions> directions;
     private final double straightAngleLowerBound,
             straightAngleUpperBound,
             curvedAngleLowerUpperBound,
             curvedAngleUpperLowerBound;
 
+    /**
+     * Costruttore
+     *
+     * @param nodes Lista dei nodi che costituisce un percorso
+     */
     public DirectionsTranslator(List<Node> nodes) {
         this.nodes = nodes;
         this.directions = new ArrayList<>();
@@ -31,22 +35,52 @@ public class DirectionsTranslator {
         curvedAngleUpperLowerBound = Math.PI + Math.toRadians(CURVED_BACK_TRUNK_MIN_ANGLE);
     }
 
+    /**
+     * Calcola le indicazioni
+     *
+     * @return Istanza corrente di {@link DirectionsTranslator}
+     */
     public DirectionsTranslator calculateDirections() {
-        Node current, previous, next;
-        int index = 0;
-        previous = null;
-        current = nodes.get(index);
-        next = nodes.get(index + 1);
+        Node previous, current, next;
+        Actions action;
+
+        for (int index = 0; index < nodes.size(); index++) {
+            try {
+                previous = nodes.get(index - 1);
+            } catch (IndexOutOfBoundsException e) {
+                previous = null;
+            }
+
+            current = nodes.get(index);
+
+            try {
+                next = nodes.get(index + 1);
+            } catch (IndexOutOfBoundsException e) {
+                next = null;
+            }
+
+            action = getDirectionForNextNode(previous, current, next);
+
+            directions.add(action);
+        }
 
         return this;
     }
 
+    /**
+     * Calcola le indicazioni data una tripletta di nodi
+     *
+     * @param prev    Nodo precedente
+     * @param current Nodo corrente
+     * @param next    Nodo successivo
+     * @return Azione corrispondente all'indicazione
+     */
     private Actions getDirectionForNextNode(@Nullable Node prev,
                                             @NonNull Node current,
                                             @Nullable Node next) {
         // Si inizia la navigazione (il nodo precedente è nullo)
-        if(prev == null) {
-            if(current.isRoom()) {
+        if (prev == null) {
+            if (current.isRoom()) {
                 return Actions.EXIT;
             } else {
                 return Actions.GO_AHEAD;
@@ -54,18 +88,31 @@ public class DirectionsTranslator {
         }
 
         // La navigazione finisce (il nodo successivo è nullo)
-        if(next == null) {
+        if (next == null) {
             return Actions.DESTINATION_REACHED;
         }
 
+        // Dislivello tra due punti
+        if (!current.getFloor().equals(next.getFloor())) {
+            return getStaisActon(current, next);
+        }
+
         // Punto corrente generale
-        if(current.isGeneral()) {
+        if (current.isGeneral()) {
             return getPlaneAngleAction(prev, current, next);
         }
 
         return Actions.GO_AHEAD;
     }
 
+    /**
+     * Calcola la direzione in base all'angolo tra 3 punti
+     *
+     * @param prev    Punto precedente
+     * @param current Punto corrente
+     * @param next    Punto successivo
+     * @return Indicazione
+     */
     private Actions getPlaneAngleAction(Node prev, Node current, Node next) {
         double angle;
         TridimensionalVector prevArch, nextArc;
@@ -94,20 +141,27 @@ public class DirectionsTranslator {
         }
     }
 
+    /**
+     * Indicazioni per la salita delle scale
+     *
+     * @param current Nodo corrente
+     * @param next    Nodo successivo
+     * @return Indicazione
+     */
     private Actions getStaisActon(Node current, Node next) {
         int currentFloor, nextFloor;
 
         currentFloor = Integer.parseInt(current.getFloor());
         nextFloor = Integer.parseInt(next.getFloor());
 
-        if(nextFloor > currentFloor) {
+        if (nextFloor > currentFloor) {
             return Actions.GO_UPSTAIRS;
         } else {
             return Actions.GO_DOWNSTAIRS;
         }
     }
 
-    public List<Integer> getDirections() {
+    public List<Actions> getDirections() {
         return directions;
     }
 }
