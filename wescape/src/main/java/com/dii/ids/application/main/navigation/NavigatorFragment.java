@@ -106,6 +106,7 @@ public class NavigatorFragment extends BaseFragment {
 
         HumanDirection humanDirection = translator.getHumanDirection(actions.get(0));
         holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
 
         return view;
     }
@@ -129,7 +130,7 @@ public class NavigatorFragment extends BaseFragment {
 
             HumanDirection humanDirection = translator.getHumanDirection(actions.get(index));
             holder.indicationTextView.setText(humanDirection.getDirection());
-            // TODO: bisogna settare anche l'icona
+            holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
         }
     }
 
@@ -140,6 +141,7 @@ public class NavigatorFragment extends BaseFragment {
         public final ImageButton nextButton;
         public final ImageButton previousButton;
         public final TextView indicationTextView;
+        public final TextView nextNodeTextView;
         public final ImageView indicationSymbol;
 
         public ViewHolder(View view) {
@@ -149,6 +151,7 @@ public class NavigatorFragment extends BaseFragment {
             nextButton = (ImageButton) view.findViewById(R.id.next_button);
             previousButton = (ImageButton) view.findViewById(R.id.previous_button);
             indicationTextView = (TextView) view.findViewById(R.id.indication_text);
+            nextNodeTextView = (TextView) view.findViewById(R.id.next_node_text);
             indicationSymbol = (ImageView) view.findViewById(R.id.indication_icon);
 
         }
