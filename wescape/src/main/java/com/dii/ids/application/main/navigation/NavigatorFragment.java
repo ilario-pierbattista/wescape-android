@@ -1,5 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
@@ -9,6 +10,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.views.MapView;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link NavigatorFragment#newInstance} factory method
@@ -16,29 +22,35 @@ import com.dii.ids.application.R;
  */
 public class NavigatorFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ORIGIN = "origine";
+    private static final String DESTINATION = "destinazione";
+    private static final String PIANTINE = "piantine";
+    private static final String MULTIPATH_SOLUTION = "solution";
     private ViewHolder holder;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private Node origin;
+    private Node destination;
+    private HashMap<String, Bitmap> piantine;
+    private HashMap<String, List<Node>> multiFloorSolution;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param origin Parameter 1.
+     * @param destination Parameter 2.
+     * @param piantine Parameter 3
      * @return A new instance of fragment NavigatorFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static NavigatorFragment newInstance(String param1, String param2) {
+    public static NavigatorFragment newInstance(Node origin,
+                                                Node destination,
+                                                HashMap<String, Bitmap> piantine,
+                                                HashMap<String, List<Node>> multiPathSolution) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ORIGIN, origin);
+        args.putSerializable(DESTINATION, destination);
+        args.putSerializable(PIANTINE, piantine);
+        args.putSerializable(MULTIPATH_SOLUTION, multiPathSolution);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,8 +59,10 @@ public class NavigatorFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            origin = (Node) getArguments().getSerializable(ORIGIN);
+            destination = (Node) getArguments().getSerializable(DESTINATION);
+            piantine = (HashMap<String, Bitmap>) getArguments().getSerializable(PIANTINE);
+            multiFloorSolution = (HashMap<String, List<Node>>) getArguments().getSerializable(MULTIPATH_SOLUTION);
         }
     }
 
@@ -57,6 +71,11 @@ public class NavigatorFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.navigation_navigator_fragment, container, false);
         holder = new ViewHolder(view);
+
+        holder.mapView.setOrigin(origin);
+        holder.mapView.setDestination(destination);
+        holder.mapView.setPiantine(piantine);
+        holder.mapView.setMultiFloorPath(multiFloorSolution);
 
         // Setup Up button on Toolbar
         NavigationActivity activity = (NavigationActivity) getActivity();
@@ -69,16 +88,15 @@ public class NavigatorFragment extends Fragment {
         return view;
     }
 
-    /**
-     * Classe wrapper degli elementi della vista
-     */
     public static class ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
+        public final MapView mapView;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
             toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
+            mapView = (MapView) view.findViewById(R.id.navigation_map);
         }
     }
 

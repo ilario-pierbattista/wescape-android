@@ -126,7 +126,8 @@ public class MapView extends LinearLayout {
         this.multiFloorPath = multiFloorPath;
         currentFloor = origin.getFloor();
         Log.i(TAG, "Piano corrente "+currentFloor);
-        holder.pinView.setImage(piantine.get(currentFloor));
+        Bitmap mapImage = piantine.get(currentFloor);
+        holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
 
         setupFloorButtonListener();
         drawOnMap(currentFloor);

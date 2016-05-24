@@ -63,6 +63,7 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private HashMap<Integer, DownloadMapsTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
+    private HashMap<String, List<Node>> multiFloorSolution;
     private int indexOfPathSelected;
     private boolean emergency = false;
 
@@ -198,7 +199,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = new NavigatorFragment();
+        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, multiFloorSolution);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -402,7 +403,8 @@ public class HomeFragment extends BaseFragment {
             }
             holder.mapView.setPiantine(piantine);
             Log.i(TAG, "Percorso minimo!");
-            holder.mapView.setMultiFloorPath(Solution.getSolutionDividedByFloor(optimalPath));
+            multiFloorSolution = Solution.getSolutionDividedByFloor(optimalPath);
+            holder.mapView.setMultiFloorPath(multiFloorSolution);
             holder.pathsFabButton.show();
         }
 

@@ -201,6 +201,10 @@ public class PinView extends SubsamplingScaleImageView {
                     markerResource = R.drawable.marker_icon_google_blue;
                     break;
                 }
+                case LOCATION: {
+                    markerResource = R.drawable.position_placer;
+                    break;
+                }
                 default: {
                     markerResource = R.drawable.marker_icon_google;
                 }
