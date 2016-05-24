@@ -35,10 +35,11 @@
                     android:layout_width="70dp"
                     android:layout_height="70dp"
                     android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_directions"
+                    android:src="@drawable/ic_turn_right"
                     android:tint="@color/listItemIcon"/>
 
                 <TextView
+                    android:id="@+id/indication_text"
                     style="@style/TextAppearance.AppCompat.Medium"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

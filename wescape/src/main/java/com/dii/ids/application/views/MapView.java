@@ -93,20 +93,30 @@ public class MapView extends LinearLayout {
         return changeFloor(Integer.toString(floor));
     }
 
-    public void nextStep() {
+    /**
+     * Passa al nodo successivo della lista dei nodi della soluzione
+     * @return Indice del nodo successivo nella lista dei nodi
+     */
+    public int nextStep() {
         if (currentNode < orderedSolution.size() - 1) {
             currentNode++;
         }
 
         triggerStepChange();
+        return currentNode;
     }
 
-    public void prevStep() {
+    /**
+     * Passa al nodo precedente della lista dei nodi della soluzione
+     * @return Indice del nodo precedente nella lista dei nodi
+     */
+    public int prevStep() {
         if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
             currentNode--;
         }
 
         triggerStepChange();
+        return currentNode;
     }
 
     private void triggerStepChange() {

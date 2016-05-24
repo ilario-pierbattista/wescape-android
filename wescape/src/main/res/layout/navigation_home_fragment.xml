@@ -106,7 +106,7 @@
             android:id="@+id/navigation_fab_start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_directions"
+            android:src="@drawable/ic_turn_right"
             android:tint="@color/white"
             app:backgroundTint="@color/regularBlue"/>
     </LinearLayout>

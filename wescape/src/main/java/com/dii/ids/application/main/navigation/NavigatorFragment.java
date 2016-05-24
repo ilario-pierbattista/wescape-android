@@ -5,17 +5,24 @@ import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.utils.dijkstra.Solution;
+import com.dii.ids.application.utils.directions.Actions;
+import com.dii.ids.application.utils.directions.DirectionsTranslator;
+import com.dii.ids.application.utils.directions.HumanDirection;
 import com.dii.ids.application.views.MapView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,12 +35,15 @@ public class NavigatorFragment extends Fragment {
     private static final String ORIGIN = "origine";
     private static final String DESTINATION = "destinazione";
     private static final String PIANTINE = "piantine";
-    private static final String MULTIPATH_SOLUTION = "solution";
+    private static final String SOLUTION = "solution";
     private ViewHolder holder;
     private Node origin;
     private Node destination;
     private HashMap<String, Bitmap> piantine;
+    private ArrayList<Node> solution;
     private HashMap<String, List<Node>> multiFloorSolution;
+    private List<Actions> actions;
+    private DirectionsTranslator translator;
 
     private enum ButtonType {NEXT, PREVIOUS};
 
@@ -43,19 +53,19 @@ public class NavigatorFragment extends Fragment {
      * @param origin            Nodo di origine
      * @param destination       Nodo di destinazione
      * @param piantine          Bitmap delle piantine
-     * @param multiPathSolution Lista di nodi che costiuiscono la soluzione
+     * @param solution Lista di nodi che costiuiscono la soluzione
      * @return A new instance of fragment NavigatorFragment.
      */
     public static NavigatorFragment newInstance(Node origin,
                                                 Node destination,
                                                 HashMap<String, Bitmap> piantine,
-                                                HashMap<String, List<Node>> multiPathSolution) {
+                                                ArrayList<Node> solution) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
         args.putSerializable(ORIGIN, origin);
         args.putSerializable(DESTINATION, destination);
         args.putSerializable(PIANTINE, piantine);
-        args.putSerializable(MULTIPATH_SOLUTION, multiPathSolution);
+        args.putSerializable(SOLUTION, solution);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,7 +77,12 @@ public class NavigatorFragment extends Fragment {
             origin = (Node) getArguments().getSerializable(ORIGIN);
             destination = (Node) getArguments().getSerializable(DESTINATION);
             piantine = (HashMap<String, Bitmap>) getArguments().getSerializable(PIANTINE);
-            multiFloorSolution = (HashMap<String, List<Node>>) getArguments().getSerializable(MULTIPATH_SOLUTION);
+            solution = (ArrayList<Node>) getArguments().getSerializable(SOLUTION);
+
+            multiFloorSolution = Solution.getSolutionDividedByFloor(solution);
+            translator = new DirectionsTranslator(getContext(), solution);
+            actions = translator.calculateDirections()
+                    .getDirections();
         }
     }
 
@@ -83,6 +98,9 @@ public class NavigatorFragment extends Fragment {
         holder.mapView.setPiantine(piantine);
         holder.mapView.setMultiFloorPath(multiFloorSolution);
 
+        HumanDirection humanDirection = translator.getHumanDirection(actions.get(0));
+        holder.indicationTextView.setText(humanDirection.getDirection());
+
         return view;
     }
 
@@ -91,16 +109,21 @@ public class NavigatorFragment extends Fragment {
         @Override
         public void onClick(View v) {
             ButtonType tag = (ButtonType) v.getTag();
+            int index = 0;
             switch (tag) {
                 case NEXT: {
-                    holder.mapView.nextStep();
+                    index = holder.mapView.nextStep();
                     break;
                 }
                 case PREVIOUS: {
-                    holder.mapView.prevStep();
+                    index = holder.mapView.prevStep();
                     break;
                 }
             }
+
+            HumanDirection humanDirection = translator.getHumanDirection(actions.get(index));
+            holder.indicationTextView.setText(humanDirection.getDirection());
+            // TODO: bisogna settare anche l'icona
         }
     }
 
@@ -110,6 +133,8 @@ public class NavigatorFragment extends Fragment {
         public final MapView mapView;
         public final ImageButton nextButton;
         public final ImageButton previousButton;
+        public final TextView indicationTextView;
+        public final ImageView indicationSymbol;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
@@ -117,6 +142,8 @@ public class NavigatorFragment extends Fragment {
             mapView = (MapView) view.findViewById(R.id.navigation_map);
             nextButton = (ImageButton) view.findViewById(R.id.next_button);
             previousButton = (ImageButton) view.findViewById(R.id.previous_button);
+            indicationTextView = (TextView) view.findViewById(R.id.indication_text);
+            indicationSymbol = (ImageView) view.findViewById(R.id.indication_icon);
 
         }
 

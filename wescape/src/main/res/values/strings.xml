@@ -122,4 +122,13 @@
     <string name="computing_route">Computing best route</string>
     <string name="please_wait">Please wait...</string>
     <string name="select_path">Select a path</string>
+    <string name="action_go_ahead">Go ahead</string>
+    <string name="action_turn_right">Turn right</string>
+    <string name="action_turn_left">Turn left</string>
+    <string name="action_turn_back_right">Turn back right</string>
+    <string name="action_turn_back_left">Turn back left</string>
+    <string name="action_go_upstairs">Go upstairs</string>
+    <string name="action_go_downstairs">Go downstairs</string>
+    <string name="action_exit">Exit from the room</string>
+    <string name="action_destination_reached">You are arrived</string>
 </resources>

@@ -1,8 +1,10 @@
 package com.dii.ids.application.utils.directions;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.utils.algebra.TridimensionalVector;
 
@@ -14,6 +16,7 @@ public class DirectionsTranslator {
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
 
     private List<Node> nodes;
+    private Context context;
     private List<Actions> directions;
     private final double straightAngleLowerBound,
             straightAngleUpperBound,
@@ -25,7 +28,8 @@ public class DirectionsTranslator {
      *
      * @param nodes Lista dei nodi che costituisce un percorso
      */
-    public DirectionsTranslator(List<Node> nodes) {
+    public DirectionsTranslator(Context context, List<Node> nodes) {
+        this.context = context;
         this.nodes = nodes;
         this.directions = new ArrayList<>();
 
@@ -94,7 +98,7 @@ public class DirectionsTranslator {
 
         // Dislivello tra due punti
         if (!current.getFloor().equals(next.getFloor())) {
-            return getStaisActon(current, next);
+            return getStairsAction(current, next);
         }
 
         // Punto corrente generale
@@ -148,7 +152,7 @@ public class DirectionsTranslator {
      * @param next    Nodo successivo
      * @return Indicazione
      */
-    private Actions getStaisActon(Node current, Node next) {
+    private Actions getStairsAction(Node current, Node next) {
         int currentFloor, nextFloor;
 
         currentFloor = Integer.parseInt(current.getFloor());
@@ -163,5 +167,49 @@ public class DirectionsTranslator {
 
     public List<Actions> getDirections() {
         return directions;
+    }
+
+    public HumanDirection getHumanDirection(Actions action) {
+        HumanDirection humanDirection = new HumanDirection();
+        switch (action) {
+            case GO_AHEAD: {
+                humanDirection.setDirection(context.getString(R.string.action_go_ahead));
+                break;
+            }
+            case TURN_RIGHT: {
+                humanDirection.setDirection(context.getString(R.string.action_turn_right));
+                break;
+            }
+            case TURN_LEFT: {
+                humanDirection.setDirection(context.getString(R.string.action_turn_left));
+                break;
+            }
+            case TURN_BACK_RIGHT: {
+                humanDirection.setDirection(context.getString(R.string.action_turn_back_right));
+                break;
+            }
+            case TURN_BACK_LEFT: {
+                humanDirection.setDirection(context.getString(R.string.action_turn_back_left));
+                break;
+            }
+            case GO_UPSTAIRS: {
+                humanDirection.setDirection(context.getString(R.string.action_go_upstairs));
+                break;
+            }
+            case GO_DOWNSTAIRS: {
+                humanDirection.setDirection(context.getString(R.string.action_go_downstairs));
+                break;
+            }
+            case EXIT: {
+                humanDirection.setDirection(context.getString(R.string.action_exit));
+                break;
+            }
+            case DESTINATION_REACHED: {
+                humanDirection.setDirection(context.getString(R.string.action_destination_reached));
+                break;
+            }
+        }
+
+        return humanDirection;
     }
 }
