@@ -7,7 +7,7 @@ public class MapPin {
     int id;
     Colors color = Colors.RED;
 
-    public enum Colors {BLUE, RED}
+    public enum Colors {BLUE, RED, LOCATION}
 
     public MapPin(float X, float Y, int id) {
         this.X = X;
