@@ -54,19 +54,31 @@ public class PinView extends SubsamplingScaleImageView {
         initDrawing();
     }
 
+    /**
+     * Initialize drawing tools
+     */
+    private void initDrawing() {
+        density = getResources().getDisplayMetrics().densityDpi;
+        drawnPins = new ArrayList<>();
+        paint = new Paint();
+        paint.setAntiAlias(true);
+    }
+
+    private void initialise() {
+
+    }
+
     public void setImage(Bitmap image) {
         setImage(ImageSource.bitmap(image));
     }
 
     /**
-     * Set an array of pins
+     * Get the single pin
      *
-     * @param mapPins
+     * @return
      */
-    public void setMultiplePins(ArrayList<MapPin> mapPins) {
-        this.multiplePins = mapPins;
-        initialise();
-        invalidate();
+    public MapPin getSinglePin() {
+        return singlePin;
     }
 
     /**
@@ -80,16 +92,6 @@ public class PinView extends SubsamplingScaleImageView {
         invalidate();
     }
 
-
-    /**
-     * Get the single pin
-     *
-     * @return
-     */
-    public MapPin getSinglePin() {
-        return singlePin;
-    }
-
     /**
      * Get multiple pins
      *
@@ -97,6 +99,17 @@ public class PinView extends SubsamplingScaleImageView {
      */
     public ArrayList<MapPin> getMultiplePins() {
         return multiplePins;
+    }
+
+    /**
+     * Set an array of pins
+     *
+     * @param mapPins
+     */
+    public void setMultiplePins(ArrayList<MapPin> mapPins) {
+        this.multiplePins = mapPins;
+        initialise();
+        invalidate();
     }
 
     public void setPath(List<Node> path) {
@@ -107,10 +120,6 @@ public class PinView extends SubsamplingScaleImageView {
         this.path = points;
         initialise();
         invalidate();
-    }
-
-    private void initialise() {
-
     }
 
     @Override
@@ -134,24 +143,6 @@ public class PinView extends SubsamplingScaleImageView {
         } else if (singlePin != null) {
             drawPin(canvas, singlePin);
         }
-    }
-
-    public int getPinIdByPoint(PointF point) {
-
-        for (int i = drawnPins.size() - 1; i >= 0; i--) {
-            DrawPin dPin = drawnPins.get(i);
-            if (point.x >= dPin.getStartX() && point.x <= dPin.getEndX()) {
-                if (point.y >= dPin.getStartY() && point.y <= dPin.getEndY()) {
-                    return dPin.getId();
-                }
-            }
-        }
-        return -1; //negative no means no pin selected
-    }
-
-    public void resetPins() {
-        singlePin = null;
-        multiplePins = null;
     }
 
     private void drawPath(Canvas canvas, ArrayList<PointF> points) {
@@ -235,13 +226,21 @@ public class PinView extends SubsamplingScaleImageView {
         drawnPins.add(dPin);
     }
 
-    /**
-     * Initialize drawing tools
-     */
-    private void initDrawing() {
-        density = getResources().getDisplayMetrics().densityDpi;
-        drawnPins = new ArrayList<>();
-        paint = new Paint();
-        paint.setAntiAlias(true);
+    public int getPinIdByPoint(PointF point) {
+
+        for (int i = drawnPins.size() - 1; i >= 0; i--) {
+            DrawPin dPin = drawnPins.get(i);
+            if (point.x >= dPin.getStartX() && point.x <= dPin.getEndX()) {
+                if (point.y >= dPin.getStartY() && point.y <= dPin.getEndY()) {
+                    return dPin.getId();
+                }
+            }
+        }
+        return -1; //negative no means no pin selected
+    }
+
+    public void resetPins() {
+        singlePin = null;
+        multiplePins = null;
     }
 }

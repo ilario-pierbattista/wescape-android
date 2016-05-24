@@ -1,7 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
 import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
@@ -9,29 +8,29 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.utils.dijkstra.Solution;
-import com.dii.ids.application.utils.directions.Actions;
+import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.utils.dijkstra.MultiFloorPath;
+import com.dii.ids.application.utils.dijkstra.Path;
+import com.dii.ids.application.utils.directions.Directions;
 import com.dii.ids.application.utils.directions.DirectionsTranslator;
 import com.dii.ids.application.utils.directions.HumanDirection;
 import com.dii.ids.application.views.MapView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
- * A simple {@link Fragment} subclass. Use the {@link NavigatorFragment#newInstance} factory method to create an
- * instance of this fragment.
+ * A simple {@link Fragment} subclass. Use the {@link NavigatorFragment#newInstance} factory method
+ * to create an instance of this fragment.
  */
-public class NavigatorFragment extends Fragment {
-
+public class NavigatorFragment extends BaseFragment {
+    public static final String TAG = NavigatorFragment.class.getName();
     private static final String ORIGIN = "origine";
     private static final String DESTINATION = "destinazione";
     private static final String PIANTINE = "piantine";
@@ -40,20 +39,23 @@ public class NavigatorFragment extends Fragment {
     private Node origin;
     private Node destination;
     private HashMap<String, Bitmap> piantine;
-    private ArrayList<Node> solution;
-    private HashMap<String, List<Node>> multiFloorSolution;
-    private List<Actions> actions;
+    private Path solution;
+    private MultiFloorPath multiFloorSolution;
+    private Directions actions;
     private DirectionsTranslator translator;
 
-    private enum ButtonType {NEXT, PREVIOUS};
+    private enum ButtonType {NEXT, PREVIOUS}
+
+    ;
 
     /**
-     * Use this factory method to create a new instance of this fragment using the provided parameters.
+     * Use this factory method to create a new instance of this fragment using the provided
+     * parameters.
      *
-     * @param origin            Nodo di origine
-     * @param destination       Nodo di destinazione
-     * @param piantine          Bitmap delle piantine
-     * @param solution Lista di nodi che costiuiscono la soluzione
+     * @param origin      Nodo di origine
+     * @param destination Nodo di destinazione
+     * @param piantine    Bitmap delle piantine
+     * @param solution    Lista di nodi che costiuiscono la soluzione
      * @return A new instance of fragment NavigatorFragment.
      */
     public static NavigatorFragment newInstance(Node origin,
@@ -77,12 +79,16 @@ public class NavigatorFragment extends Fragment {
             origin = (Node) getArguments().getSerializable(ORIGIN);
             destination = (Node) getArguments().getSerializable(DESTINATION);
             piantine = (HashMap<String, Bitmap>) getArguments().getSerializable(PIANTINE);
-            solution = (ArrayList<Node>) getArguments().getSerializable(SOLUTION);
+            solution = (Path) getArguments().getSerializable(SOLUTION);
 
-            multiFloorSolution = Solution.getSolutionDividedByFloor(solution);
-            translator = new DirectionsTranslator(getContext(), solution);
-            actions = translator.calculateDirections()
-                    .getDirections();
+            if (solution != null) {
+                multiFloorSolution = solution.toMultiFloorPath();
+                translator = new DirectionsTranslator(getContext(), solution);
+                actions = translator.calculateDirections()
+                        .getDirections();
+            } else {
+                Log.e(TAG, "Solution is null. Aborting");
+            }
         }
     }
 

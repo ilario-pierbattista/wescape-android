@@ -17,7 +17,7 @@ public class DirectionsTranslator {
 
     private List<Node> nodes;
     private Context context;
-    private List<Actions> directions;
+    private Directions directions;
     private final double straightAngleLowerBound,
             straightAngleUpperBound,
             curvedAngleLowerUpperBound,
@@ -31,7 +31,7 @@ public class DirectionsTranslator {
     public DirectionsTranslator(Context context, List<Node> nodes) {
         this.context = context;
         this.nodes = nodes;
-        this.directions = new ArrayList<>();
+        this.directions = new Directions();
 
         straightAngleLowerBound = Math.PI - Math.toRadians(STRAIGHT_TRUNK_TOLLERANCE_ANGLE);
         straightAngleUpperBound = Math.PI + Math.toRadians(STRAIGHT_TRUNK_TOLLERANCE_ANGLE);
@@ -165,7 +165,7 @@ public class DirectionsTranslator {
         }
     }
 
-    public List<Actions> getDirections() {
+    public Directions getDirections() {
         return directions;
     }
 

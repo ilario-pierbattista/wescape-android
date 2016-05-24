@@ -36,7 +36,8 @@ import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
 import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
-import com.dii.ids.application.utils.dijkstra.Solution;
+import com.dii.ids.application.utils.dijkstra.MultiFloorPath;
+import com.dii.ids.application.utils.dijkstra.Path;
 import com.dii.ids.application.views.MapView;
 import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
 import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
@@ -59,12 +60,12 @@ public class HomeFragment extends BaseFragment {
     private static String originText;
     private static String destinationText;
     private static Node origin = null, destination = null;
-    private List<List<Node>> paths = null;
+    private List<Path> paths = null;
     private ViewHolder holder;
     private HashMap<Integer, DownloadMapsTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
-    private ArrayList<Node> solution;
-    private HashMap<String, List<Node>> multiFloorSolution;
+    private Path minPathSolution;
+    private MultiFloorPath multiFloorSolution;
     private int indexOfPathSelected;
     private boolean emergency = false;
 
@@ -200,7 +201,7 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, solution);
+        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, minPathSolution);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -394,7 +395,7 @@ public class HomeFragment extends BaseFragment {
             Log.i(TAG, searchResult.toString());
             paths = searchResult.getOptimalPaths();
             indexOfPathSelected = 0;
-            solution = new ArrayList<>(paths.get(indexOfPathSelected));
+            minPathSolution = new Path(paths.get(indexOfPathSelected));
 
             holder.mapView.setOrigin(origin);
             holder.mapView.setDestination(destination);
@@ -404,7 +405,7 @@ public class HomeFragment extends BaseFragment {
             }
             holder.mapView.setPiantine(piantine);
             Log.i(TAG, "Percorso minimo!");
-            multiFloorSolution = Solution.getSolutionDividedByFloor(solution);
+            multiFloorSolution = minPathSolution.toMultiFloorPath();
             holder.mapView.setMultiFloorPath(multiFloorSolution);
             holder.pathsFabButton.show();
         }
