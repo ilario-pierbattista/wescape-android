@@ -47,6 +47,18 @@ public class LoginFragment extends BaseFragment {
     private int logoClickTimes;
     private boolean doAutomaticLogin = true;
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == SIGNUP_CREDENTIAL_REQUEST) {
+            if (resultCode == SignupFragment.ACCOUNT_CREATED) {
+                String email = data.getStringExtra(SignupFragment.INTENT_KEY_EMAIL);
+                String passwod = data.getStringExtra(SignupFragment.INTENT_KEY_PASSWORD);
+                triggerLoginTask(email, passwod);
+                doAutomaticLogin = false;
+            }
+        }
+    }
+
     /**
      * Callback received when a permissions request has been completed.
      */
@@ -132,18 +144,6 @@ public class LoginFragment extends BaseFragment {
         return view;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SIGNUP_CREDENTIAL_REQUEST) {
-            if (resultCode == SignupFragment.ACCOUNT_CREATED) {
-                String email = data.getStringExtra(SignupFragment.INTENT_KEY_EMAIL);
-                String passwod = data.getStringExtra(SignupFragment.INTENT_KEY_PASSWORD);
-                triggerLoginTask(email, passwod);
-                doAutomaticLogin = false;
-            }
-        }
-    }
-
     /**
      * Attempts to sign in or register the account specified by the login form. If there are form
      * errors (invalid email, missing fields, etc.), the errors are presented and no actual login
@@ -193,14 +193,22 @@ public class LoginFragment extends BaseFragment {
     }
 
     /**
-     * @param email
-     * @param password
+     * Apre l'activity delle preferenze
      */
-    private void triggerLoginTask(String email, String password) {
-        holder.showProgressAnimation.showProgress(true);
+    private void openHiddenMenu() {
+        logoClickTimes++;
 
-        loginTask = new UserLoginTask(getContext(), new LoginTaskListener());
-        loginTask.execute(email, password);
+        if (logoClickTimes >= CLICK_TO_OPEN) {
+            Intent intent = new Intent(this.getContext(), SettingsActivity.class);
+            startActivity(intent);
+        } else if (logoClickTimes >= CLICK_TO_FEEDBACK) {
+            if (hiddenMenuFeedbackToast == null) {
+                hiddenMenuFeedbackToast = Toast.makeText(this.getContext(),
+                        getString(R.string.toast_hidden_menu_feedback),
+                        Toast.LENGTH_SHORT);
+            }
+            hiddenMenuFeedbackToast.show();
+        }
     }
 
     /**
@@ -242,6 +250,28 @@ public class LoginFragment extends BaseFragment {
     }
 
     /**
+     * Login automatico in caso di presenza di authentication token valido
+     */
+    private void automaticLogin() {
+        if (doAutomaticLogin) {
+            holder.showProgressAnimation.showProgress(true);
+            AutomaticLoginTask task = new AutomaticLoginTask(getContext(), new AutomaticLoginTaskListener());
+            task.execute();
+        }
+    }
+
+    /**
+     * @param email
+     * @param password
+     */
+    private void triggerLoginTask(String email, String password) {
+        holder.showProgressAnimation.showProgress(true);
+
+        loginTask = new UserLoginTask(getContext(), new LoginTaskListener());
+        loginTask.execute(email, password);
+    }
+
+    /**
      * Estrae dalla vista un eventuale indirizzo email valido immesso
      *
      * @return Stringa con l'indirizzo, se presente e valido, null altrimenti
@@ -256,39 +286,41 @@ public class LoginFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Apre l'activity delle preferenze
-     */
-    private void openHiddenMenu() {
-        logoClickTimes++;
-
-        if (logoClickTimes >= CLICK_TO_OPEN) {
-            Intent intent = new Intent(this.getContext(), SettingsActivity.class);
-            startActivity(intent);
-        } else if (logoClickTimes >= CLICK_TO_FEEDBACK) {
-            if (hiddenMenuFeedbackToast == null) {
-                hiddenMenuFeedbackToast = Toast.makeText(this.getContext(),
-                        getString(R.string.toast_hidden_menu_feedback),
-                        Toast.LENGTH_SHORT);
-            }
-            hiddenMenuFeedbackToast.show();
-        }
-    }
-
-    /**
-     * Login automatico in caso di presenza di authentication token valido
-     */
-    private void automaticLogin() {
-        if (doAutomaticLogin) {
-            holder.showProgressAnimation.showProgress(true);
-            AutomaticLoginTask task = new AutomaticLoginTask(getContext(), new AutomaticLoginTaskListener());
-            task.execute();
-        }
-    }
-
     private void openNavigationActivity() {
         Intent intent = new Intent(getActivity(), NavigationActivity.class);
         startActivity(intent);
+    }
+
+    /**
+     * Classe wrapper degli elementi della vista
+     */
+    public static class ViewHolder extends BaseFragment.ViewHolder {
+        public final AutoCompleteTextView emailField;
+        public final TextInputLayout emailFieldLayout;
+        public final TextInputLayout passwordFieldLayout;
+        public final EditText passwordField;
+        public final Button loginButton;
+        public final Button homeButton;
+        public final ProgressBar progressBar;
+        public final ScrollView scrollView;
+        public final TextView signupTextView;
+        public final TextView resetPasswdTextView;
+        public final ImageView logoImageView;
+        public ShowProgressAnimation showProgressAnimation;
+
+        public ViewHolder(View view) {
+            emailField = find(view, R.id.login_email_text_input);
+            emailFieldLayout = find(view, R.id.login_email_text_input_layout);
+            passwordField = find(view, R.id.login_password_text_input);
+            passwordFieldLayout = find(view, R.id.login_password_text_input_layout);
+            loginButton = find(view, R.id.login_signin_button);
+            progressBar = find(view, R.id.login_progress);
+            scrollView = find(view, R.id.login_scroll_view);
+            signupTextView = find(view, R.id.sign_up_text);
+            resetPasswdTextView = find(view, R.id.reset_passwd_text);
+            homeButton = find(view, R.id.login_home_button);
+            logoImageView = find(view, R.id.wescape_logo_image_view);
+        }
     }
 
     private class LoginTaskListener implements TaskListener<Void> {
@@ -338,38 +370,6 @@ public class LoginFragment extends BaseFragment {
         @Override
         public void onTaskCancelled() {
             holder.showProgressAnimation.showProgress(false);
-        }
-    }
-
-    /**
-     * Classe wrapper degli elementi della vista
-     */
-    public static class ViewHolder extends BaseFragment.ViewHolder {
-        public final AutoCompleteTextView emailField;
-        public final TextInputLayout emailFieldLayout;
-        public final TextInputLayout passwordFieldLayout;
-        public final EditText passwordField;
-        public final Button loginButton;
-        public final Button homeButton;
-        public final ProgressBar progressBar;
-        public final ScrollView scrollView;
-        public final TextView signupTextView;
-        public final TextView resetPasswdTextView;
-        public final ImageView logoImageView;
-        public ShowProgressAnimation showProgressAnimation;
-
-        public ViewHolder(View view) {
-            emailField = find(view, R.id.login_email_text_input);
-            emailFieldLayout = find(view, R.id.login_email_text_input_layout);
-            passwordField = find(view, R.id.login_password_text_input);
-            passwordFieldLayout = find(view, R.id.login_password_text_input_layout);
-            loginButton = find(view, R.id.login_signin_button);
-            progressBar = find(view, R.id.login_progress);
-            scrollView = find(view, R.id.login_scroll_view);
-            signupTextView = find(view, R.id.sign_up_text);
-            resetPasswdTextView = find(view, R.id.reset_passwd_text);
-            homeButton = find(view, R.id.login_home_button);
-            logoImageView = find(view, R.id.wescape_logo_image_view);
         }
     }
 }

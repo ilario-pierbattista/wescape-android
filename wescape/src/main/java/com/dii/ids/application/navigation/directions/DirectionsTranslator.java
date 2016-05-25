@@ -12,14 +12,13 @@ import com.dii.ids.application.navigation.algebra.TridimensionalVector;
 public class DirectionsTranslator {
     private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 45.0;
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
-
-    private Path nodes;
-    private Context context;
-    private Directions directions;
     private final double straightAngleLowerBound,
             straightAngleUpperBound,
             curvedAngleLowerUpperBound,
             curvedAngleUpperLowerBound;
+    private Path nodes;
+    private Context context;
+    private Directions directions;
 
     /**
      * Costruttore
@@ -108,6 +107,26 @@ public class DirectionsTranslator {
     }
 
     /**
+     * Indicazioni per la salita delle scale
+     *
+     * @param current Nodo corrente
+     * @param next    Nodo successivo
+     * @return Indicazione
+     */
+    private Actions getStairsAction(Checkpoint current, Checkpoint next) {
+        int currentFloor, nextFloor;
+
+        currentFloor = Integer.parseInt(current.getFloor());
+        nextFloor = Integer.parseInt(next.getFloor());
+
+        if (nextFloor > currentFloor) {
+            return Actions.GO_UPSTAIRS;
+        } else {
+            return Actions.GO_DOWNSTAIRS;
+        }
+    }
+
+    /**
      * Calcola la direzione in base all'angolo tra 3 punti
      *
      * @param prev    Punto precedente
@@ -140,26 +159,6 @@ public class DirectionsTranslator {
             } else {
                 return Actions.TURN_LEFT;
             }
-        }
-    }
-
-    /**
-     * Indicazioni per la salita delle scale
-     *
-     * @param current Nodo corrente
-     * @param next    Nodo successivo
-     * @return Indicazione
-     */
-    private Actions getStairsAction(Checkpoint current, Checkpoint next) {
-        int currentFloor, nextFloor;
-
-        currentFloor = Integer.parseInt(current.getFloor());
-        nextFloor = Integer.parseInt(next.getFloor());
-
-        if (nextFloor > currentFloor) {
-            return Actions.GO_UPSTAIRS;
-        } else {
-            return Actions.GO_DOWNSTAIRS;
         }
     }
 

@@ -214,13 +214,40 @@ public class SignupFragment extends BaseFragment {
      * This interface must be implemented by activities that contain this fragment to allow an
      * interaction in this fragment to be communicated to the activity and potentially other
      * fragments contained in that activity.
-     * <p/>
+     * <p>
      * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    public static class ViewHolder extends BaseFragment.ViewHolder {
+        public final ProgressBar progressBar;
+        public final ScrollView scrollView;
+        public final AutoCompleteTextView emailField;
+        public final TextInputLayout emailFieldLayout;
+        public final EditText passwordField;
+        public final TextInputLayout passwordFieldLayout;
+        public final EditText passwordConfirmField;
+        public final TextInputLayout passwordConfirmFieldLayout;
+        public final Button signupButton;
+        public final TextView generalErrorTextView;
+        private ShowProgressAnimation showProgressAnimation;
+
+        public ViewHolder(View v) {
+            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
+            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
+            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
+            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
+            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
+            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
+            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
+            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
+            signupButton = (Button) v.findViewById(R.id.signup_button);
+            generalErrorTextView = find(v, R.id.general_error_text_view);
+        }
     }
 
     private class SignupTaskListener implements TaskListener<String[]> {
@@ -257,33 +284,6 @@ public class SignupFragment extends BaseFragment {
         @Override
         public void onTaskCancelled() {
             holder.showProgressAnimation.showProgress(false);
-        }
-    }
-
-    public static class ViewHolder extends BaseFragment.ViewHolder {
-        public final ProgressBar progressBar;
-        public final ScrollView scrollView;
-        public final AutoCompleteTextView emailField;
-        public final TextInputLayout emailFieldLayout;
-        public final EditText passwordField;
-        public final TextInputLayout passwordFieldLayout;
-        public final EditText passwordConfirmField;
-        public final TextInputLayout passwordConfirmFieldLayout;
-        public final Button signupButton;
-        public final TextView generalErrorTextView;
-        private ShowProgressAnimation showProgressAnimation;
-
-        public ViewHolder(View v) {
-            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
-            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
-            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
-            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
-            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
-            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
-            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
-            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
-            signupButton = (Button) v.findViewById(R.id.signup_button);
-            generalErrorTextView = find(v, R.id.general_error_text_view);
         }
     }
 }

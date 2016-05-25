@@ -51,20 +51,6 @@ public class SelectionFromMapFragment extends BaseFragment {
         return fragment;
     }
 
-    private void toggleConfirmButtonState() {
-        if (selectedNode == null) {
-            disableConfirmButtonState();
-        } else {
-            holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(color(R.color.linkText));
-        }
-    }
-
-    private void disableConfirmButtonState() {
-        holder.confirmButton.setEnabled(false);
-        holder.confirmButton.setTextColor(color(R.color.disabledText));
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -108,6 +94,15 @@ public class SelectionFromMapFragment extends BaseFragment {
         return view;
     }
 
+    private void toggleConfirmButtonState() {
+        if (selectedNode == null) {
+            disableConfirmButtonState();
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(color(R.color.linkText));
+        }
+    }
+
     public void onPositionConfirm(Node node) {
         Intent data = new Intent();
         data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
@@ -115,6 +110,11 @@ public class SelectionFromMapFragment extends BaseFragment {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         fm.popBackStack();
         fm.popBackStack();
+    }
+
+    private void disableConfirmButtonState() {
+        holder.confirmButton.setEnabled(false);
+        holder.confirmButton.setTextColor(color(R.color.disabledText));
     }
 
     private class FloorButtonListener implements View.OnClickListener {
@@ -162,7 +162,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                 if (holder.mapView.isReady()) {
                     PointF tappedCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
                     Position tappedPosition = new Position(tappedCoordinates.x, tappedCoordinates.y,
-                                                           Integer.toString(currentFloor));
+                            Integer.toString(currentFloor));
 
                     SelectablePointsTask selectablePointsTask = new SelectablePointsTask(
                             new SelectablePointsListener(),
@@ -170,7 +170,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                     selectablePointsTask.execute(tappedPosition);
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready",
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
@@ -186,14 +186,14 @@ public class SelectionFromMapFragment extends BaseFragment {
                 toggleConfirmButtonState();
 
                 Toast.makeText(getActivity().getApplicationContext(), "Hai selezionato il nodo: " + node.getName(),
-                               Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onTaskError(Exception e) {
                 if (e == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.no_node_in_range,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e(TAG, "Errore di selezione", e);
                 }

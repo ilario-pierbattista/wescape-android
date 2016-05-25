@@ -52,16 +52,6 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     }
 
     @Override
-    protected void onPreExecute() {
-        dialog = new MaterialDialog.Builder(context)
-                .title(context.getString(R.string.computing_route))
-                .content(context.getString(R.string.please_wait))
-                .progress(true, 0)
-                .widgetColorRes(R.color.regularBlue)
-                .show();
-    }
-
-    @Override
     protected Boolean doInBackground(Node... params) {
         try {
             Node beginNode = params[0];
@@ -94,7 +84,7 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
                                     (P_LOS * edge.getLos()) +
                                     (P_V * edge.getV());
 
-                            if(emergency) {
+                            if (emergency) {
                                 return length + other;
                             } else {
                                 return length;
@@ -110,6 +100,16 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
             thrownException = e;
             return false;
         }
+    }
+
+    @Override
+    protected void onPreExecute() {
+        dialog = new MaterialDialog.Builder(context)
+                .title(context.getString(R.string.computing_route))
+                .content(context.getString(R.string.please_wait))
+                .progress(true, 0)
+                .widgetColorRes(R.color.regularBlue)
+                .show();
     }
 
     @Override

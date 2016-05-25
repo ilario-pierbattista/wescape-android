@@ -20,9 +20,9 @@ import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.directions.Directions;
 import com.dii.ids.application.navigation.directions.DirectionsTranslator;
 import com.dii.ids.application.navigation.directions.HumanDirection;
+import com.dii.ids.application.utils.units.Tuple;
 import com.dii.ids.application.views.MapView;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -44,10 +44,6 @@ public class NavigatorFragment extends BaseFragment {
     private Directions actions;
     private DirectionsTranslator translator;
 
-    private enum ButtonType {NEXT, PREVIOUS}
-
-    ;
-
     /**
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
@@ -61,7 +57,7 @@ public class NavigatorFragment extends BaseFragment {
     public static NavigatorFragment newInstance(Node origin,
                                                 Node destination,
                                                 HashMap<String, Bitmap> piantine,
-                                                ArrayList<Node> solution) {
+                                                Path solution) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
         args.putSerializable(ORIGIN, origin);
@@ -71,6 +67,8 @@ public class NavigatorFragment extends BaseFragment {
         fragment.setArguments(args);
         return fragment;
     }
+
+    ;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -104,33 +102,50 @@ public class NavigatorFragment extends BaseFragment {
         holder.mapView.setPiantine(piantine);
         holder.mapView.setMultiFloorPath(multiFloorSolution);
 
-        HumanDirection humanDirection = translator.getHumanDirection(actions.get(0));
-        holder.indicationTextView.setText(humanDirection.getDirection());
-        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        updateDirectionDisplay(new Tuple<>(0, 1));
 
         return view;
     }
+
+    /**
+     * Aggiorna la vista con le indicazioni da seguire
+     *
+     * @param indexes Tupla di indici dei nodi
+     */
+    private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
+        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
+        holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        if (!indexes.x.equals(indexes.y)) {
+            Node node = (Node) solution.get(indexes.y);
+            String text = String.format(getString(R.string.toward_node), node.getName());
+            holder.nextNodeTextView.setText(text);
+        } else {
+            holder.nextNodeTextView.setText(getString(R.string.congratulation));
+        }
+
+    }
+
+    private enum ButtonType {NEXT, PREVIOUS}
 
     private class IndicationButtonListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
             ButtonType tag = (ButtonType) v.getTag();
-            int index = 0;
+            Tuple<Integer, Integer> indexes = new Tuple<>(0, 0);
             switch (tag) {
                 case NEXT: {
-                    index = holder.mapView.nextStep();
+                    indexes = holder.mapView.nextStep();
                     break;
                 }
                 case PREVIOUS: {
-                    index = holder.mapView.prevStep();
+                    indexes = holder.mapView.prevStep();
                     break;
                 }
             }
 
-            HumanDirection humanDirection = translator.getHumanDirection(actions.get(index));
-            holder.indicationTextView.setText(humanDirection.getDirection());
-            holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+            updateDirectionDisplay(indexes);
         }
     }
 

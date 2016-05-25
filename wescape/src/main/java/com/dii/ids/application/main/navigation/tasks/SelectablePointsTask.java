@@ -32,7 +32,7 @@ public class SelectablePointsTask extends AsyncTask<Position, Void, Boolean> {
 
             for (Node node : nodes) {
                 distance = position.distance(node.getX(), node.getY());
-                if(distance < minDistance) {
+                if (distance < minDistance) {
                     minDistance = distance;
                     selectedNode = node;
                 }

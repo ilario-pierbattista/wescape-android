@@ -11,7 +11,8 @@ public class HumanDirection implements Serializable {
         this.iconResource = iconResource;
     }
 
-    public HumanDirection() {}
+    public HumanDirection() {
+    }
 
     public String getDirection() {
 

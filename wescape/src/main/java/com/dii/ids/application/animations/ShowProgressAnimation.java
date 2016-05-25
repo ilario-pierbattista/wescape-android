@@ -14,10 +14,10 @@ public class ShowProgressAnimation {
     private int animTime;
 
     /**
-     * @TODO Commentare
      * @param scrollView
      * @param progressBar
      * @param animTime
+     * @TODO Commentare
      */
     public ShowProgressAnimation(ScrollView scrollView,
                                  ProgressBar progressBar,

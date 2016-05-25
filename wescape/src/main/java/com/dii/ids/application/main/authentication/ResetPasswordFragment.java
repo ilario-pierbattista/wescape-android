@@ -193,6 +193,19 @@ public class ResetPasswordFragment extends BaseFragment {
         mListener = null;
     }
 
+    /**
+     * This interface must be implemented by activities that contain this fragment to allow an
+     * interaction in this fragment to be communicated to the activity and potentially other
+     * fragments contained in that activity.
+     * <p>
+     * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
+     * >Communicating with Other Fragments</a> for more information.
+     */
+    public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onFragmentInteraction(Uri uri);
+    }
+
     private class ResetPasswordTaskListener implements TaskListener<Void> {
         @Override
         public void onTaskSuccess(Void aVoid) {
@@ -229,24 +242,9 @@ public class ResetPasswordFragment extends BaseFragment {
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this fragment to allow an
-     * interaction in this fragment to be communicated to the activity and potentially other
-     * fragments contained in that activity.
-     * <p/>
-     * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
     public class ViewHolder extends BaseFragment.ViewHolder {
         public final ProgressBar progress;
         public final ScrollView scrollView;
-        private final AutoCompleteTextView emailField;
-        private final TextInputLayout emailFieldLayout;
         public final EditText secretCodeField;
         public final TextInputLayout secretCodeFieldLayout;
         public final EditText passwordField;
@@ -254,6 +252,8 @@ public class ResetPasswordFragment extends BaseFragment {
         public final EditText passwordConfirmField;
         public final TextInputLayout passwordConfirmFieldLayout;
         public final Button resetPasswordButton;
+        private final AutoCompleteTextView emailField;
+        private final TextInputLayout emailFieldLayout;
         private ShowProgressAnimation showProgressAnimation;
 
         public ViewHolder(View v) {

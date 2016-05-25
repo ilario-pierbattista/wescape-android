@@ -26,8 +26,8 @@ public abstract class BaseFragment extends Fragment {
     public static final int ORIGIN_SELECTION_REQUEST_CODE = 200;
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
     public static String TOOLBAR_TITLE = "toolbar_title";
-    private Bundle metaData = null;
     protected DatabaseDefinition database;
+    private Bundle metaData = null;
 
     public BaseFragment() {
         database = FlowManager.getDatabase(WescapeDatabase.class);

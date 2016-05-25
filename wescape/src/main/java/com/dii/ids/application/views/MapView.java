@@ -13,10 +13,10 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.utils.units.Tuple;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 public class MapView extends LinearLayout {
@@ -26,7 +26,7 @@ public class MapView extends LinearLayout {
     private Node origin, destination;
     private HashMap<String, Bitmap> piantine;
     private HashMap<String, Path> multiFloorPath;
-    private List<Node> orderedSolution;
+    private Path orderedSolution;
     private int currentNode;
 
     public MapView(Context context) {
@@ -112,19 +112,27 @@ public class MapView extends LinearLayout {
     /**
      * Passa al nodo successivo della lista dei nodi della soluzione
      *
-     * @return Indice del nodo successivo nella lista dei nodi
+     * @return Tupla con l'indice del nodo successivo e successivo ancora
      */
-    public int nextStep() {
+    public Tuple<Integer, Integer> nextStep() {
+        int nextNode;
         if (currentNode < orderedSolution.size() - 1) {
             currentNode++;
+            if (!(currentNode == orderedSolution.size() - 1)) {
+                nextNode = currentNode + 1;
+            } else {
+                nextNode = currentNode;
+            }
+        } else {
+            nextNode = currentNode;
         }
 
         triggerStepChange();
-        return currentNode;
+        return new Tuple<>(currentNode, nextNode);
     }
 
     private void triggerStepChange() {
-        Node nextNode = orderedSolution.get(currentNode);
+        Node nextNode = (Node) orderedSolution.get(currentNode);
 
         if (!currentFloor.equals(nextNode.getFloor())) {
             changeFloor(nextNode.getFloor());
@@ -137,15 +145,16 @@ public class MapView extends LinearLayout {
     /**
      * Passa al nodo precedente della lista dei nodi della soluzione
      *
-     * @return Indice del nodo precedente nella lista dei nodi
+     * @return Tupla con l'indice del nodo precednete e precedente ancora
      */
-    public int prevStep() {
+    public Tuple<Integer, Integer> prevStep() {
         if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
             currentNode--;
         }
+        int nextNode = currentNode + 1;
 
         triggerStepChange();
-        return currentNode;
+        return new Tuple<>(currentNode, nextNode);
     }
 
     /**
@@ -186,7 +195,7 @@ public class MapView extends LinearLayout {
         //              -> != destinazione => nascondere il piano
         // Soluzione per piano vuota -> nascondere il piano
 
-        List<Node> solutionPerFloor;
+        Path solutionPerFloor;
         boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
 
         for (String floor : pianiNellaSoluzione) {

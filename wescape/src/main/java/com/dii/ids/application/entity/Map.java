@@ -15,12 +15,12 @@ public class Map {
         return floor;
     }
 
-    public int getFloorInt() {
-        return Integer.parseInt(floor);
-    }
-
     public void setFloor(String floor) {
         this.floor = floor;
+    }
+
+    public int getFloorInt() {
+        return Integer.parseInt(floor);
     }
 
     public Bitmap getImage() {

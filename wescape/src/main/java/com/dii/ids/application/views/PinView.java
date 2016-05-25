@@ -13,10 +13,9 @@ import android.util.AttributeSet;
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
-import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.navigation.Checkpoint;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class PinView extends SubsamplingScaleImageView {
     private static final String TAG = PinView.class.getName();
@@ -112,9 +111,9 @@ public class PinView extends SubsamplingScaleImageView {
         invalidate();
     }
 
-    public void setPath(List<Node> path) {
+    public void setPath(com.dii.ids.application.navigation.Path path) {
         ArrayList<PointF> points = new ArrayList<>(path.size());
-        for (Node node : path) {
+        for (Checkpoint node : path) {
             points.add(new PointF(node.getX(), node.getY()));
         }
         this.path = points;

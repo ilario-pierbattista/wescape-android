@@ -45,69 +45,109 @@ public class Node extends BaseModel implements Serializable, Checkpoint {
     @Column
     private String type;
 
-    public boolean isEmergencyExit() {
-        return type != null && type.equals(TYPE_EMERGENCY);
-    }
-
-    public boolean isExit() {
-        return type != null && (isEmergencyExit() || type.equals(TYPE_EXIT));
-    }
-
-    public boolean isRoom() {
-        return type != null && type.equals(TYPE_ROOM);
-    }
-
-    public boolean isGeneral() {
-        return type != null && type.equals(TYPE_GENERAL);
-    }
-
-    public PointF toPointF() {
-        return new PointF(x, y);
-    }
-
     public int getId() {
         return id;
+    }    public boolean isEmergencyExit() {
+        return type != null && type.equals(TYPE_EMERGENCY);
     }
 
     public Node setId(int id) {
         this.id = id;
         return this;
+    }    public boolean isExit() {
+        return type != null && (isEmergencyExit() || type.equals(TYPE_EXIT));
     }
 
     public String getName() {
         return name;
+    }    public boolean isRoom() {
+        return type != null && type.equals(TYPE_ROOM);
     }
 
     public Node setName(String name) {
         this.name = name;
         return this;
-    }
-
-    public String getFloor() {
-        return floor;
-    }
-
-    public int getFloorInt() {
-        return Integer.parseInt(getFloor());
-    }
-
-    public Node setFloor(String floor) {
-        this.floor = floor;
-        return this;
-    }
-
-    public Node setFloorInt(int floor) {
-        this.floor = String.valueOf(floor);
-        return this;
+    }    public boolean isGeneral() {
+        return type != null && type.equals(TYPE_GENERAL);
     }
 
     public double getWidth() {
         return width;
+    }    public PointF toPointF() {
+        return new PointF(x, y);
     }
 
     public Node setWidth(double width) {
         this.width = width;
         return this;
+    }
+
+    public int getMeter_x() {
+        return meter_x;
+    }
+
+    public Node setMeter_x(int meter_x) {
+        this.meter_x = meter_x;
+        return this;
+    }
+
+    public int getMeter_y() {
+        return meter_y;
+    }
+
+    public Node setMeter_y(int meter_y) {
+        this.meter_y = meter_y;
+        return this;
+    }    public String getFloor() {
+        return floor;
+    }
+
+    public String getType() {
+        return type;
+    }    public int getFloorInt() {
+        return Integer.parseInt(getFloor());
+    }
+
+    public Node setType(String type) {
+        this.type = type;
+        return this;
+    }    public Node setFloor(String floor) {
+        this.floor = floor;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        return id == node.id;
+
+    }    public Node setFloorInt(int floor) {
+        this.floor = String.valueOf(floor);
+        return this;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", floor='" + floor + '\'' +
+                ", width=" + width +
+                ", x=" + x +
+                ", y=" + y +
+                ", meter_x=" + meter_x +
+                ", meter_y=" + meter_y +
+                ", type='" + type + '\'' +
+                '}';
     }
 
     public int getX() {
@@ -128,61 +168,21 @@ public class Node extends BaseModel implements Serializable, Checkpoint {
         return this;
     }
 
-    public int getMeter_x() {
-        return meter_x;
-    }
 
-    public Node setMeter_x(int meter_x) {
-        this.meter_x = meter_x;
-        return this;
-    }
 
-    public int getMeter_y() {
-        return meter_y;
-    }
 
-    public Node setMeter_y(int meter_y) {
-        this.meter_y = meter_y;
-        return this;
-    }
 
-    public String getType() {
-        return type;
-    }
 
-    public Node setType(String type) {
-        this.type = type;
-        return this;
-    }
 
-    @Override
-    public String toString() {
-        return "Node{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", floor='" + floor + '\'' +
-                ", width=" + width +
-                ", x=" + x +
-                ", y=" + y +
-                ", meter_x=" + meter_x +
-                ", meter_y=" + meter_y +
-                ", type='" + type + '\'' +
-                '}';
-    }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        Node node = (Node) o;
 
-        return id == node.id;
 
-    }
 
-    @Override
-    public int hashCode() {
-        return id;
-    }
+
+
+
+
+
+
 }

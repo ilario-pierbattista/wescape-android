@@ -54,7 +54,7 @@ public class EdgeRepository {
                 .orderBy(Edge_Table.length, false)
                 .limit(1)
                 .queryList();
-        if(edges.size() > 0) {
+        if (edges.size() > 0) {
             return edges.get(0);
         } else {
             return null;
