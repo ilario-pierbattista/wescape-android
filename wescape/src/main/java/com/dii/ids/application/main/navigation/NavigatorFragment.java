@@ -3,7 +3,6 @@ package com.dii.ids.application.main.navigation;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,25 +104,6 @@ public class NavigatorFragment extends BaseFragment {
         return view;
     }
 
-    /**
-     * Aggiorna la vista con le indicazioni da seguire
-     *
-     * @param indexes Tupla di indici dei nodi
-     */
-    private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
-        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
-        holder.indicationTextView.setText(humanDirection.getDirection());
-        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
-        if (!indexes.x.equals(indexes.y)) {
-            Node node = (Node) solution.get(indexes.y);
-            String text = String.format(getString(R.string.toward_node), node.getName());
-            holder.nextNodeTextView.setText(text);
-        } else {
-            holder.nextNodeTextView.setText(getString(R.string.congratulation));
-        }
-
-    }
-
     private enum ButtonType {NEXT, PREVIOUS}
 
     private class IndicationButtonListener implements View.OnClickListener {
@@ -157,8 +137,9 @@ public class NavigatorFragment extends BaseFragment {
         holder.indicationTextView.setText(humanDirection.getDirection());
         holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
         if (!indexes.x.equals(indexes.y)) {
+            Node node = (Node) solution.get(indexes.y);
             holder.nextNodeContainer.setVisibility(View.VISIBLE);
-            String text = String.format(getString(R.string.toward_node), solution.get(indexes.y).getName());
+            String text = String.format(getString(R.string.toward_node), node.getName());
             holder.nextNodeTextView.setText(text);
             HumanDirection humanDirection1 = translator.getHumanDirection(actions.get(indexes.y));
             holder.nextNodeIcon.setImageResource(humanDirection1.getIconResource());
