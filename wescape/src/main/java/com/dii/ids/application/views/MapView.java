@@ -272,7 +272,6 @@ public class MapView extends LinearLayout {
 
                 Bitmap map = piantine.get(floor);
                 Bitmap mapCopy = map.copy(map.getConfig(), true);
-                Log.i("Cambio immagine", "Cambio");
                 holder.pinView.setImage(mapCopy);
 
                 MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
