@@ -1,4 +1,4 @@
-package com.dii.ids.application.db;
+package com.dii.ids.application.entity.db;
 
 import com.raizlabs.android.dbflow.annotation.Database;
 

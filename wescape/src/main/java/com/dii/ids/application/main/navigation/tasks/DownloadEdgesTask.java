@@ -2,14 +2,12 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.SessionManager;
 import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Edge;
-import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 
 import java.net.HttpURLConnection;

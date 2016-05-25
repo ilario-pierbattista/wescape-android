@@ -5,16 +5,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.navigation.Checkpoint;
+import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.algebra.TridimensionalVector;
-
-import java.util.List;
 
 public class DirectionsTranslator {
     private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 45.0;
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
 
-    private List<Node> nodes;
+    private Path nodes;
     private Context context;
     private Directions directions;
     private final double straightAngleLowerBound,
@@ -25,11 +24,11 @@ public class DirectionsTranslator {
     /**
      * Costruttore
      *
-     * @param nodes Lista dei nodi che costituisce un percorso
+     * @param path Lista dei nodi che costituisce un percorso
      */
-    public DirectionsTranslator(Context context, List<Node> nodes) {
+    public DirectionsTranslator(Context context, Path path) {
         this.context = context;
-        this.nodes = nodes;
+        this.nodes = path;
         this.directions = new Directions();
 
         straightAngleLowerBound = Math.PI - Math.toRadians(STRAIGHT_TRUNK_TOLLERANCE_ANGLE);
@@ -44,7 +43,7 @@ public class DirectionsTranslator {
      * @return Istanza corrente di {@link DirectionsTranslator}
      */
     public DirectionsTranslator calculateDirections() {
-        Node previous, current, next;
+        Checkpoint previous, current, next;
         Actions action;
 
         for (int index = 0; index < nodes.size(); index++) {
@@ -78,9 +77,9 @@ public class DirectionsTranslator {
      * @param next    Nodo successivo
      * @return Azione corrispondente all'indicazione
      */
-    private Actions getDirectionForNextNode(@Nullable Node prev,
-                                            @NonNull Node current,
-                                            @Nullable Node next) {
+    private Actions getDirectionForNextNode(@Nullable Checkpoint prev,
+                                            @NonNull Checkpoint current,
+                                            @Nullable Checkpoint next) {
         // Si inizia la navigazione (il nodo precedente è nullo)
         if (prev == null) {
             if (current.isRoom()) {
@@ -116,7 +115,7 @@ public class DirectionsTranslator {
      * @param next    Punto successivo
      * @return Indicazione
      */
-    private Actions getPlaneAngleAction(Node prev, Node current, Node next) {
+    private Actions getPlaneAngleAction(Checkpoint prev, Checkpoint current, Checkpoint next) {
         double angle;
         TridimensionalVector prevArch, nextArc;
 
@@ -151,7 +150,7 @@ public class DirectionsTranslator {
      * @param next    Nodo successivo
      * @return Indicazione
      */
-    private Actions getStairsAction(Node current, Node next) {
+    private Actions getStairsAction(Checkpoint current, Checkpoint next) {
         int currentFloor, nextFloor;
 
         currentFloor = Integer.parseInt(current.getFloor());

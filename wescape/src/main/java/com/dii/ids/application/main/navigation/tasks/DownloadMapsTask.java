@@ -9,7 +9,6 @@ import android.util.Log;
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Map;
-import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 

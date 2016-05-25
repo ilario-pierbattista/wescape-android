@@ -2,7 +2,7 @@ package com.dii.ids.application.entity;
 
 import android.graphics.PointF;
 
-import com.dii.ids.application.db.WescapeDatabase;
+import com.dii.ids.application.entity.db.WescapeDatabase;
 import com.dii.ids.application.navigation.Checkpoint;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;

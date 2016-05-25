@@ -1,17 +1,15 @@
 package com.dii.ids.application.main;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.db.WescapeDatabase;
+import com.dii.ids.application.entity.db.WescapeDatabase;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 

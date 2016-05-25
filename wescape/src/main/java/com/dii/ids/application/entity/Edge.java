@@ -1,6 +1,6 @@
 package com.dii.ids.application.entity;
 
-import com.dii.ids.application.db.WescapeDatabase;
+import com.dii.ids.application.entity.db.WescapeDatabase;
 import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;

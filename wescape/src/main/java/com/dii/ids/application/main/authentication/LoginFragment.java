@@ -35,8 +35,6 @@ import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-import java.net.ConnectException;
-
 public class LoginFragment extends BaseFragment {
     public static final String TAG = LoginFragment.class.getName();
     public static final int SIGNUP_CREDENTIAL_REQUEST = 300;
