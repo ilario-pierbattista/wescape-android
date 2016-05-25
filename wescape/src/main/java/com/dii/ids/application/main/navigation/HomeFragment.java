@@ -26,16 +26,16 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
-import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
-import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
+import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
+import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
+import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
@@ -62,7 +62,7 @@ public class HomeFragment extends BaseFragment {
     private static Node origin = null, destination = null;
     private List<Path> paths = null;
     private ViewHolder holder;
-    private HashMap<Integer, DownloadMapsTask> downloadMapsTasks;
+    private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
     private Path minPathSolution;
     private MultiFloorPath multiFloorSolution;
@@ -118,8 +118,8 @@ public class HomeFragment extends BaseFragment {
         holder.setupUI();
         downloadMaps();
 
-        DownloadNodesTask downloadNodesTask = new DownloadNodesTask(getContext(), new NodesDownloaderListener());
-        downloadNodesTask.execute();
+        NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(getContext(), new NodesDownloaderListener());
+        nodesDownloaderTask.execute();
 
         return view;
     }
@@ -138,7 +138,7 @@ public class HomeFragment extends BaseFragment {
 
         downloadMapsTasks = new HashMap<>();
         for (int piano : piani) {
-            downloadMapsTasks.put(piano, new DownloadMapsTask(getContext(), new MapListener()));
+            downloadMapsTasks.put(piano, new MapsDownloaderTask(getContext(), new MapListener()));
             downloadMapsTasks.get(piano).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
         }
     }
@@ -330,7 +330,8 @@ public class HomeFragment extends BaseFragment {
 
             transaction.execute();
 
-            DownloadEdgesTask task = new DownloadEdgesTask(getContext(), new EdgesDownloaderTaskListener());
+            EdgesDownloaderTask task = new EdgesDownloaderTask(
+                    getContext(), new EdgesDownloaderTaskListener());
             task.execute();
         }
 
@@ -341,44 +342,6 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-            /* List<Node> nodes = NodeRepository.findAll();
-
-            for (Node node : nodes) {
-                Log.i(TAG, node.toString());
-            } */
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
-
-    private class EdgesDownloaderTaskListener implements TaskListener<List<Edge>> {
-        @Override
-        public void onTaskSuccess(final List<Edge> edges) {
-            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    for (Edge edge : edges) {
-                        edge.save(databaseWrapper);
-                    }
-                }
-            }).build();
-            transaction.execute();
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Log.e(TAG, "Download edges fallito", e);
-        }
-
-        @Override
-        public void onTaskComplete() {
-            /* List<Edge> edges = EdgeRepository.findAll();
-            for (Edge edge : edges) {
-                Log.i(TAG, edge.toString());
-            } */
         }
 
         @Override

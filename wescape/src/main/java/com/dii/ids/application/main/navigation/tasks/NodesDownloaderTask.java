@@ -2,12 +2,13 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.SessionManager;
 import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.api.service.WescapeService;
-import com.dii.ids.application.entity.Edge;
+import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 
 import java.net.HttpURLConnection;
@@ -16,17 +17,17 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Response;
 
-public class DownloadEdgesTask extends AsyncTask<Void, Void, Boolean> {
-    public static final String TAG = DownloadEdgesTask.class.getName();
+public class NodesDownloaderTask extends AsyncTask<Void, Void, Boolean> {
+    public static final String TAG = NodesDownloaderTask.class.getName();
 
     private SessionManager sessionManager;
     private WescapeService service;
-    private TaskListener<List<Edge>> listener;
-    private List<Edge> edges;
+    private TaskListener<List<Node>> listener;
+    private List<Node> nodes;
     private Exception thrownException;
 
-    public DownloadEdgesTask(Context context,
-                             TaskListener<List<Edge>> listener) {
+    public NodesDownloaderTask(Context context,
+                               TaskListener<List<Node>> listener) {
         this.listener = listener;
         this.sessionManager = new WescapeSessionManager(context);
         this.service = ApiBuilder.buildWescapeService(context);
@@ -35,17 +36,18 @@ public class DownloadEdgesTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            Call<List<Edge>> call = service.listEdges(sessionManager.getBearer());
-            Response<List<Edge>> response = call.execute();
+            Call<List<Node>> call = service.listNodes(sessionManager.getBearer());
+            Response<List<Node>> response = call.execute();
+            Log.i(TAG, "Response " + response.code());
 
             switch (response.code()) {
                 case HttpURLConnection.HTTP_OK: {
-                    edges = response.body();
+                    nodes = response.body();
                     break;
                 }
             }
 
-            return (edges != null);
+            return (nodes != null);
         } catch (Exception e) {
             thrownException = e;
             return false;
@@ -55,7 +57,7 @@ public class DownloadEdgesTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if (success) {
-            listener.onTaskSuccess(edges);
+            listener.onTaskSuccess(nodes);
         } else {
             listener.onTaskError(thrownException);
         }

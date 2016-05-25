@@ -21,7 +21,7 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.SelectablePointsTask;
 import com.dii.ids.application.utils.units.UnitConverter;
 import com.dii.ids.application.views.MapPin;
@@ -34,7 +34,7 @@ public class SelectionFromMapFragment extends BaseFragment {
     public static final int POSITION_NOT_ACQUIRED = 0;
     public static final String TAG = SelectionFromMapFragment.class.getSimpleName();
     private static final int SEARCH_RADIUS_IN_DP = 100;
-    private DownloadMapsTask mapsTask;
+    private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private int currentFloor = STARTING_FLOOR;
     private Node selectedNode = null;
@@ -68,7 +68,7 @@ public class SelectionFromMapFragment extends BaseFragment {
 
         toggleConfirmButtonState();
 
-        mapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
+        mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
         mapsTask.execute(STARTING_FLOOR);
         holder.floor155Button.setTextColor(color(R.color.linkText));
 
@@ -131,7 +131,7 @@ public class SelectionFromMapFragment extends BaseFragment {
             currentFloor = floor;
 
             if (mapsTask == null) {
-                mapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
+                mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
                 mapsTask.execute(floor);
             }
         }

@@ -15,12 +15,9 @@ import com.google.android.gms.common.api.GoogleApiClient;
 /**
  * A login screen that offers login via email/password.
  */
-public class AuthenticationActivity extends AppCompatActivity
-        implements SignupFragment.OnFragmentInteractionListener,
-        ResetRequestFragment.OnFragmentInteractionListener,
-        ResetPasswordFragment.OnFragmentInteractionListener {
+public class AuthenticationActivity extends AppCompatActivity {
 
-    private final String LOG_TAG = AuthenticationActivity.class.getSimpleName();
+    private final String TAG = AuthenticationActivity.class.getSimpleName();
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API. See
@@ -42,7 +39,7 @@ public class AuthenticationActivity extends AppCompatActivity
             android.support.v4.app.FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction()
                     .replace(R.id.authentication_content_pane, loginFragment)
-                    .addToBackStack(loginFragment.TAG)
+                    .addToBackStack(LoginFragment.TAG)
                     .commit();
         }
 
@@ -102,11 +99,6 @@ public class AuthenticationActivity extends AppCompatActivity
                 Uri.parse("android-app://com.dii.ids.application/http/host/path")
         );
         AppIndex.AppIndexApi.start(client, viewAction);
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-        // @TODO vedere se deve fare qualcosa
     }
 
     public void hideActionBar() {

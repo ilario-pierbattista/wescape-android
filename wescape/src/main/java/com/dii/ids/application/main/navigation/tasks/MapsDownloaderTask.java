@@ -24,8 +24,8 @@ import retrofit2.Response;
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
  */
-public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
-    private static final String LOG_TAG = DownloadMapsTask.class.getSimpleName();
+public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
+    private static final String LOG_TAG = MapsDownloaderTask.class.getSimpleName();
     private static final String CACHE_SUBDIR = "wescape_maps";
     private static final int CACHE_SIZE = 1024 * 1024 * 10;
     private static SimpleDiskCache imageCache = null;
@@ -35,7 +35,7 @@ public class DownloadMapsTask extends AsyncTask<Integer, Void, Boolean> {
     private Exception thrownException;
     private WescapeService service;
 
-    public DownloadMapsTask(Context context, TaskListener<Map> listener) {
+    public MapsDownloaderTask(Context context, TaskListener<Map> listener) {
         this.context = context;
         this.listener = listener;
         this.service = ApiBuilder.buildWescapeService(context);

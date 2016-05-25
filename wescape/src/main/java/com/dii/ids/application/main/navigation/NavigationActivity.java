@@ -9,7 +9,7 @@ import com.dii.ids.application.R;
 
 public class NavigationActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = NavigationActivity.class.getSimpleName();
+    public static final String TAG = NavigationActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
