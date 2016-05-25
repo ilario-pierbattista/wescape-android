@@ -1,6 +1,5 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
@@ -44,8 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import es.usc.citius.hipster.algorithm.Algorithm;
-
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
  */
@@ -56,10 +53,10 @@ public class HomeFragment extends BaseFragment {
     private static String destinationText;
     private static Node origin = null, destination = null;
     private ViewHolder holder;
-    private List<Path> paths = null;
+    private List<Path> solutionPaths = null;
+    private Path selectedSolution;
     private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
-    private Path minPathSolution;
     private int indexOfPathSelected;
     private boolean emergency = false;
 
@@ -194,7 +191,8 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, minPathSolution);
+        NavigatorFragment navigatorFragment =
+                NavigatorFragment.newInstance(origin, destination, piantine, selectedSolution);
         ((NavigationActivity) getActivity())
                 .changeFragment(navigatorFragment);
     }
@@ -259,13 +257,11 @@ public class HomeFragment extends BaseFragment {
     }
 
     // @TODO Esternalizzare
-    private class MinimumPathListener implements TaskListener<Algorithm.SearchResult> {
+    private class MinimumPathListener implements TaskListener<List<Path>> {
         @Override
-        public void onTaskSuccess(Algorithm.SearchResult searchResult) {
-            Log.i(TAG, searchResult.toString());
-            paths = searchResult.getOptimalPaths();
-            indexOfPathSelected = 0;
-            minPathSolution = new Path(paths.get(indexOfPathSelected));
+        public void onTaskSuccess(List<Path> searchResult) {
+            solutionPaths = searchResult;
+            selectedSolution = new Path(solutionPaths.get(0));
 
             holder.mapView.setOrigin(origin);
             holder.mapView.setDestination(destination);
@@ -275,7 +271,7 @@ public class HomeFragment extends BaseFragment {
             }
             holder.mapView.setPiantine(piantine);
             Log.i(TAG, "Percorso minimo!");
-            MultiFloorPath multiFloorSolution = minPathSolution.toMultiFloorPath();
+            MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
             holder.mapView.setMultiFloorPath(multiFloorSolution);
             holder.pathsFabButton.show();
         }
@@ -301,22 +297,21 @@ public class HomeFragment extends BaseFragment {
     private class PathButtonListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            Context context = getContext();
-            ArrayList<String> options = new ArrayList<>(paths.size());
-            for (int i = 0; i < paths.size(); i++) {
-                options.add("Percorso " + String.valueOf(i + 1));
+            ArrayList<String> options = new ArrayList<>(solutionPaths.size());
+            for (int i = 0; i < solutionPaths.size(); i++) {
+                options.add(getString(R.string.label_select_path, i+1));
             }
 
-            MaterialDialog dialog = new MaterialDialog.Builder(context)
-                    .title(context.getString(R.string.select_path))
+            new MaterialDialog.Builder(getContext())
+                    .title(getContext().getString(R.string.select_path))
                     .items(options)
                     .itemsCallbackSingleChoice(indexOfPathSelected, new MaterialDialog.ListCallbackSingleChoice() {
                         @Override
                         public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
-                            //TODO: decommentare quando verranno ritornati piu percorsi
-//                            indexOfPathSelected = which;
-//                            HashMap<String, List<Node>> path = Solution.getSolutionDividedByFloor(paths.get(which));
-//                            holder.mapView.setMultiFloorPath(path);
+                            indexOfPathSelected = which;
+                            selectedSolution = new Path(solutionPaths.get(indexOfPathSelected));
+                            MultiFloorPath multiFloorPath = solutionPaths.get(which).toMultiFloorPath();
+                            holder.mapView.setMultiFloorPath(multiFloorPath);
                             return true;
                         }
                     })
@@ -397,7 +392,7 @@ public class HomeFragment extends BaseFragment {
 
             startFabButton.setOnClickListener(new NavigationButtonListener());
 
-            if (paths == null) {
+            if (solutionPaths == null) {
                 pathsFabButton.hide();
             }
 

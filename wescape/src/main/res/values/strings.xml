@@ -134,4 +134,5 @@
     <string name="congratulation">Congratulation!</string>
     <string name="toward_node">toward node %1$s</string>
     <string name="next_node">Next</string>
+    <string name="label_select_path">Route %d</string>
 </resources>

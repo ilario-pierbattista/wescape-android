@@ -9,35 +9,25 @@ import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.EdgeRepository;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.navigation.DijkstraSolver;
+import com.dii.ids.application.navigation.Graph;
+import com.dii.ids.application.navigation.Path;
 
 import java.util.List;
 
-import es.usc.citius.hipster.algorithm.Algorithm;
-import es.usc.citius.hipster.algorithm.Hipster;
-import es.usc.citius.hipster.graph.GraphBuilder;
-import es.usc.citius.hipster.graph.GraphSearchProblem;
-import es.usc.citius.hipster.graph.HipsterGraph;
-import es.usc.citius.hipster.model.problem.SearchProblem;
-import es.usc.citius.hipster.util.Function;
-
 public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     public static final String TAG = MinimumPathTask.class.getName();
-    private static final double P_V = 0.07;
-    private static final double P_I = 0.45;
-    private static final double P_LOS = 0.21;
-    private static final double P_C = 0.21;
-    private static final double P_L = 0.06;
 
     private MaterialDialog dialog;
     private Context context;
     private Exception thrownException;
-    private Algorithm.SearchResult searchResult;
-    private TaskListener<Algorithm.SearchResult> listener;
+    private List<Path> searchResult;
+    private TaskListener<List<Path>> listener;
     private boolean emergency;
     private double maxLength;
 
     public MinimumPathTask(Context context,
-                           TaskListener<Algorithm.SearchResult> listener,
+                           TaskListener<List<Path>> listener,
                            boolean emergencyStatus) {
         this.context = context;
         this.listener = listener;
@@ -45,7 +35,7 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     }
 
     public MinimumPathTask(Context context,
-                           TaskListener<Algorithm.SearchResult> listener) {
+                           TaskListener<List<Path>> listener) {
         this.context = context;
         this.listener = listener;
         this.emergency = false;
@@ -56,44 +46,18 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
         try {
             Node beginNode = params[0];
             Node endNode = params[1];
-
-            List<Edge> edges = EdgeRepository.findAll();
-            GraphBuilder<Node, Edge> builder = GraphBuilder.create();
-
-            // Costruzione del grafo
-            for (Edge edge : edges) {
-                builder.connect(edge.getBegin())
-                        .to(edge.getEnd())
-                        .withEdge(edge);
-            }
+            Graph graph = new Graph(EdgeRepository.findAll());
+            DijkstraSolver dijkstraSolver = new DijkstraSolver();
 
             // Query del lato più lungo
             final Edge maxLengthEdge = EdgeRepository.findMaxLengthEdge();
             maxLength = maxLengthEdge.getLength();
 
-            HipsterGraph<Node, Edge> graph = builder.createUndirectedGraph();
-            SearchProblem problem = GraphSearchProblem
-                    .startingFrom(beginNode)
+            dijkstraSolver.startingFrom(beginNode)
                     .in(graph)
-                    .extractCostFromEdges(new Function<Edge, Double>() {
-                        @Override
-                        public Double apply(Edge edge) {
-                            double length = P_L * edge.getLength() / maxLength;
-                            double other = (P_I * edge.getI()) +
-                                    (P_C * edge.getC()) +
-                                    (P_LOS * edge.getLos()) +
-                                    (P_V * edge.getV());
+                    .setNormalizationBasis(maxLength);
+            searchResult = dijkstraSolver.search(endNode);
 
-                            if (emergency) {
-                                return length + other;
-                            } else {
-                                return length;
-                            }
-                        }
-                    })
-                    .build();
-
-            searchResult = Hipster.createDijkstra(problem).search(endNode);
             Thread.sleep(1000);
             return (searchResult != null);
         } catch (Exception e) {
