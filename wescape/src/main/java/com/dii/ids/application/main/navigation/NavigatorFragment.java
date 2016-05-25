@@ -20,6 +20,7 @@ import com.dii.ids.application.utils.dijkstra.Solution;
 import com.dii.ids.application.utils.directions.Actions;
 import com.dii.ids.application.utils.directions.DirectionsTranslator;
 import com.dii.ids.application.utils.directions.HumanDirection;
+import com.dii.ids.application.utils.units.Tuple;
 import com.dii.ids.application.views.MapView;
 
 import java.util.ArrayList;
@@ -98,9 +99,7 @@ public class NavigatorFragment extends Fragment {
         holder.mapView.setPiantine(piantine);
         holder.mapView.setMultiFloorPath(multiFloorSolution);
 
-        HumanDirection humanDirection = translator.getHumanDirection(actions.get(0));
-        holder.indicationTextView.setText(humanDirection.getDirection());
-        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        updateDirectionDisplay(new Tuple<>(0, 1));
 
         return view;
     }
@@ -110,22 +109,38 @@ public class NavigatorFragment extends Fragment {
         @Override
         public void onClick(View v) {
             ButtonType tag = (ButtonType) v.getTag();
-            int index = 0;
+            Tuple<Integer, Integer> indexes = new Tuple<>(0,0);
             switch (tag) {
                 case NEXT: {
-                    index = holder.mapView.nextStep();
+                    indexes = holder.mapView.nextStep();
                     break;
                 }
                 case PREVIOUS: {
-                    index = holder.mapView.prevStep();
+                    indexes = holder.mapView.prevStep();
                     break;
                 }
             }
 
-            HumanDirection humanDirection = translator.getHumanDirection(actions.get(index));
-            holder.indicationTextView.setText(humanDirection.getDirection());
-            holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+            updateDirectionDisplay(indexes);
         }
+    }
+
+    /**
+     * Aggiorna la vista con le indicazioni da seguire
+     *
+     * @param indexes Tupla di indici dei nodi
+     */
+    private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
+        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
+        holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        if (!indexes.x.equals(indexes.y)) {
+            String text = String.format(getString(R.string.toward_node), solution.get(indexes.y).getName());
+            holder.nextNodeTextView.setText(text);
+        } else {
+            holder.nextNodeTextView.setText(getString(R.string.congratulation));
+        }
+
     }
 
     public class ViewHolder {

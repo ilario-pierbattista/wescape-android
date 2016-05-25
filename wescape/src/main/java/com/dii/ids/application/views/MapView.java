@@ -13,6 +13,8 @@ import android.widget.LinearLayout;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.utils.dijkstra.Solution;
+import com.dii.ids.application.utils.units.Tuple;
+import com.raizlabs.android.dbflow.sql.language.Condition;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,28 +97,39 @@ public class MapView extends LinearLayout {
 
     /**
      * Passa al nodo successivo della lista dei nodi della soluzione
-     * @return Indice del nodo successivo nella lista dei nodi
+     *
+     * @return Tupla con l'indice del nodo successivo e successivo ancora
      */
-    public int nextStep() {
+    public Tuple<Integer, Integer> nextStep() {
+        int nextNode;
         if (currentNode < orderedSolution.size() - 1) {
             currentNode++;
+            if (!(currentNode == orderedSolution.size() - 1)) {
+                nextNode = currentNode + 1;
+            } else {
+                nextNode = currentNode;
+            }
+        } else {
+            nextNode = currentNode;
         }
 
         triggerStepChange();
-        return currentNode;
+        return new Tuple<>(currentNode, nextNode);
     }
 
     /**
      * Passa al nodo precedente della lista dei nodi della soluzione
-     * @return Indice del nodo precedente nella lista dei nodi
+     *
+     * @return Tupla con l'indice del nodo precednete e precedente ancora
      */
-    public int prevStep() {
+    public Tuple<Integer, Integer> prevStep() {
         if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
             currentNode--;
         }
+        int nextNode = currentNode + 1;
 
         triggerStepChange();
-        return currentNode;
+        return new Tuple<>(currentNode, nextNode);
     }
 
     private void triggerStepChange() {

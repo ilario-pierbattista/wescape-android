@@ -61,4 +61,6 @@
     <string name="action_go_downstairs">Scendi le scale</string>
     <string name="action_exit">Esci dall\'aula</string>
     <string name="action_destination_reached">Hai raggiunto la destinazione</string>
+    <string name="congratulation">Complimenti!</string>
+    <string name="toward_node">verso il punto %1$s</string>
 </resources>
