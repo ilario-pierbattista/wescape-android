@@ -7,8 +7,6 @@ import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -28,10 +26,10 @@ import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
-import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
+import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
@@ -39,9 +37,6 @@ import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -60,12 +55,11 @@ public class HomeFragment extends BaseFragment {
     private static String originText;
     private static String destinationText;
     private static Node origin = null, destination = null;
-    private List<Path> paths = null;
     private ViewHolder holder;
+    private List<Path> paths = null;
     private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
     private HashMap<String, Bitmap> piantine;
     private Path minPathSolution;
-    private MultiFloorPath multiFloorSolution;
     private int indexOfPathSelected;
     private boolean emergency = false;
 
@@ -118,8 +112,12 @@ public class HomeFragment extends BaseFragment {
         holder.setupUI();
         downloadMaps();
 
-        NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(getContext(), new NodesDownloaderListener());
-        nodesDownloaderTask.execute();
+        NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
+                getContext(), new NodesDownloaderTaskListener());
+        nodesDownloaderTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        EdgesDownloaderTask task = new EdgesDownloaderTask(
+                getContext(), new EdgesDownloaderTaskListener());
+        task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 
         return view;
     }
@@ -169,55 +167,16 @@ public class HomeFragment extends BaseFragment {
             case R.id.action_settings:
                 return true;
             case R.id.action_emergency:
-                toggleEmergency();
+                holder.toggleEmergency();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    /**
-     * Update view for normal/emergency state
-     */
-    private void toggleEmergency() {
-        int red = R.color.regularRed;
-        int blue = R.color.regularBlue;
-        destination = null;
-        ColorStateList toRed = getResources().getColorStateList(red),
-                toBlue = getResources().getColorStateList(blue);
-        FabAnimation fabAnimation = new FabAnimation();
-        ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                holder.revealBackgroundView,
-                holder.toolbar);
-
-        if (!emergency) {
-            toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
-            fabAnimation.animateFab(holder.startFabButton, toRed);
-            holder.toolbarTitle.setText(R.string.action_emergency);
-            holder.destinationViewText.setText(R.string.description_destination_emergency);
-            holder.destinationView.setClickable(false);
-            emergency = true;
-        } else {
-            toolbarAnimation.animateAppAndStatusBar(color(red), color(blue));
-            fabAnimation.animateFab(holder.startFabButton, toBlue);
-            holder.toolbarTitle.setText(R.string.title_activity_navigation);
-            holder.destinationViewText.setText(R.string.navigation_select_destination);
-            holder.destinationView.setClickable(true);
-
-            holder.destinationView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openSelectionFragment(v);
-                }
-            });
-            emergency = false;
-        }
-    }
 
     private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
         int code = 1;
         switch (v.getId()) {
@@ -231,27 +190,19 @@ public class HomeFragment extends BaseFragment {
 
         selectionFragment = SelectionFragment.newInstance(code);
         selectionFragment.setTargetFragment(this, code);
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
+        ((NavigationActivity) getActivity()).changeFragment(selectionFragment);
     }
 
     private void openNavigatorFragment() {
         NavigatorFragment navigatorFragment = NavigatorFragment.newInstance(origin, destination, piantine, minPathSolution);
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
+        ((NavigationActivity) getActivity())
+                .changeFragment(navigatorFragment);
     }
 
     /**
      * Listner che riempie la hasmap delle piantine
      */
+    // @TODO Esternalizzare
     private class MapListener implements TaskListener<Map> {
         @Override
         public void onTaskSuccess(Map map) {
@@ -307,51 +258,8 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Responsible for downloading nodes
-     */
-    private class NodesDownloaderListener implements TaskListener<List<Node>> {
-
-        @Override
-        public void onTaskSuccess(final List<Node> nodes) {
-            List<Node> savedNodes = NodeRepository.findAll();
-            if (savedNodes.size() != nodes.size()) {
-                NodeRepository.deleteAll();
-            }
-
-            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    for (Node node : nodes) {
-                        node.save(databaseWrapper);
-                    }
-                }
-            }).build();
-
-            transaction.execute();
-
-            EdgesDownloaderTask task = new EdgesDownloaderTask(
-                    getContext(), new EdgesDownloaderTaskListener());
-            task.execute();
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Log.e(TAG, "Download nodes fallito", e);
-        }
-
-        @Override
-        public void onTaskComplete() {
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
-
+    // @TODO Esternalizzare
     private class MinimumPathListener implements TaskListener<Algorithm.SearchResult> {
-
         @Override
         public void onTaskSuccess(Algorithm.SearchResult searchResult) {
             Log.i(TAG, searchResult.toString());
@@ -367,7 +275,7 @@ public class HomeFragment extends BaseFragment {
             }
             holder.mapView.setPiantine(piantine);
             Log.i(TAG, "Percorso minimo!");
-            multiFloorSolution = minPathSolution.toMultiFloorPath();
+            MultiFloorPath multiFloorSolution = minPathSolution.toMultiFloorPath();
             holder.mapView.setMultiFloorPath(multiFloorSolution);
             holder.pathsFabButton.show();
         }
@@ -386,7 +294,6 @@ public class HomeFragment extends BaseFragment {
 
         }
     }
-
 
     /**
      * Listener per gestire la selezione di un percorso diverso
@@ -522,6 +429,44 @@ public class HomeFragment extends BaseFragment {
                     holder.mapView.setOrigin(origin);
                     holder.mapView.changeFloor(origin.getFloor());
                 }
+            }
+        }
+
+        /**
+         * Update view for normal/emergency state
+         */
+        public void toggleEmergency() {
+            int red = R.color.regularRed;
+            int blue = R.color.regularBlue;
+            destination = null;
+            ColorStateList toRed = getResources().getColorStateList(red),
+                    toBlue = getResources().getColorStateList(blue);
+            FabAnimation fabAnimation = new FabAnimation();
+            ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
+                    holder.revealBackgroundView,
+                    holder.toolbar);
+
+            if (!emergency) {
+                toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
+                fabAnimation.animateFab(holder.startFabButton, toRed);
+                holder.toolbarTitle.setText(R.string.action_emergency);
+                holder.destinationViewText.setText(R.string.description_destination_emergency);
+                holder.destinationView.setClickable(false);
+                emergency = true;
+            } else {
+                toolbarAnimation.animateAppAndStatusBar(color(red), color(blue));
+                fabAnimation.animateFab(holder.startFabButton, toBlue);
+                holder.toolbarTitle.setText(R.string.title_activity_navigation);
+                holder.destinationViewText.setText(R.string.navigation_select_destination);
+                holder.destinationView.setClickable(true);
+
+                holder.destinationView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openSelectionFragment(v);
+                    }
+                });
+                emergency = false;
             }
         }
     }

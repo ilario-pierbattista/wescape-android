@@ -9,6 +9,7 @@ import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.algebra.TridimensionalVector;
 
+// @TODO Fixare e testare (unit tests)
 public class DirectionsTranslator {
     private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 45.0;
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
