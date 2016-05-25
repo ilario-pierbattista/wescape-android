@@ -18,9 +18,9 @@
             android:elevation="@dimen/standard_elevation"
             android:orientation="vertical">
 
-            <include
-                layout="@layout/navigation_standard_toolbar"
-                android:elevation="0dp"/>
+            <!--<include-->
+                <!--layout="@layout/navigation_standard_toolbar"-->
+                <!--android:elevation="0dp"/>-->
 
             <LinearLayout
                 android:id="@+id/indications_container"
@@ -28,6 +28,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/regularBlue"
                 android:elevation="4dp"
+                android:paddingTop="46dp"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:paddingBottom="16dp">
@@ -57,7 +58,7 @@
                         android:id="@+id/indication_text"
                         style="@style/TextAppearance.AppCompat.Large"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="0dp"
                         android:layout_weight="1"
                         android:lineSpacingMultiplier="1.3"
                         android:gravity="center_vertical"
@@ -75,6 +76,38 @@
 
 
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/next_step_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/darkBlue"
+            android:elevation="@dimen/standard_elevation"
+            android:paddingStart="26dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="26dp"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/next_step_text"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="10dp"
+                android:text="Poi"
+                android:textColor="@color/white"/>
+
+            <ImageView
+                android:id="@+id/next_step_icon"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_go_ahead"
+                android:tint="@color/white"/>
         </LinearLayout>
 
         <com.dii.ids.application.views.MapView

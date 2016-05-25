@@ -147,36 +147,65 @@ public class NavigatorFragment extends BaseFragment {
         }
     }
 
+    /**
+     * Aggiorna la vista con le indicazioni da seguire
+     *
+     * @param indexes Tupla di indici dei nodi
+     */
+    private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
+        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
+        holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        if (!indexes.x.equals(indexes.y)) {
+            holder.nextNodeContainer.setVisibility(View.VISIBLE);
+            String text = String.format(getString(R.string.toward_node), solution.get(indexes.y).getName());
+            holder.nextNodeTextView.setText(text);
+            HumanDirection humanDirection1 = translator.getHumanDirection(actions.get(indexes.y));
+            holder.nextNodeIcon.setImageResource(humanDirection1.getIconResource());
+        } else {
+            holder.nextNodeContainer.setVisibility(View.GONE);
+            holder.nextNodeTextView.setText(getString(R.string.congratulation));
+        }
+
+    }
+
     public class ViewHolder {
-        public final Toolbar toolbar;
-        public final TextView toolbarTitle;
+        //public final Toolbar toolbar;
+        //public final TextView toolbarTitle;
         public final MapView mapView;
         public final ImageButton nextButton;
         public final ImageButton previousButton;
         public final TextView indicationTextView;
         public final TextView nextNodeTextView;
         public final ImageView indicationSymbol;
+        public final ImageView nextNodeIcon;
+        public final ViewGroup nextNodeContainer;
+
 
         public ViewHolder(View view) {
-            toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
-            toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
+            //toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
+            //toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
             mapView = (MapView) view.findViewById(R.id.navigation_map);
             nextButton = (ImageButton) view.findViewById(R.id.next_button);
             previousButton = (ImageButton) view.findViewById(R.id.previous_button);
             indicationTextView = (TextView) view.findViewById(R.id.indication_text);
             nextNodeTextView = (TextView) view.findViewById(R.id.next_node_text);
             indicationSymbol = (ImageView) view.findViewById(R.id.indication_icon);
+            nextNodeIcon = (ImageView) view.findViewById(R.id.next_step_icon);
+            nextNodeContainer = (ViewGroup) view.findViewById(R.id.next_step_container);
 
         }
 
         private void setupUI() {
             // Setup Up button on Toolbar
+            /*
             NavigationActivity activity = (NavigationActivity) getActivity();
             activity.setSupportActionBar(toolbar);
             assert activity.getSupportActionBar() != null;
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
             toolbarTitle.setText(getString(R.string.title_navigator));
+            */
 
             nextButton.setTag(ButtonType.NEXT);
             previousButton.setTag(ButtonType.PREVIOUS);
