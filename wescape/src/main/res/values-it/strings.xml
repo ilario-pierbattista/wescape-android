@@ -63,4 +63,5 @@
     <string name="action_destination_reached">Hai raggiunto la destinazione</string>
     <string name="congratulation">Complimenti!</string>
     <string name="toward_node">verso il punto %1$s</string>
+    <string name="next_node">Poi</string>
 </resources>
