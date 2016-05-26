@@ -1,10 +1,11 @@
-package com.dii.ids.application.main.navigation.views;
+package com.dii.ids.application.views;
 
 import android.graphics.PointF;
 
 public class MapPin {
     float X, Y;
     int id;
+    Colors color = Colors.RED;
 
     public MapPin(float X, float Y, int id) {
         this.X = X;
@@ -15,6 +16,31 @@ public class MapPin {
     public MapPin(float X, float Y) {
         this.X = X;
         this.Y = Y;
+    }
+
+    public MapPin(PointF pointF, int id) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+        this.id = id;
+    }
+
+    public MapPin(PointF pointF) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+    }
+
+    public MapPin(PointF pointF, Colors color) {
+        this.X = pointF.x;
+        this.Y = pointF.y;
+        this.color = color;
+    }
+
+    public Colors getColor() {
+        return color;
+    }
+
+    public void setColor(Colors color) {
+        this.color = color;
     }
 
     public float getX() {
@@ -44,4 +70,6 @@ public class MapPin {
     public void setId(int id) {
         this.id = id;
     }
+
+    public enum Colors {BLUE, RED, LOCATION}
 }

@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.navigation.views;
+package com.dii.ids.application.views;
 
 public class DrawPin {
 

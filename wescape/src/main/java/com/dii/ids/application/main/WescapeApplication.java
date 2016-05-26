@@ -11,6 +11,6 @@ public class WescapeApplication extends Application {
     public void onCreate() {
         super.onCreate();
         FlowManager.init(new FlowConfig.Builder(this)
-                                 .openDatabasesOnInit(true).build());
+                .openDatabasesOnInit(true).build());
     }
 }

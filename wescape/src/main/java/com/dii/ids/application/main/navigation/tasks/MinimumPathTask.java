@@ -2,7 +2,6 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
@@ -10,76 +9,71 @@ import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.EdgeRepository;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.navigation.DijkstraSolver;
+import com.dii.ids.application.navigation.Graph;
+import com.dii.ids.application.navigation.Path;
 
 import java.util.List;
 
-import es.usc.citius.hipster.algorithm.AStar;
-import es.usc.citius.hipster.algorithm.Algorithm;
-import es.usc.citius.hipster.algorithm.Hipster;
-import es.usc.citius.hipster.graph.GraphBuilder;
-import es.usc.citius.hipster.graph.GraphSearchProblem;
-import es.usc.citius.hipster.graph.HipsterGraph;
-import es.usc.citius.hipster.model.problem.SearchProblem;
-import es.usc.citius.hipster.util.Function;
-
 public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     public static final String TAG = MinimumPathTask.class.getName();
+
     private MaterialDialog dialog;
     private Context context;
     private Exception thrownException;
-    private Algorithm.SearchResult searchResult;
-    private TaskListener<Algorithm.SearchResult> listener;
+    private List<Path> searchResult;
+    private TaskListener<List<Path>> listener;
+    private boolean emergency;
+    private double maxLength;
 
-    public MinimumPathTask(Context context, TaskListener<Algorithm.SearchResult> listener) {
+    public MinimumPathTask(Context context,
+                           TaskListener<List<Path>> listener,
+                           boolean emergencyStatus) {
         this.context = context;
         this.listener = listener;
+        this.emergency = emergencyStatus;
     }
 
-    @Override
-    protected void onPreExecute() {
-
-        dialog = new MaterialDialog.Builder(context)
-                .title(context.getString(R.string.computing_route))
-                .content(context.getString(R.string.please_wait))
-                .progress(true, 0)
-                .widgetColorRes(R.color.regularBlue)
-                .show();
+    public MinimumPathTask(Context context,
+                           TaskListener<List<Path>> listener) {
+        this.context = context;
+        this.listener = listener;
+        this.emergency = false;
     }
-
 
     @Override
     protected Boolean doInBackground(Node... params) {
         try {
             Node beginNode = params[0];
             Node endNode = params[1];
+            Graph graph = new Graph(EdgeRepository.findAll());
+            DijkstraSolver dijkstraSolver = new DijkstraSolver();
 
-            List<Edge> edges = EdgeRepository.findAll();
-            GraphBuilder<Node, Edge> builder = GraphBuilder.create();
+            // Query del lato più lungo
+            final Edge maxLengthEdge = EdgeRepository.findMaxLengthEdge();
+            maxLength = maxLengthEdge.getLength();
 
-            for (Edge edge : edges) {
-                builder.connect(edge.getBegin())
-                        .to(edge.getEnd())
-                        .withEdge(edge);
-            }
-
-            HipsterGraph<Node, Edge> graph = builder.createUndirectedGraph();
-            SearchProblem problem = GraphSearchProblem
-                    .startingFrom(beginNode)
+            dijkstraSolver.startingFrom(beginNode)
                     .in(graph)
-                    .extractCostFromEdges(new Function<Edge, Double>() {
-                        @Override
-                        public Double apply(Edge edge) {
-                            return edge.getLength();
-                        }
-                    })
-                    .build();
+                    .setNormalizationBasis(maxLength);
+            searchResult = dijkstraSolver.search(endNode);
 
-            searchResult = Hipster.createDijkstra(problem).search(endNode);
+            Thread.sleep(1000);
             return (searchResult != null);
         } catch (Exception e) {
             thrownException = e;
             return false;
         }
+    }
+
+    @Override
+    protected void onPreExecute() {
+        dialog = new MaterialDialog.Builder(context)
+                .title(context.getString(R.string.computing_route))
+                .content(context.getString(R.string.please_wait))
+                .progress(true, 0)
+                .widgetColorRes(R.color.regularBlue)
+                .show();
     }
 
     @Override

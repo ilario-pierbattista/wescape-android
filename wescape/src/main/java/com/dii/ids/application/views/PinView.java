@@ -1,4 +1,4 @@
-package com.dii.ids.application.main.navigation.views;
+package com.dii.ids.application.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -10,13 +10,12 @@ import android.graphics.PointF;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
 import com.dii.ids.application.R;
-import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.navigation.Checkpoint;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public class PinView extends SubsamplingScaleImageView {
     private static final String TAG = PinView.class.getName();
@@ -55,14 +54,30 @@ public class PinView extends SubsamplingScaleImageView {
     }
 
     /**
-     * Set an array of pins
-     *
-     * @param mapPins
+     * Initialize drawing tools
      */
-    public void setMultiplePins(ArrayList<MapPin> mapPins) {
-        this.multiplePins = mapPins;
-        initialise();
-        invalidate();
+    private void initDrawing() {
+        density = getResources().getDisplayMetrics().densityDpi;
+        drawnPins = new ArrayList<>();
+        paint = new Paint();
+        paint.setAntiAlias(true);
+    }
+
+    private void initialise() {
+
+    }
+
+    public void setImage(Bitmap image) {
+        setImage(ImageSource.bitmap(image));
+    }
+
+    /**
+     * Get the single pin
+     *
+     * @return
+     */
+    public MapPin getSinglePin() {
+        return singlePin;
     }
 
     /**
@@ -77,15 +92,6 @@ public class PinView extends SubsamplingScaleImageView {
     }
 
     /**
-     * Get the single pin
-     *
-     * @return
-     */
-    public MapPin getSinglePin() {
-        return singlePin;
-    }
-
-    /**
      * Get multiple pins
      *
      * @return
@@ -94,18 +100,25 @@ public class PinView extends SubsamplingScaleImageView {
         return multiplePins;
     }
 
-    public void setPath(List<Node> path) {
+    /**
+     * Set an array of pins
+     *
+     * @param mapPins
+     */
+    public void setMultiplePins(ArrayList<MapPin> mapPins) {
+        this.multiplePins = mapPins;
+        initialise();
+        invalidate();
+    }
+
+    public void setPath(com.dii.ids.application.navigation.Path path) {
         ArrayList<PointF> points = new ArrayList<>(path.size());
-        for (Node node : path) {
+        for (Checkpoint node : path) {
             points.add(new PointF(node.getX(), node.getY()));
         }
         this.path = points;
         initialise();
         invalidate();
-    }
-
-    private void initialise() {
-
     }
 
     @Override
@@ -117,6 +130,11 @@ public class PinView extends SubsamplingScaleImageView {
             return;
         }
 
+        // The path has to be drawn before the pin, unless it will cover the pin
+        if (path != null) {
+            drawPath(canvas, path);
+        }
+
         if (singlePin == null && multiplePins != null) {
             for (MapPin pin : multiplePins) {
                 drawPin(canvas, pin);
@@ -124,28 +142,6 @@ public class PinView extends SubsamplingScaleImageView {
         } else if (singlePin != null) {
             drawPin(canvas, singlePin);
         }
-
-        if (path != null) {
-            drawPath(canvas, path);
-        }
-    }
-
-    public int getPinIdByPoint(PointF point) {
-
-        for (int i = drawnPins.size() - 1; i >= 0; i--) {
-            DrawPin dPin = drawnPins.get(i);
-            if (point.x >= dPin.getStartX() && point.x <= dPin.getEndX()) {
-                if (point.y >= dPin.getStartY() && point.y <= dPin.getEndY()) {
-                    return dPin.getId();
-                }
-            }
-        }
-        return -1; //negative no means no pin selected
-    }
-
-    public void resetPins() {
-        singlePin = null;
-        multiplePins = null;
     }
 
     private void drawPath(Canvas canvas, ArrayList<PointF> points) {
@@ -184,7 +180,28 @@ public class PinView extends SubsamplingScaleImageView {
 
     private void drawPin(Canvas canvas, MapPin pin) {
         //Bitmap bmpPin = Utils.getBitmapFromAsset(context, mPin.getPinImgSrc());
-        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), R.drawable.marker_icon_google);
+        int markerResource = R.drawable.marker_icon_google;
+        if (pin.getColor() != null) {
+            switch (pin.getColor()) {
+                case RED: {
+                    markerResource = R.drawable.marker_icon_google;
+                    break;
+                }
+                case BLUE: {
+                    markerResource = R.drawable.marker_icon_google_blue;
+                    break;
+                }
+                case LOCATION: {
+                    markerResource = R.drawable.position_placer;
+                    break;
+                }
+                default: {
+                    markerResource = R.drawable.marker_icon_google;
+                }
+            }
+        }
+
+        Bitmap bmpPin = BitmapFactory.decodeResource(this.getResources(), markerResource);
 
         float w = (density / 1200f) * bmpPin.getWidth();
         float h = (density / 1200f) * bmpPin.getHeight();
@@ -208,13 +225,21 @@ public class PinView extends SubsamplingScaleImageView {
         drawnPins.add(dPin);
     }
 
-    /**
-     * Initialize drawing tools
-     */
-    private void initDrawing() {
-        density = getResources().getDisplayMetrics().densityDpi;
-        drawnPins = new ArrayList<>();
-        paint = new Paint();
-        paint.setAntiAlias(true);
+    public int getPinIdByPoint(PointF point) {
+
+        for (int i = drawnPins.size() - 1; i >= 0; i--) {
+            DrawPin dPin = drawnPins.get(i);
+            if (point.x >= dPin.getStartX() && point.x <= dPin.getEndX()) {
+                if (point.y >= dPin.getStartY() && point.y <= dPin.getEndY()) {
+                    return dPin.getId();
+                }
+            }
+        }
+        return -1; //negative no means no pin selected
+    }
+
+    public void resetPins() {
+        singlePin = null;
+        multiplePins = null;
     }
 }

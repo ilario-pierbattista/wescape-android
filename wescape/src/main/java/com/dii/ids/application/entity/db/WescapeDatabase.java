@@ -1,4 +1,4 @@
-package com.dii.ids.application.db;
+package com.dii.ids.application.entity.db;
 
 import com.raizlabs.android.dbflow.annotation.Database;
 
@@ -6,5 +6,5 @@ import com.raizlabs.android.dbflow.annotation.Database;
 public class WescapeDatabase {
     public static final String NAME = "WescapeDatabase"; // we will add the .db extension
 
-    public static final int VERSION = 2;
+    public static final int VERSION = 13;
 }

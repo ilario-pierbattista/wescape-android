@@ -7,6 +7,7 @@
     <color name="darkBlue">#2D7EB6</color>
     <color name="transparentWhite">#46ffffff</color>
     <color name="white">#FFFFFF</color>
+    <color name="grey">#9E9E9E</color>
     <color name="lightGreyBackground">#EEEEEE</color>
     <color name="dividerGrey">#DDDDDD</color>
     <color name="listItemIcon">#868686</color>

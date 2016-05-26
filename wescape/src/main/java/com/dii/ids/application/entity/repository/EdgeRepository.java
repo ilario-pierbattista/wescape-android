@@ -47,4 +47,17 @@ public class EdgeRepository {
                 .where(Edge_Table.end_id.eq(id))
                 .queryList();
     }
+
+    public static Edge findMaxLengthEdge() {
+        List<Edge> edges = SQLite.select()
+                .from(Edge.class)
+                .orderBy(Edge_Table.length, false)
+                .limit(1)
+                .queryList();
+        if (edges.size() > 0) {
+            return edges.get(0);
+        } else {
+            return null;
+        }
+    }
 }

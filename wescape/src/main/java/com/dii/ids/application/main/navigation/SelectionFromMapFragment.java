@@ -1,7 +1,6 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.PointF;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -17,15 +16,16 @@ import android.widget.Toast;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.SelectablePointsTask;
-import com.dii.ids.application.main.navigation.views.MapPin;
-import com.dii.ids.application.main.navigation.views.PinView;
 import com.dii.ids.application.utils.units.UnitConverter;
+import com.dii.ids.application.views.MapPin;
+import com.dii.ids.application.views.PinView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -34,7 +34,7 @@ public class SelectionFromMapFragment extends BaseFragment {
     public static final int POSITION_NOT_ACQUIRED = 0;
     public static final String TAG = SelectionFromMapFragment.class.getSimpleName();
     private static final int SEARCH_RADIUS_IN_DP = 100;
-    private DownloadMapsTask mapsTask;
+    private MapsDownloaderTask mapsTask;
     private ViewHolder holder;
     private int currentFloor = STARTING_FLOOR;
     private Node selectedNode = null;
@@ -49,20 +49,6 @@ public class SelectionFromMapFragment extends BaseFragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private void toggleConfirmButtonState() {
-        if (selectedNode == null) {
-            disableConfirmButtonState();
-        } else {
-            holder.confirmButton.setEnabled(true);
-            holder.confirmButton.setTextColor(color(R.color.linkText));
-        }
-    }
-
-    private void disableConfirmButtonState() {
-        holder.confirmButton.setEnabled(false);
-        holder.confirmButton.setTextColor(color(R.color.disabledText));
     }
 
     @Override
@@ -82,7 +68,7 @@ public class SelectionFromMapFragment extends BaseFragment {
 
         toggleConfirmButtonState();
 
-        mapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
+        mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
         mapsTask.execute(STARTING_FLOOR);
         holder.floor155Button.setTextColor(color(R.color.linkText));
 
@@ -108,6 +94,15 @@ public class SelectionFromMapFragment extends BaseFragment {
         return view;
     }
 
+    private void toggleConfirmButtonState() {
+        if (selectedNode == null) {
+            disableConfirmButtonState();
+        } else {
+            holder.confirmButton.setEnabled(true);
+            holder.confirmButton.setTextColor(color(R.color.linkText));
+        }
+    }
+
     public void onPositionConfirm(Node node) {
         Intent data = new Intent();
         data.putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
@@ -115,6 +110,11 @@ public class SelectionFromMapFragment extends BaseFragment {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         fm.popBackStack();
         fm.popBackStack();
+    }
+
+    private void disableConfirmButtonState() {
+        holder.confirmButton.setEnabled(false);
+        holder.confirmButton.setTextColor(color(R.color.disabledText));
     }
 
     private class FloorButtonListener implements View.OnClickListener {
@@ -131,17 +131,17 @@ public class SelectionFromMapFragment extends BaseFragment {
             currentFloor = floor;
 
             if (mapsTask == null) {
-                mapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
+                mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
                 mapsTask.execute(floor);
             }
         }
     }
 
-    private class MapsDownloaderListener implements TaskListener<Bitmap> {
+    private class MapsDownloaderListener implements TaskListener<Map> {
 
         @Override
-        public void onTaskSuccess(Bitmap image) {
-            holder.mapView.setImage(ImageSource.bitmap(image));
+        public void onTaskSuccess(Map map) {
+            holder.mapView.setImage(ImageSource.bitmap(map.getImage()));
             holder.mapView.setMinimumDpi(40);
             holder.mapView.resetPins();
             disableConfirmButtonState();
@@ -162,7 +162,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                 if (holder.mapView.isReady()) {
                     PointF tappedCoordinates = holder.mapView.viewToSourceCoord(e.getX(), e.getY());
                     Position tappedPosition = new Position(tappedCoordinates.x, tappedCoordinates.y,
-                                                           Integer.toString(currentFloor));
+                            Integer.toString(currentFloor));
 
                     SelectablePointsTask selectablePointsTask = new SelectablePointsTask(
                             new SelectablePointsListener(),
@@ -170,7 +170,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                     selectablePointsTask.execute(tappedPosition);
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "Image is not ready",
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
                 return true;
             }
@@ -186,14 +186,14 @@ public class SelectionFromMapFragment extends BaseFragment {
                 toggleConfirmButtonState();
 
                 Toast.makeText(getActivity().getApplicationContext(), "Hai selezionato il nodo: " + node.getName(),
-                               Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onTaskError(Exception e) {
                 if (e == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.no_node_in_range,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Log.e(TAG, "Errore di selezione", e);
                 }

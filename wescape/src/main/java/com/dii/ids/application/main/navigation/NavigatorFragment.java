@@ -1,44 +1,68 @@
 package com.dii.ids.application.main.navigation;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.navigation.MultiFloorPath;
+import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.navigation.directions.Directions;
+import com.dii.ids.application.navigation.directions.DirectionsTranslator;
+import com.dii.ids.application.navigation.directions.HumanDirection;
+import com.dii.ids.application.utils.units.Tuple;
+import com.dii.ids.application.views.MapView;
+
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link NavigatorFragment#newInstance} factory method
  * to create an instance of this fragment.
  */
-public class NavigatorFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class NavigatorFragment extends BaseFragment {
+    public static final String TAG = NavigatorFragment.class.getName();
+    private static final String ORIGIN = "origine";
+    private static final String DESTINATION = "destinazione";
+    private static final String PIANTINE = "piantine";
+    private static final String SOLUTION = "solution";
     private ViewHolder holder;
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private Node origin;
+    private Node destination;
+    private HashMap<String, Bitmap> piantine;
+    private Path solution;
+    private MultiFloorPath multiFloorSolution;
+    private Directions actions;
+    private DirectionsTranslator translator;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
      * parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
+     * @param origin      Nodo di origine
+     * @param destination Nodo di destinazione
+     * @param piantine    Bitmap delle piantine
+     * @param solution    Lista di nodi che costiuiscono la soluzione
      * @return A new instance of fragment NavigatorFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static NavigatorFragment newInstance(String param1, String param2) {
+    public static NavigatorFragment newInstance(Node origin,
+                                                Node destination,
+                                                HashMap<String, Bitmap> piantine,
+                                                Path solution) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putSerializable(ORIGIN, origin);
+        args.putSerializable(DESTINATION, destination);
+        args.putSerializable(PIANTINE, piantine);
+        args.putSerializable(SOLUTION, solution);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,8 +71,19 @@ public class NavigatorFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            origin = (Node) getArguments().getSerializable(ORIGIN);
+            destination = (Node) getArguments().getSerializable(DESTINATION);
+            piantine = (HashMap<String, Bitmap>) getArguments().getSerializable(PIANTINE);
+            solution = (Path) getArguments().getSerializable(SOLUTION);
+
+            if (solution != null) {
+                multiFloorSolution = solution.toMultiFloorPath();
+                translator = new DirectionsTranslator(getContext(), solution);
+                actions = translator.calculateDirections()
+                        .getDirections();
+            } else {
+                Log.e(TAG, "Solution is null. Aborting");
+            }
         }
     }
 
@@ -57,28 +92,106 @@ public class NavigatorFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.navigation_navigator_fragment, container, false);
         holder = new ViewHolder(view);
+        holder.setupUI();
 
-        // Setup Up button on Toolbar
-        NavigationActivity activity = (NavigationActivity) getActivity();
-        activity.setSupportActionBar((Toolbar) view.findViewById(R.id.navigation_standard_toolbar));
-        assert activity.getSupportActionBar() != null;
-        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-        holder.toolbarTitle.setText(getString(R.string.title_navigator));
+        holder.mapView.setOrigin(origin);
+        holder.mapView.setDestination(destination);
+        holder.mapView.setPiantine(piantine);
+        holder.mapView.setMultiFloorPath(multiFloorSolution);
+
+        updateDirectionDisplay(new Tuple<>(0, 1));
 
         return view;
     }
 
+    private enum ButtonType {NEXT, PREVIOUS}
+
+    private class IndicationButtonListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            ButtonType tag = (ButtonType) v.getTag();
+            Tuple<Integer, Integer> indexes = new Tuple<>(0, 0);
+            switch (tag) {
+                case NEXT: {
+                    indexes = holder.mapView.nextStep();
+                    break;
+                }
+                case PREVIOUS: {
+                    indexes = holder.mapView.prevStep();
+                    break;
+                }
+            }
+
+            updateDirectionDisplay(indexes);
+        }
+    }
+
     /**
-     * Classe wrapper degli elementi della vista
+     * Aggiorna la vista con le indicazioni da seguire
+     *
+     * @param indexes Tupla di indici dei nodi
      */
-    public static class ViewHolder {
-        public final Toolbar toolbar;
-        public final TextView toolbarTitle;
+    private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
+        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
+        holder.indicationTextView.setText(humanDirection.getDirection());
+        holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
+        if (!indexes.x.equals(indexes.y)) {
+            Node node = (Node) solution.get(indexes.y);
+            holder.nextNodeContainer.setVisibility(View.VISIBLE);
+            String text = String.format(getString(R.string.toward_node), node.getName());
+            holder.nextNodeTextView.setText(text);
+            HumanDirection humanDirection1 = translator.getHumanDirection(actions.get(indexes.y));
+            holder.nextNodeIcon.setImageResource(humanDirection1.getIconResource());
+        } else {
+            holder.nextNodeContainer.setVisibility(View.GONE);
+            holder.nextNodeTextView.setText(getString(R.string.congratulation));
+        }
+
+    }
+
+    public class ViewHolder {
+        //public final Toolbar toolbar;
+        //public final TextView toolbarTitle;
+        public final MapView mapView;
+        public final ImageButton nextButton;
+        public final ImageButton previousButton;
+        public final TextView indicationTextView;
+        public final TextView nextNodeTextView;
+        public final ImageView indicationSymbol;
+        public final ImageView nextNodeIcon;
+        public final ViewGroup nextNodeContainer;
+
 
         public ViewHolder(View view) {
-            toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
-            toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
+            //toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
+            //toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
+            mapView = (MapView) view.findViewById(R.id.navigation_map);
+            nextButton = (ImageButton) view.findViewById(R.id.next_button);
+            previousButton = (ImageButton) view.findViewById(R.id.previous_button);
+            indicationTextView = (TextView) view.findViewById(R.id.indication_text);
+            nextNodeTextView = (TextView) view.findViewById(R.id.next_node_text);
+            indicationSymbol = (ImageView) view.findViewById(R.id.indication_icon);
+            nextNodeIcon = (ImageView) view.findViewById(R.id.next_step_icon);
+            nextNodeContainer = (ViewGroup) view.findViewById(R.id.next_step_container);
+
+        }
+
+        private void setupUI() {
+            // Setup Up button on Toolbar
+            /*
+            NavigationActivity activity = (NavigationActivity) getActivity();
+            activity.setSupportActionBar(toolbar);
+            assert activity.getSupportActionBar() != null;
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
+            toolbarTitle.setText(getString(R.string.title_navigator));
+            */
+
+            nextButton.setTag(ButtonType.NEXT);
+            previousButton.setTag(ButtonType.PREVIOUS);
+            nextButton.setOnClickListener(new IndicationButtonListener());
+            previousButton.setOnClickListener(new IndicationButtonListener());
         }
     }
 

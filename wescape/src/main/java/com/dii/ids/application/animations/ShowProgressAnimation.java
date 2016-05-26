@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.os.Build;
-import android.support.v4.app.Fragment;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
@@ -15,10 +14,10 @@ public class ShowProgressAnimation {
     private int animTime;
 
     /**
-     * @TODO Commentare
      * @param scrollView
      * @param progressBar
      * @param animTime
+     * @TODO Commentare
      */
     public ShowProgressAnimation(ScrollView scrollView,
                                  ProgressBar progressBar,

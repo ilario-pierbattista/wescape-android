@@ -2,14 +2,16 @@ package com.dii.ids.application.main.navigation;
 
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.main.BaseFragment;
 
 public class NavigationActivity extends AppCompatActivity {
 
-    public static final String LOG_TAG = NavigationActivity.class.getSimpleName();
+    public static final String TAG = NavigationActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,5 +37,19 @@ public class NavigationActivity extends AppCompatActivity {
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Cambia il fragment
+     * @param fragment
+     */
+    public void changeFragment(BaseFragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+        fragmentTransaction.replace(R.id.navigation_content_pane, fragment)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .addToBackStack(fragment.TAG)
+                .commit();
     }
 }

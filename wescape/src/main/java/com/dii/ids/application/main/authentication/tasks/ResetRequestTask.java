@@ -6,7 +6,6 @@ import android.os.AsyncTask;
 import com.dii.ids.application.api.auth.UserManager;
 import com.dii.ids.application.api.auth.wescape.WescapeUserManager;
 import com.dii.ids.application.listener.TaskListener;
-import com.dii.ids.application.main.authentication.ResetRequestFragment;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.

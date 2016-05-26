@@ -4,10 +4,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class PasswordValidatorTest {
-    private PasswordValidator validator;
     public static final String[] validPasswords = {
             "aaaaa",
             "12adfd"
@@ -17,6 +14,7 @@ public class PasswordValidatorTest {
             "",
             "aaaa"
     };
+    private PasswordValidator validator;
 
     @Before
     public void setUp() throws Exception {

@@ -1,17 +1,15 @@
 package com.dii.ids.application.main;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.db.WescapeDatabase;
+import com.dii.ids.application.entity.db.WescapeDatabase;
 import com.raizlabs.android.dbflow.config.DatabaseDefinition;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
@@ -28,8 +26,8 @@ public abstract class BaseFragment extends Fragment {
     public static final int ORIGIN_SELECTION_REQUEST_CODE = 200;
     public static final int DESTINATION_SELECTION_REQUEST_CODE = 201;
     public static String TOOLBAR_TITLE = "toolbar_title";
-    private Bundle metaData = null;
     protected DatabaseDefinition database;
+    private Bundle metaData = null;
 
     public BaseFragment() {
         database = FlowManager.getDatabase(WescapeDatabase.class);

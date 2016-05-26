@@ -47,13 +47,14 @@ public class WescapeSessionManager implements SessionManager {
 
     /**
      * Mantiene il token aggiornato
+     *
      * @throws Exception
      */
     private void keepTokenUpdated() throws Exception {
         Token currentToken = tokenStorage.get();
-        if(currentToken == null) {
+        if (currentToken == null) {
             throw new TokenNotFoundException();
-        } else if(currentToken.isExpired()) {
+        } else if (currentToken.isExpired()) {
             RefreshTokenForm refreshForm = new RefreshTokenForm();
 
             refreshForm.setClient_id(client.getId())

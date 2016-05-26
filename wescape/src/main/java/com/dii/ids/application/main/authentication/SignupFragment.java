@@ -1,12 +1,9 @@
 package com.dii.ids.application.main.authentication;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -31,26 +28,17 @@ import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
-/**
- * A simple {@link Fragment} subclass. Activities that contain this fragment must implement the
- * {@link SignupFragment.OnFragmentInteractionListener} interface to handle interaction events. Use
- * the {@link SignupFragment#newInstance} factory method to create an instance of this fragment.
- */
+
 public class SignupFragment extends BaseFragment {
     public static final String TAG = SignupFragment.class.getName();
     public static final int ACCOUNT_CREATED = 1;
     public static final String INTENT_KEY_EMAIL = "email";
     public static final String INTENT_KEY_PASSWORD = "password";
-    private static final String ARG_PARAM1 = "email";
+    private static final String EMAIL = "email";
 
     private String email;
     private ViewHolder holder;
     private EmailAutocompleter emailAutocompleter;
-    private OnFragmentInteractionListener mListener;
-
-    public SignupFragment() {
-        // Required empty public constructor
-    }
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -62,7 +50,7 @@ public class SignupFragment extends BaseFragment {
     public static SignupFragment newInstance(String email) {
         SignupFragment fragment = new SignupFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, email);
+        args.putString(EMAIL, email);
         fragment.setArguments(args);
         return fragment;
     }
@@ -77,21 +65,10 @@ public class SignupFragment extends BaseFragment {
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            email = getArguments().getString(ARG_PARAM1);
+            email = getArguments().getString(EMAIL);
         }
     }
 
@@ -137,12 +114,6 @@ public class SignupFragment extends BaseFragment {
         });
 
         return view;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
     }
 
     /**
@@ -210,17 +181,31 @@ public class SignupFragment extends BaseFragment {
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this fragment to allow an
-     * interaction in this fragment to be communicated to the activity and potentially other
-     * fragments contained in that activity.
-     * <p/>
-     * See the Android Training lesson <a href= "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+    public static class ViewHolder extends BaseFragment.ViewHolder {
+        public final ProgressBar progressBar;
+        public final ScrollView scrollView;
+        public final AutoCompleteTextView emailField;
+        public final TextInputLayout emailFieldLayout;
+        public final EditText passwordField;
+        public final TextInputLayout passwordFieldLayout;
+        public final EditText passwordConfirmField;
+        public final TextInputLayout passwordConfirmFieldLayout;
+        public final Button signupButton;
+        public final TextView generalErrorTextView;
+        private ShowProgressAnimation showProgressAnimation;
+
+        public ViewHolder(View v) {
+            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
+            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
+            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
+            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
+            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
+            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
+            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
+            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
+            signupButton = (Button) v.findViewById(R.id.signup_button);
+            generalErrorTextView = find(v, R.id.general_error_text_view);
+        }
     }
 
     private class SignupTaskListener implements TaskListener<String[]> {
@@ -257,33 +242,6 @@ public class SignupFragment extends BaseFragment {
         @Override
         public void onTaskCancelled() {
             holder.showProgressAnimation.showProgress(false);
-        }
-    }
-
-    public static class ViewHolder extends BaseFragment.ViewHolder {
-        public final ProgressBar progressBar;
-        public final ScrollView scrollView;
-        public final AutoCompleteTextView emailField;
-        public final TextInputLayout emailFieldLayout;
-        public final EditText passwordField;
-        public final TextInputLayout passwordFieldLayout;
-        public final EditText passwordConfirmField;
-        public final TextInputLayout passwordConfirmFieldLayout;
-        public final Button signupButton;
-        public final TextView generalErrorTextView;
-        private ShowProgressAnimation showProgressAnimation;
-
-        public ViewHolder(View v) {
-            progressBar = (ProgressBar) v.findViewById(R.id.signup_progress);
-            scrollView = (ScrollView) v.findViewById(R.id.signup_scroll_view);
-            emailField = (AutoCompleteTextView) v.findViewById(R.id.signup_email_text_input);
-            emailFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_email_text_input_layout);
-            passwordField = (EditText) v.findViewById(R.id.signup_password_text_input);
-            passwordFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_text_input_layout);
-            passwordConfirmField = (EditText) v.findViewById(R.id.signup_password_confirm_text_input);
-            passwordConfirmFieldLayout = (TextInputLayout) v.findViewById(R.id.signup_password_confirm_text_input_layout);
-            signupButton = (Button) v.findViewById(R.id.signup_button);
-            generalErrorTextView = find(v, R.id.general_error_text_view);
         }
     }
 }

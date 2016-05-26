@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,9 +31,9 @@ import org.apache.commons.lang3.SerializationUtils;
 import java.util.List;
 
 public class SelectionFragment extends BaseFragment {
+    public static final int POSITION_ACQUIRED = 1;
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     private static final String SELECTION_REQUEST_CODE = "selection_request_code";
-    public static final int POSITION_ACQUIRED = 1;
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
@@ -55,7 +54,7 @@ public class SelectionFragment extends BaseFragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Toast.makeText(getActivity(), data.getExtras().getString(QRDialogFragment.INTENT_QR_DATA_TAG),
-                       Toast.LENGTH_SHORT)
+                Toast.LENGTH_SHORT)
                 .show();
     }
 
@@ -117,24 +116,6 @@ public class SelectionFragment extends BaseFragment {
         return view;
     }
 
-    private void changeSearchFieldHintBehaviour() {
-        holder.searchFieldTextView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                holder.searchFieldTextView.setHint("");
-                return false;
-            }
-        });
-        holder.searchFieldTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus){
-                    holder.searchFieldTextView.setHint(R.string.search_hint);
-                }
-            }
-        });
-    }
-
     /**
      * Listener per aprire la vista per la selezione della posizione su mappa
      *
@@ -176,6 +157,48 @@ public class SelectionFragment extends BaseFragment {
         dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
     }
 
+    private void changeSearchFieldHintBehaviour() {
+        holder.searchFieldTextView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                holder.searchFieldTextView.setHint("");
+                return false;
+            }
+        });
+        holder.searchFieldTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    holder.searchFieldTextView.setHint(R.string.search_hint);
+                }
+            }
+        });
+    }
+
+    /**
+     * UI elements wrapper class
+     */
+    public static class ViewHolder {
+        public final Toolbar toolbar;
+        public final TextView toolbarTitle;
+        public final ListView staticListview;
+        public final View searchFieldView;
+        public final TextView searchFieldTextView;
+        public final ImageView searchFieldIcon;
+        public final ListView nodeListView;
+
+        public ViewHolder(View view) {
+            toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
+            toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
+            staticListview = (ListView) view.findViewById((R.id.selection_static_listview));
+            searchFieldView = view.findViewById(R.id.navigation_search_field);
+            searchFieldIcon = (ImageView) searchFieldView.findViewById(R.id.search_icon);
+            nodeListView = (ListView) view.findViewById(R.id.nodes_listview);
+            searchFieldTextView = (EditText) searchFieldView.findViewById(R.id.search_text);
+
+        }
+    }
+
     /**
      * Responsible for handling changes in search edit text.
      */
@@ -208,30 +231,6 @@ public class SelectionFragment extends BaseFragment {
             getTargetFragment().onActivityResult(getTargetRequestCode(), POSITION_ACQUIRED, data);
             FragmentManager fm = getActivity().getSupportFragmentManager();
             fm.popBackStack();
-        }
-    }
-
-    /**
-     * UI elements wrapper class
-     */
-    public static class ViewHolder {
-        public final Toolbar toolbar;
-        public final TextView toolbarTitle;
-        public final ListView staticListview;
-        public final View searchFieldView;
-        public final TextView searchFieldTextView;
-        public final ImageView searchFieldIcon;
-        public final ListView nodeListView;
-
-        public ViewHolder(View view) {
-            toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
-            toolbarTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
-            staticListview = (ListView) view.findViewById((R.id.selection_static_listview));
-            searchFieldView = view.findViewById(R.id.navigation_search_field);
-            searchFieldIcon = (ImageView) searchFieldView.findViewById(R.id.search_icon);
-            nodeListView = (ListView) view.findViewById(R.id.nodes_listview);
-            searchFieldTextView = (EditText) searchFieldView.findViewById(R.id.search_text);
-
         }
     }
 

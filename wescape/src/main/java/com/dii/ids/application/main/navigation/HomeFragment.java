@@ -3,10 +3,9 @@ package com.dii.ids.application.main.navigation;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -20,29 +19,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.davemorrissey.labs.subscaleview.ImageSource;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
-import com.dii.ids.application.entity.Edge;
+import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
-import com.dii.ids.application.main.navigation.tasks.DownloadEdgesTask;
-import com.dii.ids.application.main.navigation.tasks.DownloadMapsTask;
-import com.dii.ids.application.main.navigation.tasks.DownloadNodesTask;
+import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
+import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskListener;
+import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
-import com.dii.ids.application.main.navigation.views.MapPin;
-import com.dii.ids.application.main.navigation.views.PinView;
-import com.raizlabs.android.dbflow.structure.database.DatabaseWrapper;
-import com.raizlabs.android.dbflow.structure.database.transaction.ITransaction;
-import com.raizlabs.android.dbflow.structure.database.transaction.Transaction;
+import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
+import com.dii.ids.application.navigation.MultiFloorPath;
+import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.views.MapView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import es.usc.citius.hipster.algorithm.Algorithm;
 
 /**
  * HomeFragment: classe per la schermata principale nel contesto di navigazione.
@@ -54,9 +53,13 @@ public class HomeFragment extends BaseFragment {
     private static String destinationText;
     private static Node origin = null, destination = null;
     private ViewHolder holder;
+    private List<Path> solutionPaths = null;
+    private Path selectedSolution;
+    private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
+    private HashMap<String, Bitmap> piantine;
+    private int indexOfPathSelected;
     private boolean emergency = false;
-    private DownloadMapsTask downloadMapsTask;
-    private MinimumPathTask minimumPathTask;
+
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -80,9 +83,12 @@ public class HomeFragment extends BaseFragment {
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
+                    Log.i(TAG, node.toString());
+                    holder.mapView.setOrigin(origin);
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
+                    holder.mapView.setDestination(destination);
                     break;
             }
         } catch (NullPointerException ee) {
@@ -100,104 +106,36 @@ public class HomeFragment extends BaseFragment {
         originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
 
-        setupViewUI();
+        holder.setupUI();
+        downloadMaps();
 
-        DownloadNodesTask downloadNodesTask = new DownloadNodesTask(getContext(), new NodesDownloaderListener());
-        downloadNodesTask.execute();
+        NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
+                getContext(), new NodesDownloaderTaskListener());
+        nodesDownloaderTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        EdgesDownloaderTask task = new EdgesDownloaderTask(
+                getContext(), new EdgesDownloaderTaskListener());
+        task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 
         return view;
     }
 
-    private void setupViewUI() {
-        holder.originViewPlaceholder.setText(R.string.navigation_starting_from);
-        holder.originViewIcon.setImageResource(R.drawable.ic_my_location);
-        holder.destinationViewPlaceholder.setText(R.string.navigation_going_to);
-        holder.destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
-        originText = origin == null ?
-                getString(R.string.navigation_select_origin) :
-                origin.getName();
-        destinationText = destination == null ?
-                getString(R.string.navigation_select_destination) :
-                destination.getName();
-
-        holder.originViewText.setText(originText);
-        holder.destinationViewText.setText(destinationText);
-
-        // Setup listeners
-        holder.originView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openSelectionFragment(v);
-            }
-        });
-
-        holder.startFabButton.setOnClickListener(new NavigationButtonListener());
-
-        if (emergency) {
-            holder.revealView.setBackgroundColor(color(R.color.regularRed));
-            holder.revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
-            holder.startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
-            holder.toolbarTitle.setText(R.string.action_emergency);
-            holder.destinationViewText.setText(R.string.description_destination_emergency);
-            holder.destinationView.setClickable(false);
-
-        } else {
-            holder.destinationView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openSelectionFragment(v);
-                }
-            });
-            holder.destinationView.setClickable(true);
+    /**
+     * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
+     */
+    private void downloadMaps() {
+        if (piantine == null) {
+            piantine = new HashMap<>();
         }
 
-        downloadMapsTask = new DownloadMapsTask(getContext(), new MapsDownloaderListener());
-        if (origin != null) {
-            if (destination != null) {
-                minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
-                minimumPathTask.execute(origin, destination);
-            } else {
-                downloadMapsTask.execute(Integer.parseInt(origin.getFloor()));
-            }
-        } else {
-            downloadMapsTask.execute(STARTING_FLOOR);
+        //TODO: rendere l'array di piani costanti globali
+        int[] piani = {145, 150, 155};
+
+        downloadMapsTasks = new HashMap<>();
+        for (int piano : piani) {
+            downloadMapsTasks.put(piano, new MapsDownloaderTask(getContext(), new MapListener()));
+            downloadMapsTasks.get(piano).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
         }
-    }
-
-    private void openSelectionFragment(View v) {
-        SelectionFragment selectionFragment;
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        int code = 1;
-        switch (v.getId()) {
-            case R.id.navigation_input_origin:
-                code = ORIGIN_SELECTION_REQUEST_CODE;
-                break;
-            case R.id.navigation_input_destination:
-                code = DESTINATION_SELECTION_REQUEST_CODE;
-                break;
-        }
-
-        selectionFragment = SelectionFragment.newInstance(code);
-        selectionFragment.setTargetFragment(this, code);
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, selectionFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void openNavigatorFragment() {
-        NavigatorFragment navigatorFragment = new NavigatorFragment();
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        fragmentTransaction.replace(R.id.navigation_content_pane, navigatorFragment)
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
-                .addToBackStack(null)
-                .commit();
     }
 
     @Override
@@ -226,48 +164,69 @@ public class HomeFragment extends BaseFragment {
             case R.id.action_settings:
                 return true;
             case R.id.action_emergency:
-                toggleEmergency();
+                holder.toggleEmergency();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
+
+    private void openSelectionFragment(View v) {
+        SelectionFragment selectionFragment;
+
+        int code = 1;
+        switch (v.getId()) {
+            case R.id.navigation_input_origin:
+                code = ORIGIN_SELECTION_REQUEST_CODE;
+                break;
+            case R.id.navigation_input_destination:
+                code = DESTINATION_SELECTION_REQUEST_CODE;
+                break;
+        }
+
+        selectionFragment = SelectionFragment.newInstance(code);
+        selectionFragment.setTargetFragment(this, code);
+        ((NavigationActivity) getActivity()).changeFragment(selectionFragment);
+    }
+
+    private void openNavigatorFragment() {
+        NavigatorFragment navigatorFragment =
+                NavigatorFragment.newInstance(origin, destination, piantine, selectedSolution);
+        ((NavigationActivity) getActivity())
+                .changeFragment(navigatorFragment);
+    }
+
     /**
-     * Update view for normal/emergency state
+     * Listner che riempie la hasmap delle piantine
      */
-    private void toggleEmergency() {
-        int red = R.color.regularRed;
-        int blue = R.color.regularBlue;
-        destination = null;
-        ColorStateList toRed = getResources().getColorStateList(red),
-                toBlue = getResources().getColorStateList(blue);
-        FabAnimation fabAnimation = new FabAnimation();
-        ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                holder.revealBackgroundView,
-                holder.toolbar);
+    // @TODO Esternalizzare
+    private class MapListener implements TaskListener<Map> {
+        @Override
+        public void onTaskSuccess(Map map) {
+            Log.i("Piantina", map.getImage().toString());
+            piantine.put(map.getFloor(), map.getImage());
+            Log.i("Piantina", String.valueOf(piantine.size()));
+            downloadMapsTasks.remove(map.getFloorInt());
+        }
 
-        if (!emergency) {
-            toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
-            fabAnimation.animateFab(holder.startFabButton, toRed);
-            holder.toolbarTitle.setText(R.string.action_emergency);
-            holder.destinationViewText.setText(R.string.description_destination_emergency);
-            holder.destinationView.setClickable(false);
-            emergency = true;
-        } else {
-            toolbarAnimation.animateAppAndStatusBar(color(red), color(blue));
-            fabAnimation.animateFab(holder.startFabButton, toBlue);
-            holder.toolbarTitle.setText(R.string.title_activity_navigation);
-            holder.destinationViewText.setText(R.string.navigation_select_destination);
-            holder.destinationView.setClickable(true);
+        @Override
+        public void onTaskError(Exception e) {
+            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
+                    Toast.LENGTH_LONG).show();
+        }
 
-            holder.destinationView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openSelectionFragment(v);
-                }
-            });
-            emergency = false;
+        @Override
+        public void onTaskComplete() {
+            if (downloadMapsTasks.isEmpty()) {
+                Log.i(TAG, "Imposto piantine");
+                holder.mapView.setPiantine(piantine);
+            }
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
         }
     }
 
@@ -297,126 +256,24 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    /**
-     * Responsible for downloading maps
-     */
-    private class MapsDownloaderListener implements TaskListener<Bitmap> {
-
+    // @TODO Esternalizzare
+    private class MinimumPathListener implements TaskListener<List<Path>> {
         @Override
-        public void onTaskSuccess(Bitmap image) {
-            holder.mapView.setImage(ImageSource.bitmap(image));
-            holder.mapView.setMinimumDpi(40);
+        public void onTaskSuccess(List<Path> searchResult) {
+            solutionPaths = searchResult;
+            selectedSolution = new Path(solutionPaths.get(0));
 
-            if (origin != null) {
-                originText = origin.getName();
-                MapPin startPin = new MapPin((float) origin.getX(), (float) origin.getY());
-                holder.mapView.setSinglePin(startPin);
-            } else {
-                originText = getString(R.string.navigation_select_origin);
+            holder.mapView.setOrigin(origin);
+            holder.mapView.setDestination(destination);
+
+            for (String floor : piantine.keySet()) {
+                Log.i(TAG, floor + " " + piantine.get(floor).toString());
             }
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                    Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onTaskComplete() {
-            downloadMapsTask = null;
-        }
-
-        @Override
-        public void onTaskCancelled() {
-            downloadMapsTask = null;
-        }
-    }
-
-    /**
-     * Responsible for downloading nodes
-     */
-    private class NodesDownloaderListener implements TaskListener<List<Node>> {
-
-        @Override
-        public void onTaskSuccess(final List<Node> nodes) {
-            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    for (Node node : nodes) {
-                        node.save(databaseWrapper);
-                    }
-                }
-            }).build();
-
-            transaction.execute();
-
-            DownloadEdgesTask task = new DownloadEdgesTask(getContext(), new EdgesDownloaderTaskListener());
-            task.execute();
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Log.e(TAG, "Download nodes fallito", e);
-        }
-
-        @Override
-        public void onTaskComplete() {
-            /* List<Node> nodes = NodeRepository.findAll();
-
-            for (Node node : nodes) {
-                Log.i(TAG, node.toString());
-            } */
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
-
-    private class EdgesDownloaderTaskListener implements TaskListener<List<Edge>> {
-        @Override
-        public void onTaskSuccess(final List<Edge> edges) {
-            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                @Override
-                public void execute(DatabaseWrapper databaseWrapper) {
-                    for (Edge edge: edges) {
-                        edge.save(databaseWrapper);
-                    }
-                }
-            }).build();
-            transaction.execute();
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Log.e(TAG, "Download edges fallito", e);
-        }
-
-        @Override
-        public void onTaskComplete() {
-            /* List<Edge> edges = EdgeRepository.findAll();
-            for (Edge edge : edges) {
-                Log.i(TAG, edge.toString());
-            } */
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
-
-    private class MinimumPathListener implements TaskListener<Algorithm.SearchResult> {
-
-        @Override
-        public void onTaskSuccess(Algorithm.SearchResult searchResult) {
-            Log.i(TAG, searchResult.toString());
-            List<List<Node>> optimalPaths = searchResult.getOptimalPaths();
-            List<Node> bestPath = optimalPaths.get(0);
-
-            holder.mapView.setPath(bestPath);
+            holder.mapView.setPiantine(piantine);
+            Log.i(TAG, "Percorso minimo!");
+            MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
+            holder.mapView.setMultiFloorPath(multiFloorSolution);
+            holder.pathsFabButton.show();
         }
 
         @Override
@@ -426,7 +283,6 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskComplete() {
-
         }
 
         @Override
@@ -436,12 +292,46 @@ public class HomeFragment extends BaseFragment {
     }
 
     /**
+     * Listener per gestire la selezione di un percorso diverso
+     */
+    private class PathButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            ArrayList<String> options = new ArrayList<>(solutionPaths.size());
+            for (int i = 0; i < solutionPaths.size(); i++) {
+                options.add(getString(R.string.label_select_path, i+1));
+            }
+
+            new MaterialDialog.Builder(getContext())
+                    .title(getContext().getString(R.string.select_path))
+                    .items(options)
+                    .itemsCallbackSingleChoice(indexOfPathSelected, new MaterialDialog.ListCallbackSingleChoice() {
+                        @Override
+                        public boolean onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                            indexOfPathSelected = which;
+                            selectedSolution = new Path(solutionPaths.get(indexOfPathSelected));
+                            MultiFloorPath multiFloorPath = solutionPaths.get(which).toMultiFloorPath();
+                            holder.mapView.setMultiFloorPath(multiFloorPath);
+                            return true;
+                        }
+                    })
+                    .widgetColorRes(R.color.regularBlue)
+                    .positiveText(R.string.action_confirm)
+                    .positiveColorRes(R.color.darkBlue)
+                    .negativeText(R.string.action_back)
+                    .negativeColorRes(R.color.black)
+                    .show();
+        }
+    }
+
+    /**
      * Classe wrapper degli elementi della vista
      */
-    public static class ViewHolder {
+    public class ViewHolder extends BaseFragment.ViewHolder {
         public final Toolbar toolbar;
         public final TextView toolbarTitle;
         public final FloatingActionButton startFabButton;
+        public final FloatingActionButton pathsFabButton;
         public final View revealView;
         public final View revealBackgroundView;
         public final View destinationView;
@@ -452,15 +342,16 @@ public class HomeFragment extends BaseFragment {
         public final TextView destinationViewPlaceholder;
         public final ImageView destinationViewIcon;
         public final TextView originViewPlaceholder;
-        public final PinView mapView;
+        public final MapView mapView;
 
         public ViewHolder(View view) {
             toolbar = (Toolbar) view.findViewById(R.id.navigation_toolbar);
             toolbarTitle = (TextView) view.findViewById(R.id.navigation_toolbar_textview_title);
             startFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_start);
+            pathsFabButton = (FloatingActionButton) view.findViewById(R.id.navigation_fab_paths);
             revealView = view.findViewById(R.id.reveal_view);
             revealBackgroundView = view.findViewById(R.id.reveal_background_view);
-            mapView = (PinView) view.findViewById(R.id.navigation_map_image);
+            mapView = find(view, R.id.navigation_map);
 
             destinationView = view.findViewById(R.id.navigation_input_destination);
             destinationViewText = (TextView) destinationView.findViewById(R.id.text);
@@ -470,6 +361,108 @@ public class HomeFragment extends BaseFragment {
             originViewText = (TextView) originView.findViewById(R.id.text);
             originViewPlaceholder = (TextView) originView.findViewById(R.id.placeholder);
             originViewIcon = (ImageView) originView.findViewById(R.id.icon);
+        }
+
+        /**
+         * Setup dell'interfaccia
+         */
+        private void setupUI() {
+            originViewPlaceholder.setText(R.string.navigation_starting_from);
+            originViewIcon.setImageResource(R.drawable.ic_my_location);
+            destinationViewPlaceholder.setText(R.string.navigation_going_to);
+            destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
+
+            originText = origin == null ?
+                    getString(R.string.navigation_select_origin) :
+                    origin.getName();
+            destinationText = destination == null ?
+                    getString(R.string.navigation_select_destination) :
+                    destination.getName();
+
+            originViewText.setText(originText);
+            destinationViewText.setText(destinationText);
+
+            // Setup listeners
+            originView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    openSelectionFragment(v);
+                }
+            });
+
+            startFabButton.setOnClickListener(new NavigationButtonListener());
+
+            if (solutionPaths == null) {
+                pathsFabButton.hide();
+            }
+
+            pathsFabButton.setOnClickListener(new PathButtonListener());
+
+            if (emergency) {
+                revealView.setBackgroundColor(color(R.color.regularRed));
+                revealBackgroundView.setBackgroundColor(color(R.color.regularRed));
+                startFabButton.setBackgroundTintList(ColorStateList.valueOf(color(R.color.regularRed)));
+                toolbarTitle.setText(R.string.action_emergency);
+                destinationViewText.setText(R.string.description_destination_emergency);
+                destinationView.setClickable(false);
+
+            } else {
+                destinationView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openSelectionFragment(v);
+                    }
+                });
+                destinationView.setClickable(true);
+            }
+
+            if (origin != null) {
+                if (destination != null) {
+                    MinimumPathTask minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
+                    minimumPathTask.execute(origin, destination);
+                } else {
+                    holder.mapView.setOrigin(origin);
+                    holder.mapView.changeFloor(origin.getFloor());
+                }
+            }
+        }
+
+        /**
+         * Update view for normal/emergency state
+         */
+        public void toggleEmergency() {
+            int red = R.color.regularRed;
+            int blue = R.color.regularBlue;
+            destination = null;
+            ColorStateList toRed = getResources().getColorStateList(red),
+                    toBlue = getResources().getColorStateList(blue);
+            FabAnimation fabAnimation = new FabAnimation();
+            ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
+                    holder.revealBackgroundView,
+                    holder.toolbar);
+
+            if (!emergency) {
+                toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
+                fabAnimation.animateFab(holder.startFabButton, toRed);
+                holder.toolbarTitle.setText(R.string.action_emergency);
+                holder.destinationViewText.setText(R.string.description_destination_emergency);
+                holder.destinationView.setClickable(false);
+                emergency = true;
+            } else {
+                toolbarAnimation.animateAppAndStatusBar(color(red), color(blue));
+                fabAnimation.animateFab(holder.startFabButton, toBlue);
+                holder.toolbarTitle.setText(R.string.title_activity_navigation);
+                holder.destinationViewText.setText(R.string.navigation_select_destination);
+                holder.destinationView.setClickable(true);
+
+                holder.destinationView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openSelectionFragment(v);
+                    }
+                });
+                emergency = false;
+            }
         }
     }
 }
