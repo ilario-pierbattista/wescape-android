@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/navigation_search_field"
-              android:orientation="horizontal"
+<LinearLayout android:id="@+id/navigation_search_field"
+              xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="@dimen/selection_list_cell_height"
               android:baselineAligned="false"
               android:gravity="center_vertical"
-              android:minHeight="?android:attr/listPreferredItemHeight">
+              android:minHeight="?android:attr/listPreferredItemHeight"
+              android:orientation="horizontal">
 
     <FrameLayout
         android:layout_width="60dp"
@@ -23,24 +23,17 @@
 
     </FrameLayout>
 
-    <LinearLayout
-        android:layout_width="0dp"
+
+    <android.support.design.widget.TextInputEditText
+        android:id="@+id/search_text"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/search_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:cursorVisible="true"
-            android:textCursorDrawable="@null"
-            android:inputType="text"
-            android:hint="@string/search_hint"
-            android:background="@android:color/transparent"/>
-
-    </LinearLayout>
+        android:background="@android:color/transparent"
+        android:cursorVisible="true"
+        android:hint="@string/search_hint"
+        android:inputType="text"
+        android:textColor="@color/black"
+        android:textCursorDrawable="@null"/>
 
 
 </LinearLayout>

@@ -32,7 +32,9 @@ import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskList
 import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
+import com.dii.ids.application.main.navigation.tasks.NearestExitTask;
 import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
+import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
@@ -59,7 +61,6 @@ public class HomeFragment extends BaseFragment {
     private HashMap<String, Bitmap> piantine;
     private int indexOfPathSelected;
     private boolean emergency = false;
-
 
     public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
@@ -119,7 +120,6 @@ public class HomeFragment extends BaseFragment {
         return view;
     }
 
-
     /**
      * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
      */
@@ -165,12 +165,15 @@ public class HomeFragment extends BaseFragment {
                 return true;
             case R.id.action_emergency:
                 holder.toggleEmergency();
+                // TODO:gestire emergenza
+                if (origin != null) {
+                    NearestExitTask nearestExitTask = new NearestExitTask(getContext(), new NearestExitListener());
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
@@ -213,7 +216,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskError(Exception e) {
             Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                    Toast.LENGTH_LONG).show();
+                           Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -240,15 +243,15 @@ public class HomeFragment extends BaseFragment {
             if (origin == null || destination == null) {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 }
             } else {
                 if (origin.getId() == destination.getId()) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                            Toast.LENGTH_SHORT).show();
+                                   Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -299,7 +302,7 @@ public class HomeFragment extends BaseFragment {
         public void onClick(View v) {
             ArrayList<String> options = new ArrayList<>(solutionPaths.size());
             for (int i = 0; i < solutionPaths.size(); i++) {
-                options.add(getString(R.string.label_select_path, i+1));
+                options.add(getString(R.string.label_select_path, i + 1));
             }
 
             new MaterialDialog.Builder(getContext())
@@ -321,6 +324,27 @@ public class HomeFragment extends BaseFragment {
                     .negativeText(R.string.action_back)
                     .negativeColorRes(R.color.black)
                     .show();
+        }
+    }
+
+    private class NearestExitListener implements TaskListener<Checkpoint> {
+
+        @Override
+        public void onTaskSuccess(Checkpoint node) {
+
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+
+        }
+
+        @Override
+        public void onTaskComplete() {
+        }
+
+        @Override
+        public void onTaskCancelled() {
         }
     }
 
@@ -438,8 +462,8 @@ public class HomeFragment extends BaseFragment {
                     toBlue = getResources().getColorStateList(blue);
             FabAnimation fabAnimation = new FabAnimation();
             ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                    holder.revealBackgroundView,
-                    holder.toolbar);
+                                                                     holder.revealBackgroundView,
+                                                                     holder.toolbar);
 
             if (!emergency) {
                 toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));

@@ -111,7 +111,8 @@ public class SelectionFragment extends BaseFragment {
         holder.nodeListView.setAdapter(nodeAdapter);
         holder.nodeListView.setTextFilterEnabled(true);
         holder.nodeListView.setOnItemClickListener(new NodeListListener());
-        changeSearchFieldHintBehaviour();
+        // TODO: disattivando il metodo si apre la tastiera
+        //changeSearchFieldHintBehaviour();
 
         return view;
     }
