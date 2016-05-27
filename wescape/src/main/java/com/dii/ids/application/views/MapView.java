@@ -14,9 +14,13 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.utils.units.Tuple;
+import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
+import com.dii.ids.application.views.exceptions.OriginNotSettedException;
+import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 public class MapView extends LinearLayout {
@@ -25,7 +29,7 @@ public class MapView extends LinearLayout {
     private String currentFloor;
     private Node origin, destination;
     private HashMap<String, Bitmap> piantine;
-    private HashMap<String, Path> multiFloorPath;
+    private HashMap<String, Path> route;
     private Path orderedSolution;
     private int currentNode;
 
@@ -55,12 +59,100 @@ public class MapView extends LinearLayout {
         init();
     }
 
-    public MapView setOrigin(Node origin) {
+    /**
+     * Disegna l'origine
+     *
+     * @param origin Nodo di origine
+     * @return
+     *
+     * @throws PiantineNotSettedException
+     */
+    public MapView setOrigin(Node origin) throws PiantineNotSettedException {
+        MapPin pin = null;
+        this.origin = origin;
+        try {
+            holder.pinView.setImage(piantine.get(origin.getFloor()));
+            drawPins();
+        } catch (NullPointerException e) {
+            throw new PiantineNotSettedException();
+        }
+        return this;
+    }
+
+    /**
+     * Disegna la destinazione
+     *
+     * @param destination Nodo destinazione
+     * @return
+     *
+     * @throws PiantineNotSettedException
+     */
+    public MapView setDestination(Node destination) throws PiantineNotSettedException {
+        MapPin pin = null;
+        this.destination = destination;
+        try {
+            holder.pinView.setImage(piantine.get(destination.getFloor()));
+            drawPins();
+        } catch (NullPointerException e) {
+            throw new PiantineNotSettedException();
+        }
+        return this;
+    }
+
+    public MapView drawRoute(MultiFloorPath route)
+            throws
+            PiantineNotSettedException,
+            OriginNotSettedException,
+            DestinationNotSettedException {
+        this.route = route;
+        this.origin = (Node) route.getOrigin();
+        this.destination = (Node) route.getDestination();
+
+        if (origin == null) {
+            throw new OriginNotSettedException();
+        }
+        if (destination == null) {
+            throw new DestinationNotSettedException();
+        }
+
+        try {
+            currentFloor = origin.getFloor();
+            holder.pinView.setImage(piantine.get(currentFloor));
+            holder.pinView.setPath(this.route.get(currentFloor));
+            drawPins();
+        } catch (NullPointerException e) {
+            throw new PiantineNotSettedException();
+        }
+        return this;
+    }
+
+    private void drawPins() {
+        ArrayList<MapPin> pins = new ArrayList<>();
+
+        if (destination != null) {
+            currentFloor = origin.getFloor();
+            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
+        }
+        // Se l'origine è impostata, ha priorità sulla destinazione e ne sovrascrive il piano corrente
+        if (origin != null) {
+            if(! currentFloor.equals(origin.getFloor())) {
+                pins = new ArrayList<>();
+                currentFloor = origin.getFloor();
+            }
+            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
+        }
+
+        holder.pinView.setMultiplePins(pins);
+    }
+
+    @Deprecated
+    public MapView setOriginDummy(Node origin) {
         this.origin = origin;
         return this;
     }
 
-    public MapView setDestination(Node destination) {
+    @Deprecated
+    public MapView setDestinationDummy(Node destination) {
         this.destination = destination;
         return this;
     }
@@ -70,10 +162,12 @@ public class MapView extends LinearLayout {
         return this;
     }
 
+    @Deprecated
     public MapView changeFloor(int floor) {
         return changeFloor(Integer.toString(floor));
     }
 
+    @Deprecated
     public MapView changeFloor(String floor) {
         for (String key : holder.floorButtons.keySet()) {
             Button button = holder.floorButtons.get(key);
@@ -102,8 +196,8 @@ public class MapView extends LinearLayout {
             pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
         }
         holder.pinView.setMultiplePins(pins);
-        if (multiFloorPath != null) {
-            holder.pinView.setPath(multiFloorPath.get(floor));
+        if (route != null) {
+            holder.pinView.setPath(route.get(floor));
         }
 
         return this;
@@ -114,6 +208,7 @@ public class MapView extends LinearLayout {
      *
      * @return Tupla con l'indice del nodo successivo e successivo ancora
      */
+    @Deprecated
     public Tuple<Integer, Integer> nextStep() {
         int nextNode;
         if (currentNode < orderedSolution.size() - 1) {
@@ -147,6 +242,7 @@ public class MapView extends LinearLayout {
      *
      * @return Tupla con l'indice del nodo precednete e precedente ancora
      */
+    @Deprecated
     public Tuple<Integer, Integer> prevStep() {
         if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
             currentNode--;
@@ -160,12 +256,13 @@ public class MapView extends LinearLayout {
     /**
      * Imposta i path divisi per piano
      *
-     * @param multiFloorPath Hashmap di percorsi. La chiave è il nome del piano, il valore è una
-     *                       lista di nodi connessi che costituiscono il percorso
+     * @param route Hashmap di percorsi. La chiave è il nome del piano, il valore è una lista di nodi connessi che
+     *              costituiscono il percorso
      * @return Istanza corrente di MapView
      */
-    public MapView setMultiFloorPath(MultiFloorPath multiFloorPath) {
-        this.multiFloorPath = multiFloorPath;
+    @Deprecated
+    public MapView setRoute(MultiFloorPath route) {
+        this.route = route;
         currentFloor = origin.getFloor();
         Log.i(TAG, "Piano corrente " + currentFloor);
         Bitmap mapImage = piantine.get(currentFloor);
@@ -173,7 +270,7 @@ public class MapView extends LinearLayout {
 
         setupFloorButtonListener();
         drawOnMap(currentFloor);
-        orderedSolution = multiFloorPath.toPath();
+        orderedSolution = route.toPath();
         return this;
     }
 
@@ -182,7 +279,7 @@ public class MapView extends LinearLayout {
      */
     private void setupFloorButtonListener() {
         holder.floorButtonContainer.setVisibility(View.VISIBLE);
-        Set<String> pianiNellaSoluzione = multiFloorPath.keySet();
+        Set<String> pianiNellaSoluzione = route.keySet();
 
         holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
         for (String key : holder.floorButtons.keySet()) {
@@ -199,7 +296,7 @@ public class MapView extends LinearLayout {
         boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
 
         for (String floor : pianiNellaSoluzione) {
-            solutionPerFloor = multiFloorPath.get(floor);
+            solutionPerFloor = route.get(floor);
 
             onePointSolution = solutionPerFloor.size() == 1;
             multiplePointSolution = solutionPerFloor.size() > 1;
@@ -287,7 +384,7 @@ public class MapView extends LinearLayout {
                     holder.pinView.resetPins();
                 }
 
-                holder.pinView.setPath(multiFloorPath.get(floor));
+                holder.pinView.setPath(route.get(floor));
             }
         }
     }

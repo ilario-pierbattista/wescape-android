@@ -84,11 +84,11 @@ public class HomeFragment extends BaseFragment {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
                     Log.i(TAG, node.toString());
-                    holder.mapView.setOrigin(origin);
+                    holder.mapView.setOriginDummy(origin);
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
-                    holder.mapView.setDestination(destination);
+                    holder.mapView.setDestinationDummy(destination);
                     break;
             }
         } catch (NullPointerException ee) {
@@ -271,8 +271,8 @@ public class HomeFragment extends BaseFragment {
             solutionPaths = searchResult;
             selectedSolution = new Path(solutionPaths.get(0));
 
-            holder.mapView.setOrigin(origin);
-            holder.mapView.setDestination(destination);
+            holder.mapView.setOriginDummy(origin);
+            holder.mapView.setDestinationDummy(destination);
 
             for (String floor : piantine.keySet()) {
                 Log.i(TAG, floor + " " + piantine.get(floor).toString());
@@ -280,7 +280,7 @@ public class HomeFragment extends BaseFragment {
             holder.mapView.setPiantine(piantine);
             Log.i(TAG, "Percorso minimo!");
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
-            holder.mapView.setMultiFloorPath(multiFloorSolution);
+            holder.mapView.setRoute(multiFloorSolution);
             holder.pathsFabButton.show();
         }
 
@@ -319,7 +319,7 @@ public class HomeFragment extends BaseFragment {
                             indexOfPathSelected = which;
                             selectedSolution = new Path(solutionPaths.get(indexOfPathSelected));
                             MultiFloorPath multiFloorPath = solutionPaths.get(which).toMultiFloorPath();
-                            holder.mapView.setMultiFloorPath(multiFloorPath);
+                            holder.mapView.setRoute(multiFloorPath);
                             return true;
                         }
                     })
@@ -341,13 +341,13 @@ public class HomeFragment extends BaseFragment {
             selectedSolution = new Path(solutionPaths.get(0));
             emergencyDestination = (Node) selectedSolution.get(selectedSolution.size() - 1);
 
-            holder.mapView.setOrigin(origin);
+            holder.mapView.setOriginDummy(origin);
 
-            holder.mapView.setDestination(emergencyDestination);
+            holder.mapView.setDestinationDummy(emergencyDestination);
 
             holder.mapView.setPiantine(piantine);
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
-            holder.mapView.setMultiFloorPath(multiFloorSolution);
+            holder.mapView.setRoute(multiFloorSolution);
             holder.pathsFabButton.show();
         }
 
@@ -463,10 +463,10 @@ public class HomeFragment extends BaseFragment {
         public void setupMapView() {
             if (!emergency) {
                 if(destination != null && origin == null) {
-                    holder.mapView.setDestination(destination)
+                    holder.mapView.setDestinationDummy(destination)
                             .changeFloor(destination.getFloor());
                 } else if(origin != null && destination == null) {
-                    holder.mapView.setOrigin(origin)
+                    holder.mapView.setOriginDummy(origin)
                             .changeFloor(origin.getFloor());
                 } else if(origin != null && destination != null) {
                     MinimumPathTask minimumPathTask = new MinimumPathTask(

@@ -94,10 +94,10 @@ public class NavigatorFragment extends BaseFragment {
         holder = new ViewHolder(view);
         holder.setupUI();
 
-        holder.mapView.setOrigin(origin);
-        holder.mapView.setDestination(destination);
+        holder.mapView.setOriginDummy(origin);
+        holder.mapView.setDestinationDummy(destination);
         holder.mapView.setPiantine(piantine);
-        holder.mapView.setMultiFloorPath(multiFloorSolution);
+        holder.mapView.setRoute(multiFloorSolution);
 
         updateDirectionDisplay(new Tuple<>(0, 1));
 
