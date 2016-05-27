@@ -273,7 +273,7 @@ public class MapView extends LinearLayout {
         currentFloor = origin.getFloor();
         Log.i(TAG, "Piano corrente " + currentFloor);
         Bitmap mapImage = piantine.get(currentFloor);
-        holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
+        holder.pinView.setImage(Bitmap.createBitmap(mapImage));
 
         setupFloorButtonListener();
         drawOnMap(currentFloor);
@@ -375,8 +375,8 @@ public class MapView extends LinearLayout {
                 setFloorButtonState();
 
                 Bitmap map = piantine.get(floor);
-                Bitmap mapCopy = map.copy(map.getConfig(), true);
-                holder.pinView.setImage(mapCopy);
+                //Bitmap mapCopy = map.copy(map.getConfig(), true);
+                holder.pinView.setImage(Bitmap.createBitmap(map));
 
                 MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
                 MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
