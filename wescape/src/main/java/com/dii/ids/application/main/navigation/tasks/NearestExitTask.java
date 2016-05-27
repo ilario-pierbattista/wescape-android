@@ -25,7 +25,13 @@ public class NearestExitTask extends AsyncTask<Node, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(Node... params) {
-        return null;
+        try {
+
+            return (searchResult != null);
+        } catch (Exception e) {
+            thrownException = e;
+            return false;
+        }
     }
 
     @Override
