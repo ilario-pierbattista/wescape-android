@@ -66,6 +66,7 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
                 InputStream inputStream = response.body().byteStream();
                 image = BitmapFactory.decodeStream(inputStream);
                 addBitmapToMemoryCache(call.request().url().toString(), image);
+                map = new Map(String.valueOf(floor), image);
             }
         } catch (IOException e) {
             thrownException = e;

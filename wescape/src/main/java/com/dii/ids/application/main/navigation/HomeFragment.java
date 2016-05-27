@@ -37,6 +37,9 @@ import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
+import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
+import com.dii.ids.application.views.exceptions.OriginNotSettedException;
+import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -203,9 +206,7 @@ public class HomeFragment extends BaseFragment {
     private class MapListener implements TaskListener<Map> {
         @Override
         public void onTaskSuccess(Map map) {
-            Log.i("Piantina", map.getImage().toString());
             piantine.put(map.getFloor(), map.getImage());
-            Log.i("Piantina", String.valueOf(piantine.size()));
             downloadMapsTasks.remove(map.getFloorInt());
         }
 
@@ -220,6 +221,7 @@ public class HomeFragment extends BaseFragment {
             if (downloadMapsTasks.isEmpty()) {
                 Log.i(TAG, "Imposto piantine");
                 holder.mapView.setPiantine(piantine);
+                holder.setupMapView();
             }
         }
 
@@ -270,17 +272,18 @@ public class HomeFragment extends BaseFragment {
         public void onTaskSuccess(List<Path> searchResult) {
             solutionPaths = searchResult;
             selectedSolution = new Path(solutionPaths.get(0));
-
-            holder.mapView.setOriginDummy(origin);
-            holder.mapView.setDestinationDummy(destination);
-
-            for (String floor : piantine.keySet()) {
-                Log.i(TAG, floor + " " + piantine.get(floor).toString());
-            }
-            holder.mapView.setPiantine(piantine);
-            Log.i(TAG, "Percorso minimo!");
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
-            holder.mapView.setRoute(multiFloorSolution);
+
+            try {
+                Log.i("PIANTINE", piantine.toString());
+                holder.mapView.setPiantine(piantine)
+                        .setOrigin(origin)
+                        .setDestination(destination)
+                        .drawRoute(multiFloorSolution);
+            } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+                e.printStackTrace();
+            }
+
             holder.pathsFabButton.show();
         }
 
@@ -457,17 +460,23 @@ public class HomeFragment extends BaseFragment {
                 destinationView.setClickable(true);
             }
 
-            setupMapView();
+            //setupMapView();
         }
 
         public void setupMapView() {
             if (!emergency) {
                 if(destination != null && origin == null) {
-                    holder.mapView.setDestinationDummy(destination)
-                            .changeFloor(destination.getFloor());
+                    try {
+                        holder.mapView.setDestination(destination);
+                    } catch (PiantineNotSettedException e) {
+                        e.printStackTrace();
+                    }
                 } else if(origin != null && destination == null) {
-                    holder.mapView.setOriginDummy(origin)
-                            .changeFloor(origin.getFloor());
+                    try {
+                        holder.mapView.setOrigin(origin);
+                    } catch (PiantineNotSettedException e) {
+                        e.printStackTrace();
+                    }
                 } else if(origin != null && destination != null) {
                     MinimumPathTask minimumPathTask = new MinimumPathTask(
                             getContext(), new MinimumPathListener());

@@ -68,12 +68,15 @@ public class MapView extends LinearLayout {
      * @throws PiantineNotSettedException
      */
     public MapView setOrigin(Node origin) throws PiantineNotSettedException {
-        MapPin pin = null;
         this.origin = origin;
+        this.currentFloor = origin.getFloor();
         try {
-            holder.pinView.setImage(piantine.get(origin.getFloor()));
+            Log.i(TAG, piantine.toString());
+            Bitmap mapImage = piantine.get(origin.getFloor());
+            holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
             drawPins();
         } catch (NullPointerException e) {
+            Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
         }
         return this;
@@ -88,12 +91,13 @@ public class MapView extends LinearLayout {
      * @throws PiantineNotSettedException
      */
     public MapView setDestination(Node destination) throws PiantineNotSettedException {
-        MapPin pin = null;
         this.destination = destination;
+        this.currentFloor = destination.getFloor();
         try {
             holder.pinView.setImage(piantine.get(destination.getFloor()));
             drawPins();
         } catch (NullPointerException e) {
+            Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
         }
         return this;
@@ -117,10 +121,13 @@ public class MapView extends LinearLayout {
 
         try {
             currentFloor = origin.getFloor();
-            holder.pinView.setImage(piantine.get(currentFloor));
+            Bitmap mapImage = piantine.get(currentFloor);
+            holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
             holder.pinView.setPath(this.route.get(currentFloor));
             drawPins();
+            setupFloorButtonListener();
         } catch (NullPointerException e) {
+            Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
         }
         return this;
@@ -130,12 +137,12 @@ public class MapView extends LinearLayout {
         ArrayList<MapPin> pins = new ArrayList<>();
 
         if (destination != null) {
-            currentFloor = origin.getFloor();
+            currentFloor = destination.getFloor();
             pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
         }
         // Se l'origine è impostata, ha priorità sulla destinazione e ne sovrascrive il piano corrente
         if (origin != null) {
-            if(! currentFloor.equals(origin.getFloor())) {
+            if(!currentFloor.equals(origin.getFloor())) {
                 pins = new ArrayList<>();
                 currentFloor = origin.getFloor();
             }
