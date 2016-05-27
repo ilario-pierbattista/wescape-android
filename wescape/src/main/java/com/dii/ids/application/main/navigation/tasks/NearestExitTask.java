@@ -51,6 +51,7 @@ public class NearestExitTask extends AsyncTask<Node, Void, Boolean> {
 
             searchResult = solver.searchNearestExits(exits);
 
+            Thread.sleep(1000);
             return (searchResult != null);
         } catch (Exception e) {
             thrownException = e;
@@ -61,7 +62,7 @@ public class NearestExitTask extends AsyncTask<Node, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         dialog = new MaterialDialog.Builder(context)
-                .title("Trovo l'uscita più vicina")
+                .title(context.getString(R.string.find_nearest_exit))
                 .content(context.getString(R.string.please_wait))
                 .progress(true, 0)
                 .widgetColorRes(R.color.regularBlue)

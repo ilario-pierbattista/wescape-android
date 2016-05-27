@@ -65,4 +65,5 @@
     <string name="toward_node">verso il punto %1$s</string>
     <string name="next_node">Poi</string>
     <string name="label_select_path">Percorso %d</string>
+    <string name="find_nearest_exit">Cerco l\'uscita più vicina</string>
 </resources>

@@ -52,7 +52,7 @@ public class HomeFragment extends BaseFragment {
     public static final String INTENT_KEY_POSITION = "position";
     private static String originText;
     private static String destinationText;
-    private static Node origin = null, destination = null;
+    private static Node origin = null, destination = null, emergencyDestination = null;
     private ViewHolder holder;
     private List<Path> solutionPaths = null;
     private Path selectedSolution;
@@ -164,12 +164,7 @@ public class HomeFragment extends BaseFragment {
                 return true;
             case R.id.action_emergency:
                 holder.toggleEmergency();
-                // TODO:gestire emergenza
-                Log.i(TAG, "EMERGENZA");
-                if (origin != null) {
-                    NearestExitTask nearestExitTask = new NearestExitTask(getContext(), new NearestExitListener());
-                    nearestExitTask.execute(origin);
-                }
+                holder.setupMapView();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -217,7 +212,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskError(Exception e) {
             Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                    Toast.LENGTH_LONG).show();
+                           Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -241,18 +236,27 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onClick(View v) {
-            if (origin == null || destination == null) {
-                if (origin == null) {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                            Toast.LENGTH_SHORT).show();
+            if (!emergency) {
+                if (origin == null || destination == null) {
+                    if (origin == null) {
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
+                                       Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
+                                       Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                            Toast.LENGTH_SHORT).show();
+                    if (origin.getId() == destination.getId()) {
+                        Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
+                                       Toast.LENGTH_SHORT).show();
+                    } else {
+                        openNavigatorFragment();
+                    }
                 }
             } else {
-                if (origin.getId() == destination.getId()) {
-                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                            Toast.LENGTH_SHORT).show();
+                if (origin == null) {
+                    Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
+                                   Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -333,6 +337,18 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskSuccess(List<Path> exitPaths) {
             Log.i(TAG, exitPaths.toString());
+            solutionPaths = exitPaths;
+            selectedSolution = new Path(solutionPaths.get(0));
+            emergencyDestination = (Node) selectedSolution.get(selectedSolution.size() - 1);
+
+            holder.mapView.setOrigin(origin);
+
+            holder.mapView.setDestination(emergencyDestination);
+
+            holder.mapView.setPiantine(piantine);
+            MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
+            holder.mapView.setMultiFloorPath(multiFloorSolution);
+            holder.pathsFabButton.show();
         }
 
         @Override
@@ -441,13 +457,27 @@ public class HomeFragment extends BaseFragment {
                 destinationView.setClickable(true);
             }
 
-            if (origin != null) {
-                if (destination != null) {
-                    MinimumPathTask minimumPathTask = new MinimumPathTask(getContext(), new MinimumPathListener());
+            setupMapView();
+        }
+
+        public void setupMapView() {
+            if (!emergency) {
+                if(destination != null && origin == null) {
+                    holder.mapView.setDestination(destination)
+                            .changeFloor(destination.getFloor());
+                } else if(origin != null && destination == null) {
+                    holder.mapView.setOrigin(origin)
+                            .changeFloor(origin.getFloor());
+                } else if(origin != null && destination != null) {
+                    MinimumPathTask minimumPathTask = new MinimumPathTask(
+                            getContext(), new MinimumPathListener());
                     minimumPathTask.execute(origin, destination);
-                } else {
-                    holder.mapView.setOrigin(origin);
-                    holder.mapView.changeFloor(origin.getFloor());
+                }
+            } else {
+                if(origin != null) {
+                    NearestExitTask nearestExitTask = new NearestExitTask(
+                            getContext(), new NearestExitListener());
+                    nearestExitTask.execute(origin);
                 }
             }
         }
@@ -463,8 +493,8 @@ public class HomeFragment extends BaseFragment {
                     toBlue = getResources().getColorStateList(blue);
             FabAnimation fabAnimation = new FabAnimation();
             ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                    holder.revealBackgroundView,
-                    holder.toolbar);
+                                                                     holder.revealBackgroundView,
+                                                                     holder.toolbar);
 
             if (!emergency) {
                 toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));
