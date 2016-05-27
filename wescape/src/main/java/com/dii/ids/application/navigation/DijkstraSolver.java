@@ -4,6 +4,8 @@ package com.dii.ids.application.navigation;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import es.usc.citius.hipster.algorithm.Algorithm;
@@ -11,6 +13,7 @@ import es.usc.citius.hipster.algorithm.Hipster;
 import es.usc.citius.hipster.graph.GraphBuilder;
 import es.usc.citius.hipster.graph.GraphSearchProblem;
 import es.usc.citius.hipster.graph.HipsterGraph;
+import es.usc.citius.hipster.model.impl.WeightedNode;
 import es.usc.citius.hipster.model.problem.SearchProblem;
 import es.usc.citius.hipster.util.Function;
 
@@ -67,10 +70,34 @@ public class DijkstraSolver {
         return solutions;
     }
 
+    public List<Path> searchNearestExits(List<Checkpoint> exits) {
+        List<Path> solutions = new ArrayList<>();
+        Algorithm.SearchResult result;
+
+        buildProblemWithGraph(graph);
+        for (Checkpoint exit : exits) {
+            result = Hipster.createDijkstra(problem).search(exit);
+            Path path = getFirstPath(result);
+            path.setGoalState((WeightedNode) result.getGoalNode());
+            solutions.add(path);
+        }
+
+        // @TODO remove
+        Log.i(TAG, solutions.toString());
+        Collections.sort(solutions, new PathComparator());
+        Log.i(TAG, solutions.toString());
+
+        return new ArrayList<>(solutions.subList(0, 2));
+    }
+
     private Path getPathToReachDestination(Checkpoint destination) {
         Algorithm.SearchResult result =
                 Hipster.createDijkstra(problem).search(destination);
-        return new Path((List<Checkpoint>) result.getOptimalPaths().get(0));
+
+        WeightedNode goalState = (WeightedNode) result.getGoalNode();
+        Log.i(TAG, goalState.getScore().toString());
+
+        return getFirstPath(result);
     }
 
     private DijkstraSolver buildProblemWithGraph(Graph graphProblem) {
@@ -97,6 +124,10 @@ public class DijkstraSolver {
                 .build();
 
         return this;
+    }
+
+    private Path getFirstPath(Algorithm.SearchResult result) {
+        return new Path((List<Checkpoint>) result.getOptimalPaths().get(0));
     }
 
     public DijkstraSolver setNormalizationBasis(double normalizationBasis) {

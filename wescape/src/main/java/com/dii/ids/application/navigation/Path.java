@@ -3,7 +3,11 @@ package com.dii.ids.application.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.usc.citius.hipster.model.impl.WeightedNode;
+
 public class Path extends ArrayList<Checkpoint> {
+    private WeightedNode goalState;
+
     public Path() {
     }
 
@@ -32,5 +36,14 @@ public class Path extends ArrayList<Checkpoint> {
         }
 
         return multiFloorPath;
+    }
+
+    public WeightedNode getGoalState() {
+        return goalState;
+    }
+
+    public Path setGoalState(WeightedNode goalState) {
+        this.goalState = goalState;
+        return this;
     }
 }
