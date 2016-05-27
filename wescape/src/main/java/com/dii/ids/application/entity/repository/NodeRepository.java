@@ -64,4 +64,18 @@ public class NodeRepository {
                 .and(Node_Table.y.lessThan(y0 + radius))
                 .queryList();
     }
+
+    /**
+     * Find all exits node
+     *
+     * @return List of node
+     */
+    public static List<Node> findAllExits() {
+        return SQLite
+                .select()
+                .from(Node.class)
+                .where(Node_Table.type.eq(Node.TYPE_EXIT))
+                .or(Node_Table.type.eq(Node.TYPE_EMERGENCY))
+                .queryList();
+    }
 }

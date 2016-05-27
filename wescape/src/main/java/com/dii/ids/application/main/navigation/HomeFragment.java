@@ -34,7 +34,6 @@ import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.tasks.NearestExitTask;
 import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
-import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
@@ -166,8 +165,10 @@ public class HomeFragment extends BaseFragment {
             case R.id.action_emergency:
                 holder.toggleEmergency();
                 // TODO:gestire emergenza
+                Log.i(TAG, "EMERGENZA");
                 if (origin != null) {
                     NearestExitTask nearestExitTask = new NearestExitTask(getContext(), new NearestExitListener());
+                    nearestExitTask.execute(origin);
                 }
                 return true;
             default:
@@ -216,7 +217,7 @@ public class HomeFragment extends BaseFragment {
         @Override
         public void onTaskError(Exception e) {
             Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                           Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -243,15 +244,15 @@ public class HomeFragment extends BaseFragment {
             if (origin == null || destination == null) {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 }
             } else {
                 if (origin.getId() == destination.getId()) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -327,16 +328,16 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    private class NearestExitListener implements TaskListener<Checkpoint> {
+    private class NearestExitListener implements TaskListener<List<Path>> {
 
         @Override
-        public void onTaskSuccess(Checkpoint node) {
-
+        public void onTaskSuccess(List<Path> exitPaths) {
+            Log.i(TAG, exitPaths.toString());
         }
 
         @Override
         public void onTaskError(Exception e) {
-
+            Log.e(TAG, "Error searching exit", e);
         }
 
         @Override
@@ -462,8 +463,8 @@ public class HomeFragment extends BaseFragment {
                     toBlue = getResources().getColorStateList(blue);
             FabAnimation fabAnimation = new FabAnimation();
             ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                                                                     holder.revealBackgroundView,
-                                                                     holder.toolbar);
+                    holder.revealBackgroundView,
+                    holder.toolbar);
 
             if (!emergency) {
                 toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));

@@ -70,7 +70,7 @@ public class DijkstraSolver {
         return solutions;
     }
 
-    public List<Path> searchNearestExits(List<Checkpoint> exits) {
+    public List<Path> searchNearestExits(List<? extends Checkpoint> exits) {
         List<Path> solutions = new ArrayList<>();
         Algorithm.SearchResult result;
 
@@ -82,10 +82,7 @@ public class DijkstraSolver {
             solutions.add(path);
         }
 
-        // @TODO remove
-        Log.i(TAG, solutions.toString());
         Collections.sort(solutions, new PathComparator());
-        Log.i(TAG, solutions.toString());
 
         return new ArrayList<>(solutions.subList(0, 2));
     }
