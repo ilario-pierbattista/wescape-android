@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
@@ -30,10 +31,10 @@ public class MapView extends LinearLayout {
     private ViewHolder holder;
     private String currentFloor;
     private Node origin, destination;
-    private HashMap<String, Bitmap> piantine;
     private HashMap<String, Path> route;
     private Path orderedSolution;
     private int currentNode;
+    private MaterialDialog dialog;
 
     public MapView(Context context) {
         super(context);
@@ -158,32 +159,15 @@ public class MapView extends LinearLayout {
     }
 
     /**
-     * Imposta le piantine
-     *
-     * @param piantine Piantine
-     * @return MapView
-     */
-    @Deprecated
-    public MapView setPiantine(HashMap<String, Bitmap> piantine) {
-        this.piantine = piantine;
-        return this;
-    }
-
-    /**
      * Update the PinView Map image based on the floor. Handles all recylcing bitmap problems
+     * N.B. Metodo fortemente scorretto: viene delegata alla vista un parte di logica. La view non dovrebbe neanche
+     * sapere cos'è un thread! Purtroppo al momento non si siamo riusciti a gestire diversamente
+     * il gargabe collector e le bitmap
      *
      * @param floor Floor
      */
     private void changeImage(String floor) {
-//        Bitmap mapImage = piantine.get(floor);
-//        if (mapImage.isRecycled()) {
-//            //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
-//            Log.i(TAG, "MapImage is recycled: task dispatched");
-//            MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
-//            mapsDownloaderTask.execute(Integer.valueOf(floor));
-//        } else {
-//            holder.pinView.setImage(mapImage);
-//        }
+        //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
         MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
         mapsDownloaderTask.execute(Integer.valueOf(floor));
     }
@@ -282,7 +266,6 @@ public class MapView extends LinearLayout {
 
         @Override
         public void onTaskComplete() {
-
         }
 
         @Override

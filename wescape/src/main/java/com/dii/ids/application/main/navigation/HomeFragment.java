@@ -60,7 +60,6 @@ public class HomeFragment extends BaseFragment {
     private List<Path> solutionPaths = null;
     private Path selectedSolution;
     private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
-    private HashMap<String, Bitmap> piantine;
     private int indexOfPathSelected;
     private boolean emergency = false;
 
@@ -111,7 +110,6 @@ public class HomeFragment extends BaseFragment {
         destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
 
         holder.setupUI();
-        downloadMaps();
 
         NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
                 getContext(), new NodesDownloaderTaskListener());
@@ -121,24 +119,6 @@ public class HomeFragment extends BaseFragment {
         task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
 
         return view;
-    }
-
-    /**
-     * Scarica tutte le mappe e le salva nell'HashMap dove la chiave è il piano
-     */
-    private void downloadMaps() {
-        if (piantine == null) {
-            piantine = new HashMap<>();
-        }
-
-        //TODO: rendere l'array di piani costanti globali
-        int[] piani = {145, 150, 155};
-
-        downloadMapsTasks = new HashMap<>();
-        for (int piano : piani) {
-            downloadMapsTasks.put(piano, new MapsDownloaderTask(getContext(), new MapListener()));
-            downloadMapsTasks.get(piano).executeOnExecutor(AsyncTask.SERIAL_EXECUTOR, piano);
-        }
     }
 
     @Override
@@ -197,42 +177,11 @@ public class HomeFragment extends BaseFragment {
         Node dest = emergency ? emergencyDestination : destination;
 
         NavigatorFragment navigatorFragment =
-                NavigatorFragment.newInstance(origin, dest, piantine, selectedSolution);
+                NavigatorFragment.newInstance(origin, dest, selectedSolution);
         ((NavigationActivity) getActivity())
                 .changeFragment(navigatorFragment);
     }
 
-    /**
-     * Listner che riempie la hasmap delle piantine
-     */
-    // @TODO Esternalizzare
-    private class MapListener implements TaskListener<Map> {
-        @Override
-        public void onTaskSuccess(Map map) {
-            piantine.put(map.getFloor(), map.getImage());
-            downloadMapsTasks.remove(map.getFloorInt());
-        }
-
-        @Override
-        public void onTaskError(Exception e) {
-            Toast.makeText(getContext(), getString(R.string.error_network_download_image),
-                           Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onTaskComplete() {
-            if (downloadMapsTasks.isEmpty()) {
-                Log.i(TAG, "Imposto piantine");
-                holder.mapView.setPiantine(piantine);
-                holder.setupMapView();
-            }
-        }
-
-        @Override
-        public void onTaskCancelled() {
-
-        }
-    }
 
     /**
      * Responsible for navigation start button
@@ -278,9 +227,7 @@ public class HomeFragment extends BaseFragment {
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
 
             try {
-                Log.i("PIANTINE", piantine.toString());
-                holder.mapView.setPiantine(piantine)
-                        .setOrigin(origin)
+                holder.mapView.setOrigin(origin)
                         .setDestination(destination)
                         .drawRoute(multiFloorSolution);
             } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
@@ -469,7 +416,7 @@ public class HomeFragment extends BaseFragment {
                 destinationView.setClickable(true);
             }
 
-            //setupMapView();
+          setupMapView();
         }
 
         public void setupMapView() {

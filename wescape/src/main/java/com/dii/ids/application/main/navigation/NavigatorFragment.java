@@ -35,7 +35,6 @@ public class NavigatorFragment extends BaseFragment {
     public static final String TAG = NavigatorFragment.class.getName();
     private static final String ORIGIN = "origine";
     private static final String DESTINATION = "destinazione";
-    private static final String PIANTINE = "piantine";
     private static final String SOLUTION = "solution";
     private ViewHolder holder;
     private Node origin;
@@ -52,19 +51,16 @@ public class NavigatorFragment extends BaseFragment {
      *
      * @param origin      Nodo di origine
      * @param destination Nodo di destinazione
-     * @param piantine    Bitmap delle piantine
      * @param solution    Lista di nodi che costiuiscono la soluzione
      * @return A new instance of fragment NavigatorFragment.
      */
     public static NavigatorFragment newInstance(Node origin,
                                                 Node destination,
-                                                HashMap<String, Bitmap> piantine,
                                                 Path solution) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
         args.putSerializable(ORIGIN, origin);
         args.putSerializable(DESTINATION, destination);
-        args.putSerializable(PIANTINE, piantine);
         args.putSerializable(SOLUTION, solution);
         fragment.setArguments(args);
         return fragment;
@@ -76,7 +72,6 @@ public class NavigatorFragment extends BaseFragment {
         if (getArguments() != null) {
             origin = (Node) getArguments().getSerializable(ORIGIN);
             destination = (Node) getArguments().getSerializable(DESTINATION);
-            piantine = (HashMap<String, Bitmap>) getArguments().getSerializable(PIANTINE);
             solution = (Path) getArguments().getSerializable(SOLUTION);
 
             if (solution != null) {
@@ -98,8 +93,7 @@ public class NavigatorFragment extends BaseFragment {
         holder.setupUI();
 
         try {
-            holder.mapView.setPiantine(piantine)
-                    .setOrigin(origin)
+            holder.mapView.setOrigin(origin)
                     .setDestination(destination)
                     .drawRoute(multiFloorSolution);
         } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
