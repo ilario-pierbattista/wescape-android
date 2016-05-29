@@ -81,7 +81,7 @@ public class MapView extends LinearLayout {
      * Disegna la destinazione
      *
      * @param destination Nodo destinazione
-     * @return
+     * @return MapView
      *
      * @throws PiantineNotSettedException
      */
@@ -98,7 +98,12 @@ public class MapView extends LinearLayout {
         return this;
     }
 
+    /**
+     * Disegna i pin
+     */
     private void drawPins() {
+        holder.pinView.resetPins();
+
         ArrayList<MapPin> pins = new ArrayList<>();
 
         if (destination != null) {
@@ -117,11 +122,16 @@ public class MapView extends LinearLayout {
         holder.pinView.setMultiplePins(pins);
     }
 
-    public MapView drawRoute(MultiFloorPath route)
-            throws
-            PiantineNotSettedException,
-            OriginNotSettedException,
-            DestinationNotSettedException {
+    /**
+     * Disegna il percorso sulla mappa
+     *
+     * @param route Soluzione
+     * @return MapView
+     * @throws PiantineNotSettedException
+     * @throws OriginNotSettedException
+     * @throws DestinationNotSettedException
+     */
+    public MapView drawRoute(MultiFloorPath route) throws PiantineNotSettedException, OriginNotSettedException, DestinationNotSettedException {
         this.route = route;
         this.origin = (Node) route.getOrigin();
         this.destination = (Node) route.getDestination();
@@ -138,7 +148,7 @@ public class MapView extends LinearLayout {
             changeImage(currentFloor);
             holder.pinView.setPath(this.route.get(currentFloor));
             drawPins();
-            setupFloorButtonListener();
+            setupFloorButtons();
             orderedSolution = route.toPath();
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
@@ -147,6 +157,12 @@ public class MapView extends LinearLayout {
         return this;
     }
 
+    /**
+     * Imposta le piantine
+     *
+     * @param piantine Piantine
+     * @return MapView
+     */
     public MapView setPiantine(HashMap<String, Bitmap> piantine) {
         this.piantine = piantine;
         return this;
@@ -172,11 +188,11 @@ public class MapView extends LinearLayout {
     /**
      * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
      */
-    private void setupFloorButtonListener() {
+    private void setupFloorButtons() {
         holder.floorButtonContainer.setVisibility(View.VISIBLE);
         Set<String> pianiNellaSoluzione = route.keySet();
 
-        holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
+        setupFloorButtonsUI();
         for (String key : holder.floorButtons.keySet()) {
             holder.floorButtons.get(key).setVisibility(View.GONE);
         }
@@ -186,7 +202,6 @@ public class MapView extends LinearLayout {
         //              -> destinazione => visualizzare il piano
         //              -> != destinazione => nascondere il piano
         // Soluzione per piano vuota -> nascondere il piano
-
         Path solutionPerFloor;
         boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
 
@@ -206,7 +221,7 @@ public class MapView extends LinearLayout {
     }
 
     /**
-     * Listener dei pulsanti corrispondenti ai piani
+     * Listener che gestisce il click sui bottoni dei piani
      */
     private class FloorButtonListener implements View.OnClickListener {
         @Override
@@ -214,36 +229,41 @@ public class MapView extends LinearLayout {
             Button button = (Button) v;
             String floor = button.getText().toString();
 
-            // Setup button UI state
-            for (String key : holder.floorButtons.keySet()) {
-                holder.floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
+            currentFloor = floor;
+            setupFloorButtonsUI();
+
+            changeImage(currentFloor);
+
+            MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
+            MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
+
+            boolean isOrigin = floor.equals(origin.getFloor());
+            boolean isDestination = floor.equals(destination.getFloor());
+            if (isOrigin) {
+                holder.pinView.setSinglePin(originPin);
+            } else if (isDestination) {
+                holder.pinView.setSinglePin(destinationPin);
+            } else {
+                holder.pinView.resetPins();
             }
-            button.setTextColor(getResources().getColor(R.color.linkText));
 
-            // Change the map, draw pins and path
-            if (!floor.equals(currentFloor)) {
-                currentFloor = floor;
-
-                changeImage(currentFloor);
-
-                MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
-                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
-
-                boolean isOrigin = floor.equals(origin.getFloor());
-                boolean isDestination = floor.equals(destination.getFloor());
-                if (isOrigin) {
-                    holder.pinView.setSinglePin(originPin);
-                } else if (isDestination) {
-                    holder.pinView.setSinglePin(destinationPin);
-                } else {
-                    holder.pinView.resetPins();
-                }
-
-                holder.pinView.setPath(route.get(floor));
-            }
+            holder.pinView.setPath(route.get(floor));
         }
     }
 
+    /**
+     * Imposta la selezione sui bottoni di piano
+     */
+    private void setupFloorButtonsUI() {
+        for (String key : holder.floorButtons.keySet()) {
+            holder.floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
+        }
+        holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
+    }
+
+    /**
+     * Callback del MapDownloaderTask
+     */
     private class MapListener implements TaskListener<Map> {
 
         @Override
@@ -298,6 +318,14 @@ public class MapView extends LinearLayout {
             return result;
         }
     }
+
+
+
+
+
+
+
+
 
     @Deprecated
     public MapView changeFloor(String floor) {
@@ -400,7 +428,7 @@ public class MapView extends LinearLayout {
         Bitmap mapImage = piantine.get(currentFloor);
         holder.pinView.setImage(Bitmap.createBitmap(mapImage));
 
-        setupFloorButtonListener();
+        setupFloorButtons();
         drawOnMap(currentFloor);
         orderedSolution = route.toPath();
         return this;
