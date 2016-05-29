@@ -322,7 +322,11 @@ public class HomeFragment extends BaseFragment {
                             indexOfPathSelected = which;
                             selectedSolution = new Path(solutionPaths.get(indexOfPathSelected));
                             MultiFloorPath multiFloorPath = solutionPaths.get(which).toMultiFloorPath();
-                            holder.mapView.setRoute(multiFloorPath);
+                            try {
+                                holder.mapView.drawRoute(multiFloorPath);
+                            } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+                                e.printStackTrace();
+                            }
                             return true;
                         }
                     })

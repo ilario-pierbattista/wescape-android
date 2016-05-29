@@ -21,6 +21,9 @@ import com.dii.ids.application.navigation.directions.DirectionsTranslator;
 import com.dii.ids.application.navigation.directions.HumanDirection;
 import com.dii.ids.application.utils.units.Tuple;
 import com.dii.ids.application.views.MapView;
+import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
+import com.dii.ids.application.views.exceptions.OriginNotSettedException;
+import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import java.util.HashMap;
 
@@ -94,10 +97,19 @@ public class NavigatorFragment extends BaseFragment {
         holder = new ViewHolder(view);
         holder.setupUI();
 
-        holder.mapView.setOriginDummy(origin);
-        holder.mapView.setDestinationDummy(destination);
-        holder.mapView.setPiantine(piantine);
-        holder.mapView.setRoute(multiFloorSolution);
+        try {
+            holder.mapView.setPiantine(piantine)
+                    .setOrigin(origin)
+                    .setDestination(destination)
+                    .drawRoute(multiFloorSolution);
+        } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+            e.printStackTrace();
+        }
+
+//        holder.mapView.setOriginDummy(origin);
+//        holder.mapView.setDestinationDummy(destination);
+//        holder.mapView.setPiantine(piantine);
+//        holder.mapView.setRoute(multiFloorSolution);
 
         updateDirectionDisplay(new Tuple<>(0, 1));
 

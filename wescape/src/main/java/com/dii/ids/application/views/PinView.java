@@ -64,7 +64,6 @@ public class PinView extends SubsamplingScaleImageView {
     }
 
     private void initialise() {
-
     }
 
     public void setImage(Bitmap image) {

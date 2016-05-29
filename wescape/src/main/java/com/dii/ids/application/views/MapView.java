@@ -10,7 +10,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.utils.units.Tuple;
@@ -20,7 +23,6 @@ import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 public class MapView extends LinearLayout {
@@ -54,11 +56,6 @@ public class MapView extends LinearLayout {
         init();
     }
 
-    public MapView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
     /**
      * Disegna l'origine
      *
@@ -71,9 +68,7 @@ public class MapView extends LinearLayout {
         this.origin = origin;
         this.currentFloor = origin.getFloor();
         try {
-            Log.i(TAG, piantine.toString());
-            Bitmap mapImage = piantine.get(origin.getFloor());
-            holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
+            changeImage(currentFloor);
             drawPins();
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
@@ -94,13 +89,32 @@ public class MapView extends LinearLayout {
         this.destination = destination;
         this.currentFloor = destination.getFloor();
         try {
-            holder.pinView.setImage(piantine.get(destination.getFloor()));
+            changeImage(currentFloor);
             drawPins();
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
         }
         return this;
+    }
+
+    private void drawPins() {
+        ArrayList<MapPin> pins = new ArrayList<>();
+
+        if (destination != null) {
+            currentFloor = destination.getFloor();
+            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
+        }
+        // Se l'origine è impostata, ha priorità sulla destinazione e ne sovrascrive il piano corrente
+        if (origin != null) {
+            if (!currentFloor.equals(origin.getFloor())) {
+                pins = new ArrayList<>();
+                currentFloor = origin.getFloor();
+            }
+            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
+        }
+
+        holder.pinView.setMultiplePins(pins);
     }
 
     public MapView drawRoute(MultiFloorPath route)
@@ -121,46 +135,15 @@ public class MapView extends LinearLayout {
 
         try {
             currentFloor = origin.getFloor();
-            Bitmap mapImage = piantine.get(currentFloor);
-            holder.pinView.setImage(mapImage.copy(mapImage.getConfig(), true));
+            changeImage(currentFloor);
             holder.pinView.setPath(this.route.get(currentFloor));
             drawPins();
             setupFloorButtonListener();
+            orderedSolution = route.toPath();
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
         }
-        return this;
-    }
-
-    private void drawPins() {
-        ArrayList<MapPin> pins = new ArrayList<>();
-
-        if (destination != null) {
-            currentFloor = destination.getFloor();
-            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
-        }
-        // Se l'origine è impostata, ha priorità sulla destinazione e ne sovrascrive il piano corrente
-        if (origin != null) {
-            if(!currentFloor.equals(origin.getFloor())) {
-                pins = new ArrayList<>();
-                currentFloor = origin.getFloor();
-            }
-            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
-        }
-
-        holder.pinView.setMultiplePins(pins);
-    }
-
-    @Deprecated
-    public MapView setOriginDummy(Node origin) {
-        this.origin = origin;
-        return this;
-    }
-
-    @Deprecated
-    public MapView setDestinationDummy(Node destination) {
-        this.destination = destination;
         return this;
     }
 
@@ -169,9 +152,151 @@ public class MapView extends LinearLayout {
         return this;
     }
 
-    @Deprecated
-    public MapView changeFloor(int floor) {
-        return changeFloor(Integer.toString(floor));
+    /**
+     * Update the PinView Map image based on the floor. Handles all recylcing bitmap problems
+     *
+     * @param floor Floor
+     */
+    private void changeImage(String floor) {
+        Bitmap mapImage = piantine.get(floor);
+        if (mapImage.isRecycled()) {
+            //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
+            Log.i(TAG, "MapImage is recycled: task dispatched");
+            MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
+            mapsDownloaderTask.execute(Integer.valueOf(floor));
+        } else {
+            holder.pinView.setImage(mapImage);
+        }
+    }
+
+    /**
+     * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
+     */
+    private void setupFloorButtonListener() {
+        holder.floorButtonContainer.setVisibility(View.VISIBLE);
+        Set<String> pianiNellaSoluzione = route.keySet();
+
+        holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
+        for (String key : holder.floorButtons.keySet()) {
+            holder.floorButtons.get(key).setVisibility(View.GONE);
+        }
+
+        // Soluzione per piano non vuota -> visualizzare il piano
+        // Soluzione per piano con un solo punto
+        //              -> destinazione => visualizzare il piano
+        //              -> != destinazione => nascondere il piano
+        // Soluzione per piano vuota -> nascondere il piano
+
+        Path solutionPerFloor;
+        boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
+
+        for (String floor : pianiNellaSoluzione) {
+            solutionPerFloor = route.get(floor);
+
+            onePointSolution = solutionPerFloor.size() == 1;
+            multiplePointSolution = solutionPerFloor.size() > 1;
+            destinationSolution = (onePointSolution && solutionPerFloor.get(0).equals(destination));
+            originSolution = (onePointSolution && solutionPerFloor.get(0).equals(origin));
+
+            if (multiplePointSolution || destinationSolution || originSolution) {
+                holder.floorButtons.get(floor).setVisibility(View.VISIBLE);
+                holder.floorButtons.get(floor).setOnClickListener(new FloorButtonListener());
+            }
+        }
+    }
+
+    /**
+     * Listener dei pulsanti corrispondenti ai piani
+     */
+    private class FloorButtonListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            Button button = (Button) v;
+            String floor = button.getText().toString();
+
+            // Setup button UI state
+            for (String key : holder.floorButtons.keySet()) {
+                holder.floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
+            }
+            button.setTextColor(getResources().getColor(R.color.linkText));
+
+            // Change the map, draw pins and path
+            if (!floor.equals(currentFloor)) {
+                currentFloor = floor;
+
+                changeImage(currentFloor);
+
+                MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
+                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
+
+                boolean isOrigin = floor.equals(origin.getFloor());
+                boolean isDestination = floor.equals(destination.getFloor());
+                if (isOrigin) {
+                    holder.pinView.setSinglePin(originPin);
+                } else if (isDestination) {
+                    holder.pinView.setSinglePin(destinationPin);
+                } else {
+                    holder.pinView.resetPins();
+                }
+
+                holder.pinView.setPath(route.get(floor));
+            }
+        }
+    }
+
+    private class MapListener implements TaskListener<Map> {
+
+        @Override
+        public void onTaskSuccess(Map map) {
+            holder.pinView.setImage(map.getImage());
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            Log.e(TAG, "Map download error: ", e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+
+        }
+
+        @Override
+        public void onTaskCancelled() {
+
+        }
+    }
+
+    private static class ViewHolder {
+        public final PinView pinView;
+        public final LinearLayout floorButtonContainer;
+        public final HashMap<String, Button> floorButtons;
+
+        public ViewHolder(View view) {
+            pinView = (PinView) view.findViewById(R.id.map_image);
+            floorButtonContainer = (LinearLayout) view.findViewById(R.id.floor_button_container);
+            floorButtons = getFloorButtons();
+        }
+
+        /**
+         * Ritorna la lista dei bottoni dei piani
+         *
+         * @return Hashmap di bottoni
+         */
+        private HashMap<String, Button> getFloorButtons() {
+            ViewGroup buttonContainer = floorButtonContainer;
+            HashMap<String, Button> result = new HashMap<>();
+
+            for (int i = 0; i < buttonContainer.getChildCount(); i++) {
+                View v = buttonContainer.getChildAt(i);
+                if (v instanceof Button) {
+                    Button button = (Button) v;
+                    result.put(button.getText().toString(), button);
+                }
+            }
+
+            return result;
+        }
     }
 
     @Deprecated
@@ -281,118 +406,15 @@ public class MapView extends LinearLayout {
         return this;
     }
 
-    /**
-     * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
-     */
-    private void setupFloorButtonListener() {
-        holder.floorButtonContainer.setVisibility(View.VISIBLE);
-        Set<String> pianiNellaSoluzione = route.keySet();
-
-        holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
-        for (String key : holder.floorButtons.keySet()) {
-            holder.floorButtons.get(key).setVisibility(View.GONE);
-        }
-
-        // Soluzione per piano non vuota -> visualizzare il piano
-        // Soluzione per piano con un solo punto
-        //              -> destinazione => visualizzare il piano
-        //              -> != destinazione => nascondere il piano
-        // Soluzione per piano vuota -> nascondere il piano
-
-        Path solutionPerFloor;
-        boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
-
-        for (String floor : pianiNellaSoluzione) {
-            solutionPerFloor = route.get(floor);
-
-            onePointSolution = solutionPerFloor.size() == 1;
-            multiplePointSolution = solutionPerFloor.size() > 1;
-            destinationSolution = (onePointSolution && solutionPerFloor.get(0).equals(destination));
-            originSolution = (onePointSolution && solutionPerFloor.get(0).equals(origin));
-
-            if (multiplePointSolution || destinationSolution || originSolution) {
-                holder.floorButtons.get(floor).setVisibility(View.VISIBLE);
-                holder.floorButtons.get(floor).setOnClickListener(new FloorButtonListener());
-            }
-        }
+    @Deprecated
+    public MapView setOriginDummy(Node origin) {
+        this.origin = origin;
+        return this;
     }
 
-    /**
-     * Imposta lo stato di selezione del pulsante corrispondente al piano corrente
-     */
-    private void setFloorButtonState() {
-        for (String key : holder.floorButtons.keySet()) {
-            holder.floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
-        }
-        holder.floorButtons.get(currentFloor)
-                .setTextColor(getResources().getColor(R.color.linkText));
-    }
-
-    private static class ViewHolder {
-        public final PinView pinView;
-        public final LinearLayout floorButtonContainer;
-        public final HashMap<String, Button> floorButtons;
-
-        public ViewHolder(View view) {
-            pinView = (PinView) view.findViewById(R.id.map_image);
-            floorButtonContainer = (LinearLayout) view.findViewById(R.id.floor_button_container);
-            floorButtons = getFloorButtons();
-        }
-
-        /**
-         * Ritorna la lista dei bottoni dei piani
-         *
-         * @return Hashmap di bottoni
-         */
-        private HashMap<String, Button> getFloorButtons() {
-            ViewGroup buttonContainer = floorButtonContainer;
-            HashMap<String, Button> result = new HashMap<>();
-
-            for (int i = 0; i < buttonContainer.getChildCount(); i++) {
-                View v = buttonContainer.getChildAt(i);
-                if (v instanceof Button) {
-                    Button button = (Button) v;
-                    result.put(button.getText().toString(), button);
-                }
-            }
-
-            return result;
-        }
-    }
-
-    /**
-     * Listener dei pulsanti corrispondenti ai piani
-     */
-    private class FloorButtonListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            Button button = (Button) v;
-            String floor = button.getText().toString();
-            button.setTextColor(getResources().getColor(R.color.linkText));
-
-            if (!floor.equals(currentFloor)) {
-                currentFloor = floor;
-                setFloorButtonState();
-
-                Bitmap map = piantine.get(floor);
-                //Bitmap mapCopy = map.copy(map.getConfig(), true);
-                holder.pinView.setImage(Bitmap.createBitmap(map));
-
-                MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
-                MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
-
-                boolean isOrigin = floor.equals(origin.getFloor());
-                boolean isDestination = floor.equals(destination.getFloor());
-                if (isOrigin) {
-                    holder.pinView.setSinglePin(originPin);
-                } else if (isDestination) {
-                    holder.pinView.setSinglePin(destinationPin);
-                } else {
-                    holder.pinView.resetPins();
-                }
-
-                holder.pinView.setPath(route.get(floor));
-            }
-        }
+    @Deprecated
+    public MapView setDestinationDummy(Node destination) {
+        this.destination = destination;
+        return this;
     }
 }
