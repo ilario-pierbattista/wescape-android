@@ -106,11 +106,6 @@ public class NavigatorFragment extends BaseFragment {
             e.printStackTrace();
         }
 
-//        holder.mapView.setOriginDummy(origin);
-//        holder.mapView.setDestinationDummy(destination);
-//        holder.mapView.setPiantine(piantine);
-//        holder.mapView.setRoute(multiFloorSolution);
-
         updateDirectionDisplay(new Tuple<>(0, 1));
 
         return view;
@@ -163,8 +158,6 @@ public class NavigatorFragment extends BaseFragment {
     }
 
     public class ViewHolder {
-        //public final Toolbar toolbar;
-        //public final TextView toolbarTitle;
         public final MapView mapView;
         public final ImageButton nextButton;
         public final ImageButton previousButton;
@@ -176,8 +169,6 @@ public class NavigatorFragment extends BaseFragment {
 
 
         public ViewHolder(View view) {
-            //toolbar = (Toolbar) view.findViewById(R.id.navigation_standard_toolbar);
-            //toolbarTitle = (TextView) view.findViewById(R.id.toolbar_title);
             mapView = (MapView) view.findViewById(R.id.navigation_map);
             nextButton = (ImageButton) view.findViewById(R.id.next_button);
             previousButton = (ImageButton) view.findViewById(R.id.previous_button);
@@ -190,16 +181,6 @@ public class NavigatorFragment extends BaseFragment {
         }
 
         private void setupUI() {
-            // Setup Up button on Toolbar
-            /*
-            NavigationActivity activity = (NavigationActivity) getActivity();
-            activity.setSupportActionBar(toolbar);
-            assert activity.getSupportActionBar() != null;
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            activity.getSupportActionBar().setDisplayShowTitleEnabled(false);
-            toolbarTitle.setText(getString(R.string.title_navigator));
-            */
-
             nextButton.setTag(ButtonType.NEXT);
             previousButton.setTag(ButtonType.PREVIOUS);
             nextButton.setOnClickListener(new IndicationButtonListener());

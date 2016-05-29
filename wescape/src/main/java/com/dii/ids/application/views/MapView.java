@@ -163,6 +163,7 @@ public class MapView extends LinearLayout {
      * @param piantine Piantine
      * @return MapView
      */
+    @Deprecated
     public MapView setPiantine(HashMap<String, Bitmap> piantine) {
         this.piantine = piantine;
         return this;
@@ -174,34 +175,37 @@ public class MapView extends LinearLayout {
      * @param floor Floor
      */
     private void changeImage(String floor) {
-        Bitmap mapImage = piantine.get(floor);
-        if (mapImage.isRecycled()) {
-            //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
-            Log.i(TAG, "MapImage is recycled: task dispatched");
-            MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
-            mapsDownloaderTask.execute(Integer.valueOf(floor));
-        } else {
-            holder.pinView.setImage(mapImage);
-        }
+//        Bitmap mapImage = piantine.get(floor);
+//        if (mapImage.isRecycled()) {
+//            //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
+//            Log.i(TAG, "MapImage is recycled: task dispatched");
+//            MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
+//            mapsDownloaderTask.execute(Integer.valueOf(floor));
+//        } else {
+//            holder.pinView.setImage(mapImage);
+//        }
+        MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
+        mapsDownloaderTask.execute(Integer.valueOf(floor));
     }
 
     /**
      * Imposta i listener sui bottoni dei piani e li nasconde se non contenuti nella soluzione
      */
     private void setupFloorButtons() {
+        // UI operations
         holder.floorButtonContainer.setVisibility(View.VISIBLE);
-        Set<String> pianiNellaSoluzione = route.keySet();
-
-        setupFloorButtonsUI();
         for (String key : holder.floorButtons.keySet()) {
             holder.floorButtons.get(key).setVisibility(View.GONE);
         }
+        setupFloorButtonsUI();
+
 
         // Soluzione per piano non vuota -> visualizzare il piano
         // Soluzione per piano con un solo punto
         //              -> destinazione => visualizzare il piano
         //              -> != destinazione => nascondere il piano
         // Soluzione per piano vuota -> nascondere il piano
+        Set<String> pianiNellaSoluzione = route.keySet();
         Path solutionPerFloor;
         boolean onePointSolution, destinationSolution, multiplePointSolution, originSolution;
 
@@ -411,38 +415,5 @@ public class MapView extends LinearLayout {
 
         triggerStepChange();
         return new Tuple<>(currentNode, nextNode);
-    }
-
-    /**
-     * Imposta i path divisi per piano
-     *
-     * @param route Hashmap di percorsi. La chiave è il nome del piano, il valore è una lista di nodi connessi che
-     *              costituiscono il percorso
-     * @return Istanza corrente di MapView
-     */
-    @Deprecated
-    public MapView setRoute(MultiFloorPath route) {
-        this.route = route;
-        currentFloor = origin.getFloor();
-        Log.i(TAG, "Piano corrente " + currentFloor);
-        Bitmap mapImage = piantine.get(currentFloor);
-        holder.pinView.setImage(Bitmap.createBitmap(mapImage));
-
-        setupFloorButtons();
-        drawOnMap(currentFloor);
-        orderedSolution = route.toPath();
-        return this;
-    }
-
-    @Deprecated
-    public MapView setOriginDummy(Node origin) {
-        this.origin = origin;
-        return this;
-    }
-
-    @Deprecated
-    public MapView setDestinationDummy(Node destination) {
-        this.destination = destination;
-        return this;
     }
 }
