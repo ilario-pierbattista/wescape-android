@@ -81,10 +81,12 @@ public class HomeFragment extends BaseFragment {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
                     holder.mapView.setOrigin(origin);
+                    indexOfPathSelected = 0;
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
                     holder.mapView.setDestination(destination);
+                    indexOfPathSelected = 0;
                     break;
             }
         } catch (NullPointerException ee) {
