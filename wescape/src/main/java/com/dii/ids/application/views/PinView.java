@@ -85,6 +85,7 @@ public class PinView extends SubsamplingScaleImageView {
      * @param pin
      */
     public void setSinglePin(MapPin pin) {
+        resetPins();
         this.singlePin = pin;
         initialise();
         invalidate();
@@ -105,6 +106,7 @@ public class PinView extends SubsamplingScaleImageView {
      * @param mapPins
      */
     public void setMultiplePins(ArrayList<MapPin> mapPins) {
+        resetPins();
         this.multiplePins = mapPins;
         initialise();
         invalidate();

@@ -70,7 +70,7 @@ public class MapView extends LinearLayout {
         this.currentFloor = origin.getFloor();
         try {
             changeImage(currentFloor);
-            drawPins();
+            drawPins(currentFloor);
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
@@ -90,7 +90,7 @@ public class MapView extends LinearLayout {
         this.currentFloor = destination.getFloor();
         try {
             changeImage(currentFloor);
-            drawPins();
+            drawPins(currentFloor);
         } catch (NullPointerException e) {
             Log.e(TAG, "Errore ", e);
             throw new PiantineNotSettedException();
@@ -99,12 +99,94 @@ public class MapView extends LinearLayout {
     }
 
     /**
-     * Disegna i pin
+     * Disegna il percorso sulla mappa
+     *
+     * @param route Soluzione
+     * @return MapView
+     * @throws PiantineNotSettedException
+     * @throws OriginNotSettedException
+     * @throws DestinationNotSettedException
      */
-    private void drawPins() {
-        holder.pinView.resetPins();
+    public MapView drawRoute(MultiFloorPath route)
+            throws PiantineNotSettedException, OriginNotSettedException, DestinationNotSettedException {
+        this.route = route;
+        this.origin = (Node) route.getOrigin();
+        this.destination = (Node) route.getDestination();
 
+        if (origin == null) {
+            throw new OriginNotSettedException();
+        }
+        if (destination == null) {
+            throw new DestinationNotSettedException();
+        }
+
+        try {
+            currentFloor = origin.getFloor();
+
+            changeImage(currentFloor);
+            drawPath(currentFloor);
+            drawPins(currentFloor);
+            setupFloorButtons();
+
+            orderedSolution = route.toPath();
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Errore ", e);
+            throw new PiantineNotSettedException();
+        }
+        return this;
+    }
+
+    /**
+     * Disegna il percorso di un piano
+     * @param floor
+     */
+    private void drawPath(String floor) {
+        holder.pinView.setPath(this.route.get(floor));
+    }
+
+    /**
+     * Disegna i pin
+     * @param floor
+     */
+    private void drawPins(String floor) {
         ArrayList<MapPin> pins = new ArrayList<>();
+
+        if(origin != null && origin.getFloor().equals(floor)) {
+            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
+        }
+        if(destination != null && destination.getFloor().equals(floor)) {
+            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
+        }
+
+        holder.pinView.setMultiplePins(pins);
+    }
+
+    /**
+     * Disegna i pin
+     *
+    private void drawPins() {
+        ArrayList<MapPin> pins = new ArrayList<>();
+
+        if(origin == null) {
+            if(destination != null) {
+                pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
+            }
+        } else {
+
+        }
+
+        boolean destinationAndNotOrigin = destination != null && origin == null;
+        boolean originAndNotDestination = origin != null && destination == null;
+
+        boolean isOrigin = floor.equals(origin.getFloor());
+        boolean isDestination = floor.equals(destination.getFloor());
+        if (isOrigin) {
+            holder.pinView.setSinglePin(originPin);
+        } else if (isDestination) {
+            holder.pinView.setSinglePin(destinationPin);
+        } else {
+            holder.pinView.resetPins();
+        }
 
         if (destination != null) {
             currentFloor = destination.getFloor();
@@ -120,42 +202,7 @@ public class MapView extends LinearLayout {
         }
 
         holder.pinView.setMultiplePins(pins);
-    }
-
-    /**
-     * Disegna il percorso sulla mappa
-     *
-     * @param route Soluzione
-     * @return MapView
-     * @throws PiantineNotSettedException
-     * @throws OriginNotSettedException
-     * @throws DestinationNotSettedException
-     */
-    public MapView drawRoute(MultiFloorPath route) throws PiantineNotSettedException, OriginNotSettedException, DestinationNotSettedException {
-        this.route = route;
-        this.origin = (Node) route.getOrigin();
-        this.destination = (Node) route.getDestination();
-
-        if (origin == null) {
-            throw new OriginNotSettedException();
-        }
-        if (destination == null) {
-            throw new DestinationNotSettedException();
-        }
-
-        try {
-            currentFloor = origin.getFloor();
-            changeImage(currentFloor);
-            holder.pinView.setPath(this.route.get(currentFloor));
-            drawPins();
-            setupFloorButtons();
-            orderedSolution = route.toPath();
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
-        return this;
-    }
+    } */
 
     /**
      * Update the PinView Map image based on the floor. Handles all recylcing bitmap problems
@@ -181,11 +228,8 @@ public class MapView extends LinearLayout {
      */
     private void setupFloorButtons() {
         // UI operations
-        holder.floorButtonContainer.setVisibility(View.VISIBLE);
-        for (String key : holder.floorButtons.keySet()) {
-            holder.floorButtons.get(key).setVisibility(View.GONE);
-        }
-        setupFloorButtonsUI();
+        holder.hideFloorButtons()
+                .setupFloorButtonsUI(currentFloor);
 
 
         // Soluzione per piano non vuota -> visualizzare il piano
@@ -222,10 +266,11 @@ public class MapView extends LinearLayout {
             String floor = button.getText().toString();
 
             currentFloor = floor;
-            setupFloorButtonsUI();
+            holder.setupFloorButtonsUI(currentFloor);
 
             changeImage(currentFloor);
 
+            /*
             MapPin originPin = new MapPin(origin.toPointF(), MapPin.Colors.RED);
             MapPin destinationPin = new MapPin(destination.toPointF(), MapPin.Colors.BLUE);
 
@@ -237,20 +282,11 @@ public class MapView extends LinearLayout {
                 holder.pinView.setSinglePin(destinationPin);
             } else {
                 holder.pinView.resetPins();
-            }
+            }*/
 
-            holder.pinView.setPath(route.get(floor));
+            drawPath(floor);
+            drawPins(floor);
         }
-    }
-
-    /**
-     * Imposta la selezione sui bottoni di piano
-     */
-    private void setupFloorButtonsUI() {
-        for (String key : holder.floorButtons.keySet()) {
-            holder.floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
-        }
-        holder.floorButtons.get(currentFloor).setTextColor(getResources().getColor(R.color.linkText));
     }
 
     /**
@@ -279,7 +315,7 @@ public class MapView extends LinearLayout {
         }
     }
 
-    private static class ViewHolder {
+    private class ViewHolder {
         public final PinView pinView;
         public final LinearLayout floorButtonContainer;
         public final HashMap<String, Button> floorButtons;
@@ -316,6 +352,26 @@ public class MapView extends LinearLayout {
 
             return result;
         }
+
+        private ViewHolder hideFloorButtons() {
+            floorButtonContainer.setVisibility(View.VISIBLE);
+            for (String key : floorButtons.keySet()) {
+                floorButtons.get(key).setVisibility(View.GONE);
+            }
+            return this;
+        }
+
+        /**
+         * Imposta la selezione sui bottoni di piano
+         */
+        private ViewHolder setupFloorButtonsUI(String floor) {
+            for (String key : floorButtons.keySet()) {
+                floorButtons.get(key).setTextColor(getResources().getColor(R.color.black));
+            }
+            floorButtons.get(floor).setTextColor(getResources().getColor(R.color.linkText));
+
+            return this;
+        }
     }
 
 
@@ -349,7 +405,7 @@ public class MapView extends LinearLayout {
         }
         holder.pinView.setMultiplePins(pins);
         if (route != null) {
-            holder.pinView.setPath(route.get(floor));
+            drawPath(floor);
         }
 
         return this;

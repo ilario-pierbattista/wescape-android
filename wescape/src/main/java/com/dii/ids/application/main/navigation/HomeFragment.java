@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -49,8 +50,6 @@ import java.util.List;
 public class HomeFragment extends BaseFragment {
     public static final String TAG = HomeFragment.class.getSimpleName();
     public static final String INTENT_KEY_POSITION = "position";
-    private static String originText;
-    private static String destinationText;
     private static Node origin = null, destination = null, emergencyDestination = null;
     private ViewHolder holder;
     private List<Path> solutionPaths = null;
@@ -88,8 +87,6 @@ public class HomeFragment extends BaseFragment {
                     break;
             }
 
-            indexOfPathSelected = 0;
-
         } catch (NullPointerException ee) {
             Log.e(TAG, "NullPointer", ee);
         } catch (PiantineNotSettedException e) {
@@ -100,14 +97,15 @@ public class HomeFragment extends BaseFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         final View view = inflater.inflate(R.layout.navigation_home_fragment, container, false);
         holder = new ViewHolder(view);
-
-        originText = originText == null ? getString(R.string.navigation_select_origin) : originText;
-        destinationText = destinationText == null ? getString(R.string.navigation_select_destination) : destinationText;
-
         holder.setupUI();
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
                 getContext(), new NodesDownloaderTaskListener());
@@ -115,8 +113,6 @@ public class HomeFragment extends BaseFragment {
         EdgesDownloaderTask task = new EdgesDownloaderTask(
                 getContext(), new EdgesDownloaderTaskListener());
         task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-
-        return view;
     }
 
     @Override
@@ -153,6 +149,13 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        indexOfPathSelected = 0;
+    }
+
     private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
         Node alreadySelectedNode = null;
@@ -182,7 +185,6 @@ public class HomeFragment extends BaseFragment {
         ((NavigationActivity) getActivity())
                 .changeFragment(navigatorFragment);
     }
-
 
     /**
      * Responsible for navigation start button
@@ -373,15 +375,12 @@ public class HomeFragment extends BaseFragment {
             destinationViewPlaceholder.setText(R.string.navigation_going_to);
             destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
-            originText = origin == null ?
-                    getString(R.string.navigation_select_origin) :
-                    origin.getName();
-            destinationText = destination == null ?
-                    getString(R.string.navigation_select_destination) :
-                    destination.getName();
-
-            originViewText.setText(originText);
-            destinationViewText.setText(destinationText);
+            originViewText.setText(origin == null ?
+                                           getString(R.string.navigation_select_origin) :
+                                           origin.getName());
+            destinationViewText.setText(destination == null ?
+                                                getString(R.string.navigation_select_destination) :
+                                                destination.getName());
 
             // Setup listeners
             originView.setOnClickListener(new View.OnClickListener() {
@@ -417,30 +416,30 @@ public class HomeFragment extends BaseFragment {
                 destinationView.setClickable(true);
             }
 
-          setupMapView();
+            setupMapView();
         }
 
         public void setupMapView() {
             if (!emergency) {
-                if(destination != null && origin == null) {
+                if (destination != null && origin == null) {
                     try {
                         holder.mapView.setDestination(destination);
                     } catch (PiantineNotSettedException e) {
                         e.printStackTrace();
                     }
-                } else if(origin != null && destination == null) {
+                } else if (origin != null && destination == null) {
                     try {
                         holder.mapView.setOrigin(origin);
                     } catch (PiantineNotSettedException e) {
                         e.printStackTrace();
                     }
-                } else if(origin != null && destination != null) {
+                } else if (origin != null && destination != null) {
                     MinimumPathTask minimumPathTask = new MinimumPathTask(
                             getContext(), new MinimumPathListener());
                     minimumPathTask.execute(origin, destination);
                 }
             } else {
-                if(origin != null) {
+                if (origin != null) {
                     NearestExitTask nearestExitTask = new NearestExitTask(
                             getContext(), new NearestExitListener());
                     nearestExitTask.execute(origin);
