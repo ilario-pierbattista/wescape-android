@@ -9,7 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.ScrollView;
 
 public class ShowProgressAnimation {
-    private ScrollView scrollView;
+    private View scrollView;
     private ProgressBar progressBar;
     private int animTime;
 
@@ -19,7 +19,7 @@ public class ShowProgressAnimation {
      * @param animTime
      * @TODO Commentare
      */
-    public ShowProgressAnimation(ScrollView scrollView,
+    public ShowProgressAnimation(View scrollView,
                                  ProgressBar progressBar,
                                  int animTime) {
         this.scrollView = scrollView;

@@ -2,71 +2,113 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
+        android:id="@+id/map_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <com.dii.ids.application.views.PinView
-        android:id="@+id/map_image"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/wescape_logo"/>
-
-    <LinearLayout
-        android:id="@+id/floor_button_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:layout_margin="@dimen/fab_margin"
-        android:background="@color/white"
-        android:elevation="@dimen/standard_elevation"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/floor_button_155"
-            android:layout_width="55dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/borderless_white_button"
-            android:elevation="0dp"
-            android:stateListAnimator="@null"
-            android:text="155"/>
-
-        <!-- Divider -->
-        <View
+        <LinearLayout
+            android:id="@+id/map_placeholder"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/dividerGrey"/>
-
-        <Button
-            android:id="@+id/floor_button_150"
-            android:layout_width="55dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/borderless_white_button"
-            android:elevation="0dp"
-            android:stateListAnimator="@null"
-            android:text="150"/>
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp">
 
-        <!-- Divider -->
-        <View
+            <ImageView
+                android:layout_gravity="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/map_placeholder"
+                android:layout_marginBottom="16dp"
+                android:tint="@color/grey"/>
+
+            <TextView
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/map_placeholder"
+                android:textColor="@color/grey"
+                android:textSize="20sp"/>
+
+        </LinearLayout>
+
+
+
+        <com.dii.ids.application.views.PinView
+            android:id="@+id/map_image"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/dividerGrey"/>
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"/>
 
-        <Button
-            android:id="@+id/floor_button_145"
-            android:layout_width="55dp"
+        <LinearLayout
+            android:id="@+id/floor_button_container"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/borderless_white_button"
-            android:elevation="0dp"
-            android:stateListAnimator="@null"
-            android:text="145"/>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_margin="@dimen/fab_margin"
+            android:background="@color/white"
+            android:elevation="@dimen/standard_elevation"
+            android:orientation="vertical">
 
-    </LinearLayout>
+            <Button
+                android:id="@+id/floor_button_155"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="155"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
+
+            <Button
+                android:id="@+id/floor_button_150"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="150"/>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/dividerGrey"/>
+
+            <Button
+                android:id="@+id/floor_button_145"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/borderless_white_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null"
+                android:text="145"/>
+
+        </LinearLayout>
 
     </RelativeLayout>
+
+    <ProgressBar
+        android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:id="@+id/downloading_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:indeterminate="true"
+        android:indeterminateTintMode="src_in"
+        android:indeterminateTint="@color/regularBlue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 
 </merge>

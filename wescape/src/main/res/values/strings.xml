@@ -136,4 +136,5 @@
     <string name="next_node">Next</string>
     <string name="label_select_path">Route %d</string>
     <string name="find_nearest_exit">Finding nearest exit</string>
+    <string name="map_placeholder">Select a node to start navigation</string>
 </resources>

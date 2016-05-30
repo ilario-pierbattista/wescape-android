@@ -6,10 +6,13 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.dii.ids.application.R;
+import com.dii.ids.application.animations.ShowProgressAnimation;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
@@ -33,7 +36,6 @@ public class MapView extends LinearLayout {
     private HashMap<String, Path> route;
     private Path orderedSolution;
     private int currentNode;
-    private MaterialDialog dialog;
 
     public MapView(Context context) {
         super(context);
@@ -166,7 +168,12 @@ public class MapView extends LinearLayout {
      * @param floor Floor
      */
     private void changeImage(String floor) {
-        //TODO: bisognerebbe mettere un placeholder finche non si arriva al successo del task
+        holder.placeholderView.setVisibility(View.GONE);
+        holder.progressAnimation = new ShowProgressAnimation(
+                holder.mapContainer,
+                holder.downloadProgress,
+                20);
+        holder.progressAnimation.showProgress(true);
         MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
         mapsDownloaderTask.execute(Integer.valueOf(floor));
     }
@@ -265,6 +272,7 @@ public class MapView extends LinearLayout {
 
         @Override
         public void onTaskComplete() {
+            holder.progressAnimation.showProgress(false);
         }
 
         @Override
@@ -277,11 +285,18 @@ public class MapView extends LinearLayout {
         public final PinView pinView;
         public final LinearLayout floorButtonContainer;
         public final HashMap<String, Button> floorButtons;
+        public final ViewGroup mapContainer;
+        public final ProgressBar downloadProgress;
+        public final ViewGroup placeholderView;
+        public ShowProgressAnimation progressAnimation;
 
         public ViewHolder(View view) {
             pinView = (PinView) view.findViewById(R.id.map_image);
             floorButtonContainer = (LinearLayout) view.findViewById(R.id.floor_button_container);
+            mapContainer = (ViewGroup) view.findViewById(R.id.map_container);
+            downloadProgress = (ProgressBar) view.findViewById(R.id.downloading_progress);
             floorButtons = getFloorButtons();
+            placeholderView = (ViewGroup) view.findViewById(R.id.map_placeholder);
         }
 
         /**
