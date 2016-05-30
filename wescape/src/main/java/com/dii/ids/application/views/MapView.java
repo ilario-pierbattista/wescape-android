@@ -63,7 +63,6 @@ public class MapView extends LinearLayout {
      *
      * @param origin Nodo di origine
      * @return
-     *
      * @throws PiantineNotSettedException
      */
     public MapView setOrigin(Node origin) throws PiantineNotSettedException {
@@ -84,7 +83,6 @@ public class MapView extends LinearLayout {
      *
      * @param destination Nodo destinazione
      * @return MapView
-     *
      * @throws PiantineNotSettedException
      */
     public MapView setDestination(Node destination) throws PiantineNotSettedException {
