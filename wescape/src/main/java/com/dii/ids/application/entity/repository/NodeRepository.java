@@ -24,6 +24,18 @@ public class NodeRepository {
                 .queryList();
     }
 
+    public static List<Node> findAllButOne(Node node) {
+        if(node == null) {
+            return findAll();
+        } else {
+            return SQLite
+                    .select()
+                    .from(Node.class)
+                    .where(Node_Table.id.notEq(node.getId()))
+                    .queryList();
+        }
+    }
+
     public static void deleteAll() {
         SQLite.delete()
                 .from(Node.class)

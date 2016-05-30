@@ -81,14 +81,15 @@ public class HomeFragment extends BaseFragment {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
                     holder.mapView.setOrigin(origin);
-                    indexOfPathSelected = 0;
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
                     holder.mapView.setDestination(destination);
-                    indexOfPathSelected = 0;
                     break;
             }
+
+            indexOfPathSelected = 0;
+
         } catch (NullPointerException ee) {
             Log.e(TAG, "NullPointer", ee);
         } catch (PiantineNotSettedException e) {
@@ -154,18 +155,21 @@ public class HomeFragment extends BaseFragment {
 
     private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
+        Node alreadySelectedNode = null;
 
         int code = 1;
         switch (v.getId()) {
             case R.id.navigation_input_origin:
                 code = ORIGIN_SELECTION_REQUEST_CODE;
+                alreadySelectedNode = destination;
                 break;
             case R.id.navigation_input_destination:
                 code = DESTINATION_SELECTION_REQUEST_CODE;
+                alreadySelectedNode = origin;
                 break;
         }
 
-        selectionFragment = SelectionFragment.newInstance(code);
+        selectionFragment = SelectionFragment.newInstance(code, alreadySelectedNode);
         selectionFragment.setTargetFragment(this, code);
         ((NavigationActivity) getActivity()).changeFragment(selectionFragment);
     }

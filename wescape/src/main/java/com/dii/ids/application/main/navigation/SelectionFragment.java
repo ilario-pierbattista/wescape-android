@@ -34,19 +34,22 @@ public class SelectionFragment extends BaseFragment {
     public static final int POSITION_ACQUIRED = 1;
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     private static final String SELECTION_REQUEST_CODE = "selection_request_code";
+    private static final String ALREADY_SELECTED_NODE = "already_selected_node";
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
+    private Node alreadySelectedNode;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFragment newInstance(int requestCode) {
+    public static SelectionFragment newInstance(int requestCode, Node alreadySelectedNode) {
         SelectionFragment fragment = new SelectionFragment();
         Bundle args = new Bundle();
         args.putInt(SELECTION_REQUEST_CODE, requestCode);
+        args.putSerializable(ALREADY_SELECTED_NODE, alreadySelectedNode);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,6 +82,7 @@ public class SelectionFragment extends BaseFragment {
                 holder.toolbarTitle.setText(R.string.navigation_select_destination);
                 break;
         }
+        alreadySelectedNode = (Node) getArguments().getSerializable(ALREADY_SELECTED_NODE);
 
         // Setup static actions table
         String[] staticActionsText = {
@@ -105,7 +109,7 @@ public class SelectionFragment extends BaseFragment {
         });
 
         // Setup list of nodes
-        List<Node> nodesList = NodeRepository.findAll();
+        List<Node> nodesList = NodeRepository.findAllButOne(alreadySelectedNode);
         NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
         holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
         holder.nodeListView.setAdapter(nodeAdapter);
