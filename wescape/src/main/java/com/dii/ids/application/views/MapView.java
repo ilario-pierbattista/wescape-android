@@ -306,13 +306,6 @@ public class MapView extends LinearLayout {
     }
 
 
-
-
-
-
-
-
-
     @Deprecated
     public MapView changeFloor(String floor) {
         for (String key : holder.floorButtons.keySet()) {

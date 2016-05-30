@@ -2,8 +2,6 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.text.method.DialerKeyListener;
-import android.util.Log;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
@@ -12,7 +10,6 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.EdgeRepository;
 import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
-import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.DijkstraSolver;
 import com.dii.ids.application.navigation.Graph;
 import com.dii.ids.application.navigation.Path;
@@ -39,15 +36,13 @@ public class NearestExitTask extends AsyncTask<Node, Void, Boolean> {
             Node origin = params[0];
             Graph graph = new Graph(EdgeRepository.findAll());
             List<Node> exits = NodeRepository.findAllExits();
-            DijkstraSolver solver = new DijkstraSolver();
             final Edge maxLengthEdge = EdgeRepository.findMaxLengthEdge();
+            DijkstraSolver solver = new DijkstraSolver();
 
             solver.setNormalizationBasis(maxLengthEdge.getLength())
                     .setEmergency(true)
                     .startingFrom(origin)
                     .in(graph);
-
-            Log.i(TAG, exits.toString());
 
             searchResult = solver.searchNearestExits(exits);
 

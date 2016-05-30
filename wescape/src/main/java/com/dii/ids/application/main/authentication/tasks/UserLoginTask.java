@@ -2,10 +2,12 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.dii.ids.application.api.auth.Authenticator;
 import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.settings.SettingsActivity;
 
 /**
  * Represents an asynchronous login/registration task used to authenticate the user.
@@ -19,7 +21,11 @@ public class UserLoginTask extends AsyncTask<String, Void, Boolean> {
     public UserLoginTask(
             Context context,
             TaskListener<Void> listener) {
-        this.authenticator = new WescapeAuthenticator(context);
+
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                        SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
+        this.authenticator = new WescapeAuthenticator(context, ipAddress);
         this.listener = listener;
     }
 

@@ -27,8 +27,8 @@ public class WescapeUserManager implements UserManager {
     private WescapeService service;
     private Client client;
 
-    public WescapeUserManager(Context context) {
-        service = ApiBuilder.buildWescapeService(context);
+    public WescapeUserManager(Context context, String hostname) {
+        service = ApiBuilder.buildWescapeService(hostname);
         client = new WescapeClient(context);
     }
 

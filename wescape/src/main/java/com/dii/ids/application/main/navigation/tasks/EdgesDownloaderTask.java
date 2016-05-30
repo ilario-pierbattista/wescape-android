@@ -2,6 +2,7 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.SessionManager;
@@ -9,6 +10,7 @@ import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.settings.SettingsActivity;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -27,9 +29,12 @@ public class EdgesDownloaderTask extends AsyncTask<Void, Void, Boolean> {
 
     public EdgesDownloaderTask(Context context,
                                TaskListener<List<Edge>> listener) {
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                        SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
         this.listener = listener;
-        this.sessionManager = new WescapeSessionManager(context);
-        this.service = ApiBuilder.buildWescapeService(context);
+        this.sessionManager = new WescapeSessionManager(context, ipAddress);
+        this.service = ApiBuilder.buildWescapeService(ipAddress);
     }
 
     @Override

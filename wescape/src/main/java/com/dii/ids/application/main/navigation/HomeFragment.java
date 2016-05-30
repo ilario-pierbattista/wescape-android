@@ -28,7 +28,6 @@ import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
-import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.tasks.NearestExitTask;
 import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
@@ -42,7 +41,6 @@ import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -57,7 +55,6 @@ public class HomeFragment extends BaseFragment {
     private ViewHolder holder;
     private List<Path> solutionPaths = null;
     private Path selectedSolution;
-    private HashMap<Integer, MapsDownloaderTask> downloadMapsTasks;
     private int indexOfPathSelected;
     private boolean emergency = false;
 

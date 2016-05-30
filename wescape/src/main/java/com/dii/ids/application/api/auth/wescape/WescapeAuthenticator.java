@@ -17,9 +17,9 @@ public class WescapeAuthenticator implements Authenticator {
     private WescapeService service;
     private Client client;
 
-    public WescapeAuthenticator(Context context) {
+    public WescapeAuthenticator(Context context, String hostname) {
         tokenStorage = new TokenStorage(context);
-        service = ApiBuilder.buildWescapeService(context);
+        service = ApiBuilder.buildWescapeService(hostname);
         client = new WescapeClient(context);
     }
 

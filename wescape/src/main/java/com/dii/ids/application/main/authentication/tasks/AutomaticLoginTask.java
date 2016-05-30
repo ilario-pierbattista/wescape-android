@@ -2,11 +2,13 @@ package com.dii.ids.application.main.authentication.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import com.dii.ids.application.api.auth.SessionManager;
 import com.dii.ids.application.api.auth.wescape.TokenStorage;
 import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.settings.SettingsActivity;
 
 public class AutomaticLoginTask extends AsyncTask<Void, Void, Boolean> {
     private SessionManager sessionManager;
@@ -16,7 +18,10 @@ public class AutomaticLoginTask extends AsyncTask<Void, Void, Boolean> {
 
     public AutomaticLoginTask(Context context,
                               TaskListener<Void> listener) {
-        sessionManager = new WescapeSessionManager(context);
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                        SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
+        sessionManager = new WescapeSessionManager(context, ipAddress);
         tokenStorage = new TokenStorage(context);
         taskListener = listener;
     }
