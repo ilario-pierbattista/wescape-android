@@ -79,18 +79,16 @@ public class HomeFragment extends BaseFragment {
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
-                    holder.mapView.setOrigin(origin);
+                    //holder.mapView.setOrigin(origin);
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
-                    holder.mapView.setDestination(destination);
+                    //holder.mapView.setDestination(destination);
                     break;
             }
 
         } catch (NullPointerException ee) {
             Log.e(TAG, "NullPointer", ee);
-        } catch (PiantineNotSettedException e) {
-            e.printStackTrace();
         }
     }
 
@@ -230,9 +228,7 @@ public class HomeFragment extends BaseFragment {
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
 
             try {
-                holder.mapView.setOrigin(origin)
-                        .setDestination(destination)
-                        .drawRoute(multiFloorSolution);
+                holder.mapView.drawRoute(multiFloorSolution);
             } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
                 e.printStackTrace();
             }
@@ -296,16 +292,14 @@ public class HomeFragment extends BaseFragment {
 
         @Override
         public void onTaskSuccess(List<Path> exitPaths) {
-            Log.i(TAG, exitPaths.toString());
+            Log.i("NearestExitListener ", exitPaths.toString());
             solutionPaths = exitPaths;
             selectedSolution = new Path(solutionPaths.get(0));
             emergencyDestination = (Node) selectedSolution.get(selectedSolution.size() - 1);
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
 
             try {
-                holder.mapView.setOrigin(origin)
-                        .setDestination(emergencyDestination)
-                        .drawRoute(multiFloorSolution);
+                holder.mapView.drawRoute(multiFloorSolution);
             } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
                 e.printStackTrace();
             }

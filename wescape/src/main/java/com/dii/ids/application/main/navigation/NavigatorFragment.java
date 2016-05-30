@@ -89,9 +89,7 @@ public class NavigatorFragment extends BaseFragment {
         holder.setupUI();
 
         try {
-            holder.mapView.setOrigin(origin)
-                    .setDestination(destination)
-                    .drawRoute(multiFloorSolution);
+            holder.mapView.drawRoute(multiFloorSolution);
         } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
             e.printStackTrace();
         }
