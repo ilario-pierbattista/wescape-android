@@ -1,7 +1,6 @@
 package com.dii.ids.application.views;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -305,13 +304,6 @@ public class MapView extends LinearLayout {
             return result;
         }
     }
-
-
-
-
-
-
-
 
 
     @Deprecated

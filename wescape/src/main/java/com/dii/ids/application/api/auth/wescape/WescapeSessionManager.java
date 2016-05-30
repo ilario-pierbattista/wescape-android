@@ -18,10 +18,10 @@ public class WescapeSessionManager implements SessionManager {
     private Client client;
     private WescapeService service;
 
-    public WescapeSessionManager(Context context) {
+    public WescapeSessionManager(Context context, String hostname) {
         tokenStorage = new TokenStorage(context);
         client = new WescapeClient(context);
-        service = ApiBuilder.buildWescapeService(context);
+        service = ApiBuilder.buildWescapeService(hostname);
     }
 
     @Override

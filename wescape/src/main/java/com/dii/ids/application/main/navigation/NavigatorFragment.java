@@ -1,6 +1,5 @@
 package com.dii.ids.application.main.navigation;
 
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,18 +13,16 @@ import android.widget.TextView;
 import com.dii.ids.application.R;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.directions.HumanDirection;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.directions.Directions;
 import com.dii.ids.application.navigation.directions.DirectionsTranslator;
-import com.dii.ids.application.navigation.directions.HumanDirection;
 import com.dii.ids.application.utils.units.Tuple;
 import com.dii.ids.application.views.MapView;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
 import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
-
-import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass. Use the {@link NavigatorFragment#newInstance} factory method
@@ -39,10 +36,9 @@ public class NavigatorFragment extends BaseFragment {
     private ViewHolder holder;
     private Node origin;
     private Node destination;
-    private HashMap<String, Bitmap> piantine;
     private Path solution;
     private MultiFloorPath multiFloorSolution;
-    private Directions actions;
+    private Directions directions;
     private DirectionsTranslator translator;
 
     /**
@@ -76,8 +72,8 @@ public class NavigatorFragment extends BaseFragment {
 
             if (solution != null) {
                 multiFloorSolution = solution.toMultiFloorPath();
-                translator = new DirectionsTranslator(getContext(), solution);
-                actions = translator.calculateDirections()
+                translator = new DirectionsTranslator(solution);
+                directions = translator.calculateDirections()
                         .getDirections();
             } else {
                 Log.e(TAG, "Solution is null. Aborting");
@@ -134,7 +130,7 @@ public class NavigatorFragment extends BaseFragment {
      * @param indexes Tupla di indici dei nodi
      */
     private void updateDirectionDisplay(Tuple<Integer, Integer> indexes) {
-        HumanDirection humanDirection = translator.getHumanDirection(actions.get(indexes.x));
+        HumanDirection humanDirection = HumanDirection.createHumanDirection(getContext(), directions.get(indexes.x));
         holder.indicationTextView.setText(humanDirection.getDirection());
         holder.indicationSymbol.setImageResource(humanDirection.getIconResource());
         if (!indexes.x.equals(indexes.y)) {
@@ -142,13 +138,12 @@ public class NavigatorFragment extends BaseFragment {
             holder.nextNodeContainer.setVisibility(View.VISIBLE);
             String text = String.format(getString(R.string.toward_node), node.getName());
             holder.nextNodeTextView.setText(text);
-            HumanDirection humanDirection1 = translator.getHumanDirection(actions.get(indexes.y));
+            HumanDirection humanDirection1 = HumanDirection.createHumanDirection(getContext(), directions.get(indexes.y));
             holder.nextNodeIcon.setImageResource(humanDirection1.getIconResource());
         } else {
             holder.nextNodeContainer.setVisibility(View.GONE);
             holder.nextNodeTextView.setText(getString(R.string.congratulation));
         }
-
     }
 
     public class ViewHolder {

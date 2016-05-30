@@ -2,6 +2,7 @@ package com.dii.ids.application.main.navigation.tasks;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
@@ -10,6 +11,7 @@ import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.settings.SettingsActivity;
 
 import java.net.HttpURLConnection;
 import java.util.List;
@@ -28,9 +30,13 @@ public class NodesDownloaderTask extends AsyncTask<Void, Void, Boolean> {
 
     public NodesDownloaderTask(Context context,
                                TaskListener<List<Node>> listener) {
+
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                        SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
         this.listener = listener;
-        this.sessionManager = new WescapeSessionManager(context);
-        this.service = ApiBuilder.buildWescapeService(context);
+        this.sessionManager = new WescapeSessionManager(context, ipAddress);
+        this.service = ApiBuilder.buildWescapeService(ipAddress);
     }
 
     @Override

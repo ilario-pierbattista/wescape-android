@@ -2,8 +2,6 @@ package com.dii.ids.application.navigation;
 
 import java.util.Comparator;
 
-import es.usc.citius.hipster.model.impl.WeightedNode;
-
 
 public class PathComparator implements Comparator<Path> {
     @Override

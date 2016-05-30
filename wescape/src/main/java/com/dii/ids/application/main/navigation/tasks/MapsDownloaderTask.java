@@ -4,12 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.listener.TaskListener;
+import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.utils.io.SimpleDiskCache;
 
 import java.io.File;
@@ -36,9 +38,13 @@ public class MapsDownloaderTask extends AsyncTask<Integer, Void, Boolean> {
     private WescapeService service;
 
     public MapsDownloaderTask(Context context, TaskListener<Map> listener) {
+
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                        SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
         this.context = context;
         this.listener = listener;
-        this.service = ApiBuilder.buildWescapeService(context);
+        this.service = ApiBuilder.buildWescapeService(ipAddress);
     }
 
     @Override
