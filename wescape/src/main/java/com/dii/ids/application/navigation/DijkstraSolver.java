@@ -16,6 +16,11 @@ import es.usc.citius.hipster.model.impl.WeightedNode;
 import es.usc.citius.hipster.model.problem.SearchProblem;
 import es.usc.citius.hipster.util.Function;
 
+/**
+ * TODO: Nota stilistica
+ * Il risolutore viene costruito utilizzando il pattern builder.
+ * Il builder dovrebbe essere una classe diversa che mette a disposizione metodi per creare il risolutore.
+ */
 public class DijkstraSolver {
     public static final String TAG = DijkstraSolver.class.getName();
     private Checkpoint origin;
@@ -52,21 +57,28 @@ public class DijkstraSolver {
      * @param destination
      * @return
      */
-    public List<Path> search(Checkpoint destination) {
+    public List<Path> searchDoublePath(Checkpoint destination) {
         List<Path> solutions = new ArrayList<>();
 
         // Ricerca della prima soluzione
-        buildProblemWithGraph(graph);
-        solutions.add(getPathToReachDestination(destination));
+        solutions.add(search(destination));
 
         // Ricerca della seconda soluzione
         Graph subGraph = graph.removePath(solutions.get(0));
-        if(subGraph.isConnected()) {
-            buildProblemWithGraph(subGraph);
-            solutions.add(getPathToReachDestination(destination));
+        if (subGraph.isConnected()) {
+            solutions.add(search(destination, subGraph));
         }
 
         return solutions;
+    }
+
+    public Path search(Checkpoint destination) {
+        return search(destination, graph);
+    }
+
+    private Path search(Checkpoint destination, Graph searchGraph) {
+        buildProblemWithGraph(searchGraph);
+        return getPathToReachDestination(destination);
     }
 
     public List<Path> searchNearestExits(List<? extends Checkpoint> exits) {

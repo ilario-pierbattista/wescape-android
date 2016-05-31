@@ -205,7 +205,7 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
-     * Responsible for handling changes in search edit text.
+     * Responsible for handling changes in searchDoublePath edit text.
      */
     private class SearchWatcher implements TextWatcher {
         @Override

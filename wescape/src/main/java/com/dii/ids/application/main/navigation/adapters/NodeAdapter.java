@@ -64,10 +64,10 @@ public class NodeAdapter extends BaseAdapter implements Filterable {
                 FilterResults results = new FilterResults();
 
                 if (constraint == null || constraint.length() == 0) {
-                    // no constraint given, just return all the data. (no search)
+                    // no constraint given, just return all the data. (no searchDoublePath)
                     results.count = nodes.size();
                     results.values = nodes;
-                } else { //do the search
+                } else { //do the searchDoublePath
                     List<Node> resultsData = new ArrayList<>();
                     String searchStr = constraint.toString().toUpperCase();
                     for (Node node : nodes)

@@ -24,7 +24,6 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     private List<Path> searchResult;
     private TaskListener<List<Path>> listener;
     private boolean emergency;
-    private double maxLength;
 
     public MinimumPathTask(Context context,
                            TaskListener<List<Path>> listener,
@@ -38,7 +37,6 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
                            TaskListener<List<Path>> listener) {
         this.context = context;
         this.listener = listener;
-        this.emergency = false;
     }
 
     @Override
@@ -49,14 +47,10 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
             Graph graph = new Graph(EdgeRepository.findAll());
             DijkstraSolver dijkstraSolver = new DijkstraSolver();
 
-            // Query del lato più lungo
-            final Edge maxLengthEdge = EdgeRepository.findMaxLengthEdge();
-            maxLength = maxLengthEdge.getLength();
-
             dijkstraSolver.startingFrom(beginNode)
                     .in(graph)
-                    .setNormalizationBasis(maxLength);
-            searchResult = dijkstraSolver.search(endNode);
+                    .setNormalizationBasis(EdgeRepository.getMaxLength());
+            searchResult = dijkstraSolver.searchDoublePath(endNode);
 
             Thread.sleep(1000);
             return (searchResult != null);

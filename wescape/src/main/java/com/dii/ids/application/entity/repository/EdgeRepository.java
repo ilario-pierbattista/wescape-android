@@ -24,6 +24,18 @@ public class EdgeRepository {
                 .queryList();
     }
 
+    public static List<Edge> findAllButOne(Edge edge) {
+        if (edge == null) {
+            return findAll();
+        } else {
+            return SQLite
+                    .select()
+                    .from(Edge.class)
+                    .where(Edge_Table.id.notEq(edge.getId()))
+                    .queryList();
+        }
+    }
+
     public static List<Edge> findStairs() {
         return SQLite
                 .select()
@@ -54,10 +66,11 @@ public class EdgeRepository {
                 .orderBy(Edge_Table.length, false)
                 .limit(1)
                 .queryList();
-        if (edges.size() > 0) {
-            return edges.get(0);
-        } else {
-            return null;
-        }
+        return edges.get(0);
+    }
+
+    public static double getMaxLength() {
+        final Edge maxLengthEdge = findMaxLengthEdge();
+        return maxLengthEdge.getLength();
     }
 }
