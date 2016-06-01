@@ -20,7 +20,6 @@ import com.dii.ids.application.navigation.NavigationIndices;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
-import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -175,7 +174,9 @@ public class MapView extends LinearLayout {
      * @param floor Piano
      */
     private void drawPath(String floor) {
-        holder.pinView.setPath(this.route.get(floor));
+        if(this.route != null) {
+            holder.pinView.setPath(this.route.get(floor));
+        }
     }
 
     /**
