@@ -19,7 +19,7 @@ import es.usc.citius.hipster.util.Function;
 /**
  * TODO: Nota stilistica
  * Il risolutore viene costruito utilizzando il pattern builder.
- * Il builder dovrebbe essere una classe diversa che mette a disposizione metodi per creare il risolutore.
+ * Il builder dovrebbe essere una classe diversa che mette a disposizione metodi per creare il risolu
  */
 public class DijkstraSolver {
     public static final String TAG = DijkstraSolver.class.getName();
@@ -64,9 +64,12 @@ public class DijkstraSolver {
         solutions.add(search(destination));
 
         // Ricerca della seconda soluzione
-        Graph subGraph = graph.removePath(solutions.get(0));
+        Trunk trunkToKill = graph.getTrunkToBreakPath(solutions.get(0));
+        Graph subGraph = graph.createNewGraphWithoutATrunk(trunkToKill);
         if (subGraph.isConnected()) {
-            solutions.add(search(destination, subGraph));
+            Path secondSolution = search(destination, subGraph);
+            secondSolution.setExcludedTrunk(trunkToKill);
+            solutions.add(secondSolution);
         }
 
         return solutions;

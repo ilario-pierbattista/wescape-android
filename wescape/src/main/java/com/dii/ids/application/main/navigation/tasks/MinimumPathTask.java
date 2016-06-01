@@ -23,15 +23,6 @@ public class MinimumPathTask extends AsyncTask<Node, Void, Boolean> {
     private Exception thrownException;
     private List<Path> searchResult;
     private TaskListener<List<Path>> listener;
-    private boolean emergency;
-
-    public MinimumPathTask(Context context,
-                           TaskListener<List<Path>> listener,
-                           boolean emergencyStatus) {
-        this.context = context;
-        this.listener = listener;
-        this.emergency = emergencyStatus;
-    }
 
     public MinimumPathTask(Context context,
                            TaskListener<List<Path>> listener) {

@@ -176,10 +176,11 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openNavigatorFragment() {
-        Node dest = emergency ? emergencyDestination : destination;
+        // @TODO remove
+        //Node dest = emergency ? emergencyDestination : destination;
 
         NavigatorFragment navigatorFragment =
-                NavigatorFragment.newInstance(origin, dest, selectedSolution);
+                NavigatorFragment.newInstance(selectedSolution, emergency);
         ((NavigationActivity) getActivity())
                 .changeFragment(navigatorFragment);
     }
@@ -229,7 +230,7 @@ public class HomeFragment extends BaseFragment {
 
             try {
                 holder.mapView.drawRoute(multiFloorSolution);
-            } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+            } catch (OriginNotSettedException | DestinationNotSettedException e) {
                 e.printStackTrace();
             }
 
@@ -273,7 +274,7 @@ public class HomeFragment extends BaseFragment {
                             MultiFloorPath multiFloorPath = solutionPaths.get(which).toMultiFloorPath();
                             try {
                                 holder.mapView.drawRoute(multiFloorPath);
-                            } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+                            } catch (OriginNotSettedException | DestinationNotSettedException e) {
                                 e.printStackTrace();
                             }
                             return true;
@@ -300,7 +301,7 @@ public class HomeFragment extends BaseFragment {
 
             try {
                 holder.mapView.drawRoute(multiFloorSolution);
-            } catch (PiantineNotSettedException | OriginNotSettedException | DestinationNotSettedException e) {
+            } catch (OriginNotSettedException | DestinationNotSettedException e) {
                 e.printStackTrace();
             }
 

@@ -56,14 +56,7 @@ public class Graph extends ArrayList<Trunk> {
         return false;
     }
 
-    public Graph removePath(Path path) {
-        Checkpoint begin, second;
-        Trunk trunkToKill;
-        begin = path.get(0);
-        second = path.get(1);
-
-        trunkToKill = searchTrunk(begin, second);
-
+    public Graph createNewGraphWithoutATrunk(Trunk trunkToKill) {
         Graph subGraph = new Graph();
         for (Trunk trunk : this) {
             if (!trunk.equals(trunkToKill)) {
@@ -71,6 +64,10 @@ public class Graph extends ArrayList<Trunk> {
             }
         }
         return subGraph;
+    }
+
+    public Trunk getTrunkToBreakPath(Path path) {
+        return searchTrunk(path.get(0), path.get(1));
     }
 
     public Trunk searchTrunk(Checkpoint checkpoint1, Checkpoint checkpoint2) {
