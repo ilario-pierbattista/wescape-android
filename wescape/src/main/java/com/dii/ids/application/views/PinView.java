@@ -8,7 +8,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.Loader;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.davemorrissey.labs.subscaleview.ImageSource;
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView;
@@ -118,6 +120,12 @@ public class PinView extends SubsamplingScaleImageView {
             points.add(new PointF(node.getX(), node.getY()));
         }
         this.path = points;
+        initialise();
+        invalidate();
+    }
+
+    public void resetPath() {
+        this.path = null;
         initialise();
         invalidate();
     }

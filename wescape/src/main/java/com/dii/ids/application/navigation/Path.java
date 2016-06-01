@@ -97,4 +97,8 @@ public class Path extends ArrayList<Checkpoint> {
     public Checkpoint getDestination() {
         return get(size() - 1);
     }
+
+    public boolean isDestinationReached() {
+        return size() == 1;
+    }
 }

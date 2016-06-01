@@ -22,6 +22,7 @@ import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.NavigationIndices;
 import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.navigation.directions.Actions;
 import com.dii.ids.application.navigation.directions.Directions;
 import com.dii.ids.application.navigation.directions.DirectionsTranslator;
 import com.dii.ids.application.views.MapView;
@@ -44,6 +45,7 @@ public class NavigatorFragment extends BaseFragment {
     private Stack<Node> routeTraveled;
     private MultiFloorPath multiFloorSolution;
     private Directions directions;
+    private DirectionsTranslator translator;
     private boolean emergency;
 
     /**
@@ -72,7 +74,7 @@ public class NavigatorFragment extends BaseFragment {
 
             if (routeToBeFlown != null) {
                 multiFloorSolution = routeToBeFlown.toMultiFloorPath();
-                DirectionsTranslator translator = new DirectionsTranslator(routeToBeFlown);
+                translator = new DirectionsTranslator(routeToBeFlown);
                 directions = translator.calculateDirections()
                         .getDirections();
             } else {
@@ -129,7 +131,7 @@ public class NavigatorFragment extends BaseFragment {
 
     private void next() {
         if(routeToBeFlown.size() >= 2) {
-            
+
             routeTraveled.push((Node) routeToBeFlown.getOrigin());
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
                     (Edge) routeToBeFlown.getExcludedTrunk(),
@@ -212,14 +214,32 @@ public class NavigatorFragment extends BaseFragment {
     }
 
     private class ContinuousMPSTaskListener implements TaskListener<Path> {
+        private Checkpoint prev, current, next, nexter;
+        private Actions currentAction, nextAction;
+
         @Override
         public void onTaskSuccess(Path path) {
             routeToBeFlown = path;
             try {
-                Log.i(TAG, routeTraveled.toString());
-                Log.i(TAG, routeToBeFlown.toString());
+                // @TODO Prendere qui il primo lato ed inviarlo al server per la posizione futura
 
-                holder.mapView.drawRoute(routeToBeFlown.toMultiFloorPath());
+                // Ricavo le indicazioni
+                setPoints();
+                currentAction = translator.getDirectionForNextNode(prev, current, next);
+                holder.setCurrentDirection(HumanDirection.createHumanDirection(getContext(), currentAction));
+
+                if(routeToBeFlown.isDestinationReached()) {
+                    // Destinazione raggiunta, disegno solo il pallino rosso
+                    holder.setNavigationEnding();
+                    holder.mapView.reset()
+                            .setOrigin((Node) routeToBeFlown.getDestination());
+                } else {
+                    // Destinazione da raggiungere, disegno tutto il percorso
+                    nextAction = translator.getDirectionForNextNode(current, next, nexter);
+                    holder.setNextDirection(HumanDirection.createHumanDirection(getContext(), nextAction),
+                            ((Node) next).getName());
+                    holder.mapView.drawRoute(routeToBeFlown.toMultiFloorPath());
+                }
             } catch (OriginNotSettedException|DestinationNotSettedException e) {
                 e.printStackTrace();
             }
@@ -238,6 +258,13 @@ public class NavigatorFragment extends BaseFragment {
         @Override
         public void onTaskCancelled() {
 
+        }
+
+        private void setPoints() {
+            prev = routeTraveled.size() > 0 ? routeTraveled.lastElement(): null;
+            current = routeToBeFlown.getOrigin();
+            next = !routeToBeFlown.isDestinationReached() ? routeToBeFlown.get(1) : null;
+            nexter = routeToBeFlown.size() > 2 ? routeToBeFlown.get(2) : null;
         }
     }
 

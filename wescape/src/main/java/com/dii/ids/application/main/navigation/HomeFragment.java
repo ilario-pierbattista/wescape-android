@@ -37,7 +37,6 @@ import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
-import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import org.apache.commons.lang3.SerializationUtils;
 
@@ -196,15 +195,15 @@ public class HomeFragment extends BaseFragment {
                 if (origin == null || destination == null) {
                     if (origin == null) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                       Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.select_end_point,
-                                       Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     if (origin.getId() == destination.getId()) {
                         Toast.makeText(getActivity().getApplicationContext(), R.string.select_different_nodes,
-                                       Toast.LENGTH_SHORT).show();
+                                Toast.LENGTH_SHORT).show();
                     } else {
                         openNavigatorFragment();
                     }
@@ -212,7 +211,7 @@ public class HomeFragment extends BaseFragment {
             } else {
                 if (origin == null) {
                     Toast.makeText(getActivity().getApplicationContext(), R.string.select_start_point,
-                                   Toast.LENGTH_SHORT).show();
+                            Toast.LENGTH_SHORT).show();
                 } else {
                     openNavigatorFragment();
                 }
@@ -371,11 +370,11 @@ public class HomeFragment extends BaseFragment {
             destinationViewIcon.setImageResource(R.drawable.ic_pin_drop);
 
             originViewText.setText(origin == null ?
-                                           getString(R.string.navigation_select_origin) :
-                                           origin.getName());
+                    getString(R.string.navigation_select_origin) :
+                    origin.getName());
             destinationViewText.setText(destination == null ?
-                                                getString(R.string.navigation_select_destination) :
-                                                destination.getName());
+                    getString(R.string.navigation_select_destination) :
+                    destination.getName());
 
             // Setup listeners
             originView.setOnClickListener(new View.OnClickListener() {
@@ -417,17 +416,9 @@ public class HomeFragment extends BaseFragment {
         public void setupMapView() {
             if (!emergency) {
                 if (destination != null && origin == null) {
-                    try {
-                        holder.mapView.setDestination(destination);
-                    } catch (PiantineNotSettedException e) {
-                        e.printStackTrace();
-                    }
+                    holder.mapView.setDestination(destination);
                 } else if (origin != null && destination == null) {
-                    try {
-                        holder.mapView.setOrigin(origin);
-                    } catch (PiantineNotSettedException e) {
-                        e.printStackTrace();
-                    }
+                    holder.mapView.setOrigin(origin);
                 } else if (origin != null && destination != null) {
                     MinimumPathTask minimumPathTask = new MinimumPathTask(
                             getContext(), new MinimumPathListener());
@@ -453,8 +444,8 @@ public class HomeFragment extends BaseFragment {
                     toBlue = getResources().getColorStateList(blue);
             FabAnimation fabAnimation = new FabAnimation();
             ToolbarAnimation toolbarAnimation = new ToolbarAnimation(holder.revealView,
-                                                                     holder.revealBackgroundView,
-                                                                     holder.toolbar);
+                    holder.revealBackgroundView,
+                    holder.toolbar);
 
             if (!emergency) {
                 toolbarAnimation.animateAppAndStatusBar(color(blue), color(red));

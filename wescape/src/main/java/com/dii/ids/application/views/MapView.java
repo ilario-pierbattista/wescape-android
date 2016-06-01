@@ -62,18 +62,12 @@ public class MapView extends LinearLayout {
      *
      * @param origin Nodo di origine
      * @return Istanza di MapView
-     * @throws PiantineNotSettedException
      */
-    public MapView setOrigin(Node origin) throws PiantineNotSettedException {
+    public MapView setOrigin(Node origin) {
         this.origin = origin;
         this.currentFloor = origin.getFloor();
-        try {
-            changeImage(currentFloor);
-            drawPins(currentFloor);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
+        changeImage(currentFloor);
+        drawPins(currentFloor);
         return this;
     }
 
@@ -120,18 +114,12 @@ public class MapView extends LinearLayout {
      *
      * @param destination Nodo destinazione
      * @return MapView
-     * @throws PiantineNotSettedException
      */
-    public MapView setDestination(Node destination) throws PiantineNotSettedException {
+    public MapView setDestination(Node destination) {
         this.destination = destination;
         this.currentFloor = destination.getFloor();
-        try {
-            changeImage(currentFloor);
-            drawPins(currentFloor);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
+        changeImage(currentFloor);
+        drawPins(currentFloor);
         return this;
     }
 
@@ -170,6 +158,14 @@ public class MapView extends LinearLayout {
 
     public MapView setNavigationListener(MapViewNavigationListener navigationListener) {
         this.navigationListener = navigationListener;
+        return this;
+    }
+
+    public MapView reset() {
+        origin = null;
+        destination = null;
+        route = null;
+        holder.pinView.resetPath();
         return this;
     }
 
