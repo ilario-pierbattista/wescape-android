@@ -16,7 +16,6 @@ import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
-import com.dii.ids.application.navigation.NavigationIndices;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
@@ -31,9 +30,6 @@ public class MapView extends LinearLayout {
     private String currentFloor;
     private Node origin, destination;
     private MultiFloorPath route;
-    private Path orderedSolution;
-    private MapViewNavigationListener navigationListener;
-    private int currentNode;
 
     public MapView(Context context) {
         super(context);
@@ -150,13 +146,6 @@ public class MapView extends LinearLayout {
         drawPins(currentFloor);
         setupFloorButtons();
 
-        orderedSolution = route.toPath();
-
-        return this;
-    }
-
-    public MapView setNavigationListener(MapViewNavigationListener navigationListener) {
-        this.navigationListener = navigationListener;
         return this;
     }
 
@@ -209,93 +198,6 @@ public class MapView extends LinearLayout {
                 holder.floorButtons.get(floor).setOnClickListener(new FloorButtonListener());
             }
         }
-    }
-
-    /**
-     * Passa al nodo successivo della lista dei nodi della soluzione
-     *
-     * @return Tupla con l'indice del nodo successivo e successivo ancora
-     */
-    public NavigationIndices nextStep() {
-        navigationListener.saveVisitedNode(orderedSolution.get(currentNode));
-
-        NavigationIndices indices = orderedSolution.incrementIndices(currentNode);
-        currentNode = indices.current;
-
-        // @TODO Decidere cosa fare qui
-        // triggerStepChange();
-        navigationListener.onNext();
-        return indices;
-    }
-
-    /**
-     * Innesca il cambiamento di stato di navigazione
-     */
-    private void triggerStepChange() {
-        Node nextNode = (Node) orderedSolution.get(currentNode);
-
-        if (!currentFloor.equals(nextNode.getFloor())) {
-            changeFloor(nextNode.getFloor());
-        }
-
-        holder.pinView.setSinglePin(new MapPin(nextNode.toPointF()));
-    }
-
-    /**
-     * Cambia il piano
-     *
-     * @param floor Piano
-     * @return Istanza corrente di MapView
-     */
-    public MapView changeFloor(String floor) {
-        for (String key : holder.floorButtons.keySet()) {
-            Button button = holder.floorButtons.get(key);
-            if (floor.equals(button.getText().toString())) {
-                button.performClick();
-            }
-        }
-        drawOnMap(floor);
-
-        return this;
-    }
-
-    /**
-     * Disegna i pin ed il percorso di un piano
-     *
-     * @param floor Piano
-     * @return Istanza di MapView
-     */
-    private MapView drawOnMap(String floor) {
-        ArrayList<MapPin> pins = new ArrayList<>();
-
-        if (origin != null && origin.getFloor().equals(floor)) {
-            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
-        }
-        if (destination != null && destination.getFloor().equals(floor)) {
-            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
-        }
-        holder.pinView.setMultiplePins(pins);
-        if (route != null) {
-            drawPath(floor);
-        }
-
-        return this;
-    }
-
-    /**
-     * Passa al nodo precedente della lista dei nodi della soluzione
-     *
-     * @return Tupla con l'indice del nodo precednete e precedente ancora
-     */
-    public NavigationIndices prevStep() {
-        navigationListener.saveVisitedNode(orderedSolution.get(currentNode));
-
-        NavigationIndices indices = orderedSolution.decrementIndices(currentNode);
-        currentNode = indices.current;
-        triggerStepChange();
-
-        navigationListener.onPrevious();
-        return indices;
     }
 
     /**

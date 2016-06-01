@@ -27,7 +27,6 @@ import com.dii.ids.application.navigation.directions.Actions;
 import com.dii.ids.application.navigation.directions.Directions;
 import com.dii.ids.application.navigation.directions.DirectionsTranslator;
 import com.dii.ids.application.views.MapView;
-import com.dii.ids.application.views.MapViewNavigationListener;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
 
@@ -115,35 +114,26 @@ public class NavigatorFragment extends BaseFragment {
         @Override
         public void onClick(View v) {
             ButtonType tag = (ButtonType) v.getTag();
-            NavigationIndices indices = null;
             switch (tag) {
                 case NEXT: {
-                    // indices = holder.mapView.nextStep();
                     next();
                     break;
                 }
                 case PREVIOUS: {
-                    // indices = holder.mapView.prevStep();
                     prev();
                     break;
                 }
             }
-            // updateDirectionDisplay(indices);
         }
     }
 
     private void next() {
         if(routeToBeFlown.size() >= 2) {
-
-            Log.i(TAG, excludedTrunk.toString());
-
             routeTraveled.push((Node) routeToBeFlown.getOrigin());
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
                     (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                     (Node) routeToBeFlown.getDestination());
-        } else if (routeToBeFlown.size() == 1) {
-            Log.i(TAG, "Destinazione raggiunta");
         }
     }
 
@@ -154,8 +144,6 @@ public class NavigatorFragment extends BaseFragment {
                     (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute(backStep,
                     (Node) routeToBeFlown.getDestination());
-        } else {
-            Log.i(TAG, "Punto di partenza");
         }
     }
 
@@ -173,46 +161,6 @@ public class NavigatorFragment extends BaseFragment {
                     ((Node) routeToBeFlown.getNext(indices)).getName());
         } else {
             holder.setNavigationEnding();
-        }
-    }
-
-    private class NavigationListener implements MapViewNavigationListener {
-        private Stack<Node> visitedNodes;
-        private Node visitedNode;
-
-        public NavigationListener() {
-            visitedNodes = new Stack<>();
-        }
-
-        @Override
-        public void onNext() {
-            // Ricalcolare il percorso togliendo un nodo
-            visitedNodes.push(visitedNode);
-
-            if(routeToBeFlown.size() > 1) {
-                ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                        (Edge) excludedTrunk,
-                        emergency);
-                continuousMPSTask.execute((Node) routeToBeFlown.get(1),
-                        (Node) routeToBeFlown.getDestination());
-            }
-        }
-
-        @Override
-        public void onPrevious() {
-            // Ricalcolare il percorso aggiungendo il nodo tolto in precendeza
-            if(visitedNodes.size() > 0) {
-                ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                        (Edge) excludedTrunk,
-                        emergency);
-                continuousMPSTask.execute(visitedNodes.pop(),
-                        (Node) routeToBeFlown.getDestination());
-            }
-        }
-
-        @Override
-        public void saveVisitedNode(Checkpoint visitedNode) {
-            this.visitedNode = (Node) visitedNode;
         }
     }
 
@@ -335,7 +283,6 @@ public class NavigatorFragment extends BaseFragment {
             previousButton.setTag(ButtonType.PREVIOUS);
             nextButton.setOnClickListener(new IndicationButtonListener());
             previousButton.setOnClickListener(new IndicationButtonListener());
-            mapView.setNavigationListener(new NavigationListener());
         }
     }
 }
