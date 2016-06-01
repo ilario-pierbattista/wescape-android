@@ -78,11 +78,9 @@ public class HomeFragment extends BaseFragment {
             switch (requestCode) {
                 case ORIGIN_SELECTION_REQUEST_CODE:
                     origin = node;
-                    //holder.mapView.setOrigin(origin);
                     break;
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
-                    //holder.mapView.setDestination(destination);
                     break;
             }
 

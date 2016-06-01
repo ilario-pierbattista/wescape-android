@@ -16,6 +16,12 @@ public class Path extends ArrayList<Checkpoint> {
         addAll(nodes);
     }
 
+    public Path(Path path) {
+        addAll(path);
+        this.setGoalState(path.getGoalState());
+        this.setExcludedTrunk(path.getExcludedTrunk());
+    }
+
     /**
      * Iterate over a path and divide it by floor
      *
@@ -100,5 +106,13 @@ public class Path extends ArrayList<Checkpoint> {
 
     public boolean isDestinationReached() {
         return size() == 1;
+    }
+
+    @Override
+    public String toString() {
+        return "Path{" +
+                "goalState=" + goalState +
+                ", excludedTrunk=" + excludedTrunk +
+                '}';
     }
 }

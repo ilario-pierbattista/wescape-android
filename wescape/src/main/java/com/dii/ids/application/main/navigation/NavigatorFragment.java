@@ -22,6 +22,7 @@ import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.NavigationIndices;
 import com.dii.ids.application.navigation.Path;
+import com.dii.ids.application.navigation.Trunk;
 import com.dii.ids.application.navigation.directions.Actions;
 import com.dii.ids.application.navigation.directions.Directions;
 import com.dii.ids.application.navigation.directions.DirectionsTranslator;
@@ -42,6 +43,7 @@ public class NavigatorFragment extends BaseFragment {
     private static final String EMERGENCY = "emergency";
     private ViewHolder holder;
     private Path routeToBeFlown;
+    private Trunk excludedTrunk;
     private Stack<Node> routeTraveled;
     private MultiFloorPath multiFloorSolution;
     private Directions directions;
@@ -73,6 +75,7 @@ public class NavigatorFragment extends BaseFragment {
             emergency = getArguments().getBoolean(EMERGENCY);
 
             if (routeToBeFlown != null) {
+                excludedTrunk = routeToBeFlown.getExcludedTrunk();
                 multiFloorSolution = routeToBeFlown.toMultiFloorPath();
                 translator = new DirectionsTranslator(routeToBeFlown);
                 directions = translator.calculateDirections()
@@ -132,10 +135,11 @@ public class NavigatorFragment extends BaseFragment {
     private void next() {
         if(routeToBeFlown.size() >= 2) {
 
+            Log.i(TAG, excludedTrunk.toString());
+
             routeTraveled.push((Node) routeToBeFlown.getOrigin());
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                    (Edge) routeToBeFlown.getExcludedTrunk(),
-                    emergency);
+                    (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                     (Node) routeToBeFlown.getDestination());
         } else if (routeToBeFlown.size() == 1) {
@@ -147,8 +151,7 @@ public class NavigatorFragment extends BaseFragment {
         if(routeTraveled.size() > 0) {
             Node backStep = routeTraveled.pop();
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                    (Edge) routeToBeFlown.getExcludedTrunk(),
-                    emergency);
+                    (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute(backStep,
                     (Node) routeToBeFlown.getDestination());
         } else {
@@ -188,7 +191,7 @@ public class NavigatorFragment extends BaseFragment {
 
             if(routeToBeFlown.size() > 1) {
                 ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                        (Edge) routeToBeFlown.getExcludedTrunk(),
+                        (Edge) excludedTrunk,
                         emergency);
                 continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                         (Node) routeToBeFlown.getDestination());
@@ -200,7 +203,7 @@ public class NavigatorFragment extends BaseFragment {
             // Ricalcolare il percorso aggiungendo il nodo tolto in precendeza
             if(visitedNodes.size() > 0) {
                 ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
-                        (Edge) routeToBeFlown.getExcludedTrunk(),
+                        (Edge) excludedTrunk,
                         emergency);
                 continuousMPSTask.execute(visitedNodes.pop(),
                         (Node) routeToBeFlown.getDestination());

@@ -104,10 +104,6 @@ public class DijkstraSolver {
     private Path getPathToReachDestination(Checkpoint destination) {
         Algorithm.SearchResult result =
                 Hipster.createDijkstra(problem).search(destination);
-
-        WeightedNode goalState = (WeightedNode) result.getGoalNode();
-        Log.i(TAG, goalState.getScore().toString());
-
         return getFirstPath(result);
     }
 
