@@ -34,6 +34,7 @@ public class NavigationActivity extends AppCompatActivity {
         // Handle possible data accompanying notification message.
         // [START handle_data_extras]
         Log.d(TAG, "InstanceID token: " + FirebaseInstanceId.getInstance().getToken());
+
         boolean emergency = false;
         if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {
