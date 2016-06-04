@@ -38,4 +38,9 @@ public class WescapeAuthenticator implements Authenticator {
 
         tokenStorage.save(token);
     }
+
+    @Override
+    public void logout() throws Exception {
+        tokenStorage.delete();
+    }
 }

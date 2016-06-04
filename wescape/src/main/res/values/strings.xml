@@ -137,4 +137,8 @@
     <string name="label_select_path">Route %d</string>
     <string name="find_nearest_exit">Finding nearest exit</string>
     <string name="map_placeholder">Select a node to start navigation</string>
+    <string name="wescape_notification">Wescape Notification</string>
+    <string name="emergency_dialog_title">Situation of emergency</string>
+    <string name="emergency_dialog_description">Keep calm, Wescape will guide you to nearest exit</string>
+    <string name="action_logout" translatable="false">Log out</string>
 </resources>

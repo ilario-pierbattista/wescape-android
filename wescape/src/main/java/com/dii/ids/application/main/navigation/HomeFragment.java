@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -19,19 +21,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.AuthenticationActivity;
 import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.tasks.NearestExitTask;
 import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
+import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
@@ -49,6 +55,8 @@ import java.util.List;
 public class HomeFragment extends BaseFragment {
     public static final String TAG = HomeFragment.class.getSimpleName();
     public static final String INTENT_KEY_POSITION = "position";
+    public static final String EMERGENCY = "emergenza";
+    public static final String EMERGENCY_ACTION = "emergency_action";
     private static Node origin = null, destination = null, emergencyDestination = null;
     private ViewHolder holder;
     private List<Path> solutionPaths = null;
@@ -56,9 +64,11 @@ public class HomeFragment extends BaseFragment {
     private int indexOfPathSelected;
     private boolean emergency = false;
 
-    public static HomeFragment newInstance() {
+    public static HomeFragment newInstance(boolean emergency) {
+        Log.d(TAG, String.valueOf(emergency));
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
+        args.putBoolean(EMERGENCY, emergency);
         fragment.setArguments(args);
         return fragment;
     }
@@ -93,8 +103,14 @@ public class HomeFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.navigation_home_fragment, container, false);
+
         holder = new ViewHolder(view);
         holder.setupUI();
+
+        if (getArguments().getBoolean(EMERGENCY)) {
+            holder.createEmergencyDialog();
+        }
+
         return view;
     }
 
@@ -134,6 +150,7 @@ public class HomeFragment extends BaseFragment {
         // Handle action bar item clicks here
         switch (item.getItemId()) {
             case R.id.action_settings:
+                logout();
                 return true;
             case R.id.action_emergency:
                 holder.toggleEmergency();
@@ -144,12 +161,24 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        indexOfPathSelected = 0;
+    /**
+     * Logout the current user
+     */
+    private void logout() {
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(getContext()))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                           SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
+        WescapeAuthenticator authenticator = new WescapeAuthenticator(getContext(), ipAddress);
+        try {
+            authenticator.logout();
+            Intent intent = new Intent(getActivity(), AuthenticationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Logout error: ", e);
+        }
     }
+
 
     private void openSelectionFragment(View v) {
         SelectionFragment selectionFragment;
@@ -467,6 +496,26 @@ public class HomeFragment extends BaseFragment {
                 });
                 emergency = false;
             }
+        }
+
+        public void createEmergencyDialog() {
+            new MaterialDialog.Builder(getContext())
+                    .title(getString(R.string.emergency_dialog_title))
+                    .content(getString(R.string.emergency_dialog_description))
+                    .positiveText(getString(R.string.action_confirm))
+                    .positiveColorRes(R.color.regularBlue)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                            if (!emergency) {
+                                holder.toggleEmergency();
+                            }
+
+                        }
+                    })
+                    .icon(getResources().getDrawable(R.drawable.ic_fire))
+                    .autoDismiss(true)
+                    .show();
         }
     }
 }

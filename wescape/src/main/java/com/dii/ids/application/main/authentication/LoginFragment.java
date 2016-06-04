@@ -116,14 +116,6 @@ public class LoginFragment extends BaseFragment {
             }
         });
 
-        holder.homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), NavigationActivity.class);
-                startActivity(intent);
-            }
-        });
-
         holder.signupTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -300,7 +292,6 @@ public class LoginFragment extends BaseFragment {
         public final TextInputLayout passwordFieldLayout;
         public final EditText passwordField;
         public final Button loginButton;
-        public final Button homeButton;
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
         public final TextView signupTextView;
@@ -318,7 +309,6 @@ public class LoginFragment extends BaseFragment {
             scrollView = find(view, R.id.login_scroll_view);
             signupTextView = find(view, R.id.sign_up_text);
             resetPasswdTextView = find(view, R.id.reset_passwd_text);
-            homeButton = find(view, R.id.login_home_button);
             logoImageView = find(view, R.id.wescape_logo_image_view);
         }
     }

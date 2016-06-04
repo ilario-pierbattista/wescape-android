@@ -67,4 +67,7 @@
     <string name="label_select_path">Percorso %d</string>
     <string name="find_nearest_exit">Cerco l\'uscita più vicina</string>
     <string name="map_placeholder">Seleziona un punto di partenza per iniziare</string>
+    <string name="wescape_notification">Notifica Wescape</string>
+    <string name="emergency_dialog_title">Emergenza in corso!</string>
+    <string name="emergency_dialog_description">Mantieni la calma, Wescape ti guiderà verso l\'uscita più vicina!</string>
 </resources>
