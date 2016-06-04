@@ -1,6 +1,7 @@
 package com.dii.ids.application.api.auth.wescape;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.Authenticator;

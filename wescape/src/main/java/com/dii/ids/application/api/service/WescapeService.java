@@ -23,7 +23,7 @@ import retrofit2.http.Path;
 import retrofit2.http.Streaming;
 
 public interface WescapeService {
-    @POST("/oauth/v2/token")
+    @POST("oauth/v2/token")
     Call<TokenResponse> getAccessToken(@Body LoginForm loginForm);
 
     @POST("/oauth/v2/token")

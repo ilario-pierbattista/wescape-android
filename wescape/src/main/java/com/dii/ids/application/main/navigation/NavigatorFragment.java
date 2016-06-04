@@ -128,9 +128,10 @@ public class NavigatorFragment extends BaseFragment {
     }
 
     private void next() {
-        if(routeToBeFlown.size() >= 2) {
+        if (routeToBeFlown.size() >= 2) {
             routeTraveled.push((Node) routeToBeFlown.getOrigin());
-            ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
+            ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(getContext(),
+                    new ContinuousMPSTaskListener(),
                     (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                     (Node) routeToBeFlown.getDestination());
@@ -138,9 +139,10 @@ public class NavigatorFragment extends BaseFragment {
     }
 
     private void prev() {
-        if(routeTraveled.size() > 0) {
+        if (routeTraveled.size() > 0) {
             Node backStep = routeTraveled.pop();
-            ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(new ContinuousMPSTaskListener(),
+            ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(getContext(),
+                    new ContinuousMPSTaskListener(),
                     (Edge) excludedTrunk, emergency);
             continuousMPSTask.execute(backStep,
                     (Node) routeToBeFlown.getDestination());
@@ -179,7 +181,7 @@ public class NavigatorFragment extends BaseFragment {
                 currentAction = translator.getDirectionForNextNode(prev, current, next);
                 holder.setCurrentDirection(HumanDirection.createHumanDirection(getContext(), currentAction));
 
-                if(routeToBeFlown.isDestinationReached()) {
+                if (routeToBeFlown.isDestinationReached()) {
                     // Destinazione raggiunta, disegno solo il pallino rosso
                     holder.setNavigationEnding();
                     holder.mapView.reset()
@@ -191,7 +193,7 @@ public class NavigatorFragment extends BaseFragment {
                             ((Node) next).getName());
                     holder.mapView.drawRoute(routeToBeFlown.toMultiFloorPath());
                 }
-            } catch (OriginNotSettedException|DestinationNotSettedException e) {
+            } catch (OriginNotSettedException | DestinationNotSettedException e) {
                 e.printStackTrace();
             }
         }
@@ -212,7 +214,7 @@ public class NavigatorFragment extends BaseFragment {
         }
 
         private void setPoints() {
-            prev = routeTraveled.size() > 0 ? routeTraveled.lastElement(): null;
+            prev = routeTraveled.size() > 0 ? routeTraveled.lastElement() : null;
             current = routeToBeFlown.getOrigin();
             next = !routeToBeFlown.isDestinationReached() ? routeToBeFlown.get(1) : null;
             nexter = routeToBeFlown.size() > 2 ? routeToBeFlown.get(2) : null;
