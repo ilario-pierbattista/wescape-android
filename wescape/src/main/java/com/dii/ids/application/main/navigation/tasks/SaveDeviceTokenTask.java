@@ -41,7 +41,6 @@ public class SaveDeviceTokenTask extends AsyncTask<Void, Void, Boolean> {
             WescapeService service = ApiBuilder.buildWescapeService(ipAddress);
 
             String accessToken = sessionManager.getBearer();
-            Log.d(TAG, "Access token: " + accessToken);
 
             Call<UserResponse> call = service.getCurrentUser(accessToken);
             Response<UserResponse> response = call.execute();
@@ -55,7 +54,7 @@ public class SaveDeviceTokenTask extends AsyncTask<Void, Void, Boolean> {
                     String deviceKey = FirebaseInstanceId.getInstance().getToken();
                     userForm.setId(userResponse.getId())
                             .setEmail(userResponse.getEmail())
-                            .setDevice_key(deviceKey);
+                            .setDeviceKey(deviceKey);
                     break;
                 }
                 default:

@@ -4,9 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -14,21 +12,10 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import com.dii.ids.application.R;
-import com.dii.ids.application.api.ApiBuilder;
-import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
-import com.dii.ids.application.api.response.UserResponse;
-import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.SaveDeviceTokenTask;
-import com.dii.ids.application.main.settings.SettingsActivity;
-import com.dii.ids.application.notifications.WescapeInstanceIdService;
 import com.google.firebase.iid.FirebaseInstanceId;
-
-import java.net.HttpURLConnection;
-
-import retrofit2.Call;
-import retrofit2.Response;
 
 public class NavigationActivity extends AppCompatActivity {
 
@@ -44,26 +31,23 @@ public class NavigationActivity extends AppCompatActivity {
         SaveDeviceTokenTask task = new SaveDeviceTokenTask(this, new TaskListener<Void>() {
             @Override
             public void onTaskSuccess(Void aVoid) {
-                Log.d(TAG, "Successo");
+                Log.d(TAG, "Device key save succesfully");
             }
 
             @Override
             public void onTaskError(Exception e) {
-                Log.e(TAG, "Save tokne error", e);
+                Log.e(TAG, "Save deviceKey error", e);
             }
 
             @Override
             public void onTaskComplete() {
-
             }
 
             @Override
             public void onTaskCancelled() {
-
             }
         });
         task.execute();
-
         // [END handle_device_token]
 
         // If a notification message is tapped, any data accompanying the notification
@@ -75,8 +59,6 @@ public class NavigationActivity extends AppCompatActivity {
         //
         // Handle possible data accompanying notification message.
         // [START handle_data_extras]
-        Log.d(TAG, "InstanceID token: " + FirebaseInstanceId.getInstance().getToken());
-
         boolean emergency = false;
         if (getIntent().getExtras() != null) {
             for (String key : getIntent().getExtras().keySet()) {
@@ -88,7 +70,6 @@ public class NavigationActivity extends AppCompatActivity {
             }
         }
         // [END handle_data_extras]
-
 
         Log.d(TAG, String.valueOf(emergency));
         if (savedInstanceState == null) {

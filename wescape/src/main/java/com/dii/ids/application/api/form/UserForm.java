@@ -3,7 +3,7 @@ package com.dii.ids.application.api.form;
 public class UserForm {
     private int id;
     private String email;
-    private String device_key;
+    private String deviceKey;
 
     public int getId() {
         return id;
@@ -23,12 +23,12 @@ public class UserForm {
         return this;
     }
 
-    public String getDevice_key() {
-        return device_key;
+    public String getDeviceKey() {
+        return deviceKey;
     }
 
-    public UserForm setDevice_key(String device_key) {
-        this.device_key = device_key;
+    public UserForm setDeviceKey(String deviceKey) {
+        this.deviceKey = deviceKey;
         return this;
     }
 }
