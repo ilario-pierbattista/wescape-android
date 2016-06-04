@@ -109,7 +109,7 @@ public class SelectionFragment extends BaseFragment {
         });
 
         // Setup list of nodes
-        List<Node> nodesList = NodeRepository.findAllButOne(alreadySelectedNode);
+        List<Node> nodesList = NodeRepository.findSelectableNodes(alreadySelectedNode);
         NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
         holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
         holder.nodeListView.setAdapter(nodeAdapter);

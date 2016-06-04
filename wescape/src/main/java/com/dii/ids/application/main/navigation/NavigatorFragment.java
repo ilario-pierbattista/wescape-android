@@ -40,6 +40,7 @@ public class NavigatorFragment extends BaseFragment {
     public static final String TAG = NavigatorFragment.class.getName();
     private static final String SOLUTION = "solution";
     private static final String EMERGENCY = "emergency";
+    private static final String OFFLINE = "offline";
     private ViewHolder holder;
     private Path routeToBeFlown;
     private Trunk excludedTrunk;
@@ -48,6 +49,7 @@ public class NavigatorFragment extends BaseFragment {
     private Directions directions;
     private DirectionsTranslator translator;
     private boolean emergency;
+    private boolean offline;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided
@@ -56,11 +58,12 @@ public class NavigatorFragment extends BaseFragment {
      * @param solution Lista di nodi che costiuiscono la soluzione
      * @return A new instance of fragment NavigatorFragment.
      */
-    public static NavigatorFragment newInstance(Path solution, boolean emergency) {
+    public static NavigatorFragment newInstance(Path solution, boolean emergency, boolean offline) {
         NavigatorFragment fragment = new NavigatorFragment();
         Bundle args = new Bundle();
         args.putSerializable(SOLUTION, solution);
         args.putBoolean(EMERGENCY, emergency);
+        args.putBoolean(OFFLINE, offline);
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,6 +75,7 @@ public class NavigatorFragment extends BaseFragment {
             routeToBeFlown = (Path) getArguments().getSerializable(SOLUTION);
             routeTraveled = new Stack<>();
             emergency = getArguments().getBoolean(EMERGENCY);
+            offline = getArguments().getBoolean(OFFLINE);
 
             if (routeToBeFlown != null) {
                 excludedTrunk = routeToBeFlown.getExcludedTrunk();
@@ -132,7 +136,7 @@ public class NavigatorFragment extends BaseFragment {
             routeTraveled.push((Node) routeToBeFlown.getOrigin());
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(getContext(),
                     new ContinuousMPSTaskListener(),
-                    (Edge) excludedTrunk, emergency);
+                    (Edge) excludedTrunk, emergency, offline);
             continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                     (Node) routeToBeFlown.getDestination());
         }
@@ -143,7 +147,7 @@ public class NavigatorFragment extends BaseFragment {
             Node backStep = routeTraveled.pop();
             ContinuousMPSTask continuousMPSTask = new ContinuousMPSTask(getContext(),
                     new ContinuousMPSTaskListener(),
-                    (Edge) excludedTrunk, emergency);
+                    (Edge) excludedTrunk, emergency, offline);
             continuousMPSTask.execute(backStep,
                     (Node) routeToBeFlown.getDestination());
         }

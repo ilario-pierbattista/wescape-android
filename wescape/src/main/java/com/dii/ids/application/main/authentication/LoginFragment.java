@@ -7,6 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,27 +26,50 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.entity.Edge;
+import com.dii.ids.application.entity.Node;
+import com.dii.ids.application.entity.repository.EdgeRepository;
+import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.AutomaticLoginTask;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
+import com.dii.ids.application.main.navigation.NavigatorFragment;
 import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
+
+import java.util.List;
 
 public class LoginFragment extends BaseFragment {
     public static final String TAG = LoginFragment.class.getName();
     public static final int SIGNUP_CREDENTIAL_REQUEST = 300;
     private static final int CLICK_TO_OPEN = 8, CLICK_TO_FEEDBACK = 4;
+    private static final String AUTOMATIC_LOGIN = "automatic_login";
 
     public ViewHolder holder;
-    private UserLoginTask loginTask = null;
     private EmailAutocompleter emailAutocompleter;
     private Toast hiddenMenuFeedbackToast;
     private int logoClickTimes;
     private boolean doAutomaticLogin = true;
+
+    public static LoginFragment newInstance(boolean doAutomaticLogin) {
+        LoginFragment fragment = new LoginFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(AUTOMATIC_LOGIN, doAutomaticLogin);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public LoginFragment enableAutomaticLogin(boolean enabled) {
+        if(getArguments() == null) {
+            setArguments(new Bundle());
+        }
+        getArguments().putBoolean(AUTOMATIC_LOGIN, enabled);
+        return this;
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -79,15 +103,6 @@ public class LoginFragment extends BaseFragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.authentication_login_fragment, container, false);
         holder = new ViewHolder(view);
-        logoClickTimes = 0;
-        emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
-        holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
-                getShortAnimTime());
-
-        // Si nasconde la action bar
-        ((AuthenticationActivity) getActivity()).hideActionBar();
-
-        emailAutocompleter.populateAutoComplete();
 
         holder.passwordField.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -100,6 +115,22 @@ public class LoginFragment extends BaseFragment {
                 return false;
             }
         });
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        emailAutocompleter = new EmailAutocompleter(this, holder.emailField);
+        holder.showProgressAnimation = new ShowProgressAnimation(holder.scrollView, holder.progressBar,
+                getShortAnimTime());
+
+        // Si nasconde la action bar
+        ((AuthenticationActivity) getActivity()).hideActionBar();
+
+        emailAutocompleter.populateAutoComplete();
 
         holder.logoImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,10 +161,38 @@ public class LoginFragment extends BaseFragment {
             }
         });
 
-        // Tenta di effettuare il login automatico
-        automaticLogin();
+        holder.useOfflineButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                List<Node> savedNodes = NodeRepository.findAll();
+                List<Edge> savedEdges = EdgeRepository.findAll();
+                if(savedEdges.size() == 0 && savedNodes.size() == 0) {
+                    Toast.makeText(getContext(), getString(R.string.error_no_data_cached), Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    openNavigationActivity(true);
+                }
+            }
+        });
 
-        return view;
+        if(getArguments() != null) {
+            doAutomaticLogin = getArguments().getBoolean(AUTOMATIC_LOGIN);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Tenta di effettuare il login automatico
+        if(doAutomaticLogin) {
+            automaticLogin();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        logoClickTimes = 0;
     }
 
     /**
@@ -245,11 +304,9 @@ public class LoginFragment extends BaseFragment {
      * Login automatico in caso di presenza di authentication token valido
      */
     private void automaticLogin() {
-        if (doAutomaticLogin) {
-            holder.showProgressAnimation.showProgress(true);
-            AutomaticLoginTask task = new AutomaticLoginTask(getContext(), new AutomaticLoginTaskListener());
-            task.execute();
-        }
+        holder.showProgressAnimation.showProgress(true);
+        AutomaticLoginTask task = new AutomaticLoginTask(getContext(), new AutomaticLoginTaskListener());
+        task.execute();
     }
 
     /**
@@ -259,7 +316,7 @@ public class LoginFragment extends BaseFragment {
     private void triggerLoginTask(String email, String password) {
         holder.showProgressAnimation.showProgress(true);
 
-        loginTask = new UserLoginTask(getContext(), new LoginTaskListener());
+        UserLoginTask loginTask = new UserLoginTask(getContext(), new LoginTaskListener());
         loginTask.execute(email, password);
     }
 
@@ -278,8 +335,9 @@ public class LoginFragment extends BaseFragment {
         }
     }
 
-    private void openNavigationActivity() {
+    private void openNavigationActivity(boolean offline) {
         Intent intent = new Intent(getActivity(), NavigationActivity.class);
+        intent.putExtra(NavigationActivity.OFFLINE_USAGE, offline);
         startActivity(intent);
     }
 
@@ -292,6 +350,7 @@ public class LoginFragment extends BaseFragment {
         public final TextInputLayout passwordFieldLayout;
         public final EditText passwordField;
         public final Button loginButton;
+        public final Button useOfflineButton;
         public final ProgressBar progressBar;
         public final ScrollView scrollView;
         public final TextView signupTextView;
@@ -305,6 +364,7 @@ public class LoginFragment extends BaseFragment {
             passwordField = find(view, R.id.login_password_text_input);
             passwordFieldLayout = find(view, R.id.login_password_text_input_layout);
             loginButton = find(view, R.id.login_signin_button);
+            useOfflineButton = find(view, R.id.use_offline_button);
             progressBar = find(view, R.id.login_progress);
             scrollView = find(view, R.id.login_scroll_view);
             signupTextView = find(view, R.id.sign_up_text);
@@ -316,7 +376,7 @@ public class LoginFragment extends BaseFragment {
     private class LoginTaskListener implements TaskListener<Void> {
         @Override
         public void onTaskSuccess(Void v) {
-            openNavigationActivity();
+            openNavigationActivity(false);
         }
 
         @Override
@@ -326,11 +386,11 @@ public class LoginFragment extends BaseFragment {
             // holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
             // holder.passwordField.requestFocus();
             handleGeneralErrors(e);
+            holder.showProgressAnimation.showProgress(false);
         }
 
         @Override
         public void onTaskComplete() {
-            holder.showProgressAnimation.showProgress(false);
         }
 
         @Override
@@ -342,18 +402,18 @@ public class LoginFragment extends BaseFragment {
     private class AutomaticLoginTaskListener implements TaskListener<Void> {
         @Override
         public void onTaskSuccess(Void aVoid) {
-            openNavigationActivity();
+            openNavigationActivity(false);
         }
 
         @Override
         public void onTaskError(Exception e) {
             Log.e(TAG, "Automatic login error", e);
+            holder.showProgressAnimation.showProgress(false);
             handleGeneralErrors(e);
         }
 
         @Override
         public void onTaskComplete() {
-            holder.showProgressAnimation.showProgress(false);
             doAutomaticLogin = false;
         }
 

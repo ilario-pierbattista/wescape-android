@@ -41,15 +41,17 @@ public class ContinuousMPSTask extends AsyncTask<Node, Void, Boolean> {
     private SessionManager sessionManager;
     private WescapeService service;
     private Edge excludedEdge;
-    private boolean emergency;
+    private boolean emergency, offline;
     private DatabaseDefinition database;
 
     public ContinuousMPSTask(Context context,
                              TaskListener<Path> listener,
                              Edge excludedEdge,
-                             boolean emergency) {
+                             boolean emergency,
+                             boolean offline) {
         this.listener = listener;
         this.emergency = emergency;
+        this.offline = offline;
         this.excludedEdge = excludedEdge;
         database = FlowManager.getDatabase(WescapeDatabase.class);
         String ipAddress = (PreferenceManager.getDefaultSharedPreferences(context))
@@ -67,38 +69,42 @@ public class ContinuousMPSTask extends AsyncTask<Node, Void, Boolean> {
             Node destination = params[1];
             List<Edge> edgesForGraph;
 
-            // Download dei parametri degli archi aggiornati
-            try {
-                Call<List<Edge>> call = service.listEdges(sessionManager.getBearer());
-                final Response<List<Edge>> response = call.execute();
-                switch (response.code()) {
-                    case HttpURLConnection.HTTP_OK: {
-                        // La connessione è andata a buon fine gestione della lista dei nodi
-                        edgesForGraph = response.body();
-                        if (excludedEdge != null) {
-                            edgesForGraph.remove(excludedEdge);
-                        }
-
-                        // Lancio il salvataggio asincrono dei lati, in modo da non rallentare
-                        // l'esecuzione di dijkstra
-                        Transaction transaction = database.beginTransactionAsync(new ITransaction() {
-                            @Override
-                            public void execute(DatabaseWrapper databaseWrapper) {
-                                for (Edge edge : response.body()) {
-                                    edge.save(databaseWrapper);
-                                }
-                            }
-                        }).build();
-                        transaction.execute();
-                        break;
-                    }
-                    default: {
-                        throw new ConnectException();
-                    }
-                }
-            } catch (ConnectException | SocketTimeoutException e) {
-                // Connessione andata male o altri problemi, ripescaggio dei nodi dal db
+            if(offline) {
                 edgesForGraph = EdgeRepository.findAllButOne(excludedEdge);
+            } else {
+                // Download dei parametri degli archi aggiornati
+                try {
+                    Call<List<Edge>> call = service.listEdges(sessionManager.getBearer());
+                    final Response<List<Edge>> response = call.execute();
+                    switch (response.code()) {
+                        case HttpURLConnection.HTTP_OK: {
+                            // La connessione è andata a buon fine gestione della lista dei nodi
+                            edgesForGraph = response.body();
+                            if (excludedEdge != null) {
+                                edgesForGraph.remove(excludedEdge);
+                            }
+
+                            // Lancio il salvataggio asincrono dei lati, in modo da non rallentare
+                            // l'esecuzione di dijkstra
+                            Transaction transaction = database.beginTransactionAsync(new ITransaction() {
+                                @Override
+                                public void execute(DatabaseWrapper databaseWrapper) {
+                                    for (Edge edge : response.body()) {
+                                        edge.save(databaseWrapper);
+                                    }
+                                }
+                            }).build();
+                            transaction.execute();
+                            break;
+                        }
+                        default: {
+                            throw new ConnectException();
+                        }
+                    }
+                } catch (ConnectException | SocketTimeoutException e) {
+                    // Connessione andata male o altri problemi, ripescaggio dei nodi dal db
+                    edgesForGraph = EdgeRepository.findAllButOne(excludedEdge);
+                }
             }
 
             // Ricerca della soluzione

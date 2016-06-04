@@ -56,19 +56,22 @@ public class HomeFragment extends BaseFragment {
     public static final String TAG = HomeFragment.class.getSimpleName();
     public static final String INTENT_KEY_POSITION = "position";
     public static final String EMERGENCY = "emergenza";
+    public static final String OFFLINE = "offline";
     public static final String EMERGENCY_ACTION = "emergency_action";
-    private static Node origin = null, destination = null, emergencyDestination = null;
+    private static Node origin = null, destination = null;
     private ViewHolder holder;
     private List<Path> solutionPaths = null;
     private Path selectedSolution;
     private int indexOfPathSelected;
     private boolean emergency = false;
+    private boolean offline = false;
 
-    public static HomeFragment newInstance(boolean emergency) {
+    public static HomeFragment newInstance(boolean emergency, boolean offline) {
         Log.d(TAG, String.valueOf(emergency));
         HomeFragment fragment = new HomeFragment();
         Bundle args = new Bundle();
         args.putBoolean(EMERGENCY, emergency);
+        args.putBoolean(OFFLINE, offline);
         fragment.setArguments(args);
         return fragment;
     }
@@ -117,6 +120,10 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(getArguments() != null) {
+            offline = getArguments().getBoolean(OFFLINE);
+        }
 
         NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
                 getContext(), new NodesDownloaderTaskListener());
@@ -202,11 +209,8 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void openNavigatorFragment() {
-        // @TODO remove
-        //Node dest = emergency ? emergencyDestination : destination;
-
         NavigatorFragment navigatorFragment =
-                NavigatorFragment.newInstance(selectedSolution, emergency);
+                NavigatorFragment.newInstance(selectedSolution, emergency, offline);
         ((NavigationActivity) getActivity())
                 .changeFragment(navigatorFragment);
     }
@@ -322,7 +326,6 @@ public class HomeFragment extends BaseFragment {
             Log.i("NearestExitListener ", exitPaths.toString());
             solutionPaths = exitPaths;
             selectedSolution = new Path(solutionPaths.get(0));
-            emergencyDestination = (Node) selectedSolution.get(selectedSolution.size() - 1);
             MultiFloorPath multiFloorSolution = selectedSolution.toMultiFloorPath();
 
             try {

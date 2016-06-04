@@ -5,6 +5,7 @@
     <string name="prompt_email" translatable="false">Email</string>
     <string name="prompt_password" translatable="false">Password</string>
     <string name="action_sign_in" translatable="false">Login</string>
+    <string name="action_use_offline">Use Offline</string>
     <string name="action_sign_in_short" translatable="false">Login</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -141,4 +142,5 @@
     <string name="emergency_dialog_title">Situation of emergency</string>
     <string name="emergency_dialog_description">Keep calm, Wescape will guide you to nearest exit</string>
     <string name="action_logout" translatable="false">Log out</string>
+    <string name="error_no_data_cached">There is no data download from previous sessions. You must login at least one time to use the navigator.</string>
 </resources>
