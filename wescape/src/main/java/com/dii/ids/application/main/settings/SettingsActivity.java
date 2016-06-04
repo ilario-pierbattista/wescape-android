@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
     public static final String WESCAPE_HOSTNAME = "wescape_hostname";
-    public static final String WESCAPE_DEFAULT_HOSTNAME = "10.42.0.1";
+    public static final String WESCAPE_DEFAULT_HOSTNAME = "188.166.195.16";
 
     /**
      * A preference value change listener that updates the preference's summary to reflect its new

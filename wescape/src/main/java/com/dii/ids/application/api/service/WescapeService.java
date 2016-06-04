@@ -28,31 +28,31 @@ public interface WescapeService {
     @POST("oauth/v2/token")
     Call<TokenResponse> getAccessToken(@Body LoginForm loginForm);
 
-    @POST("/oauth/v2/token")
+    @POST("oauth/v2/token")
     Call<TokenResponse> refreshAccessToken(@Body RefreshTokenForm refreshTokenForm);
 
-    @POST("/api/v1/users")
+    @POST("api/v1/users")
     Call<UserResponse> createUser(@Body CreateUserForm userForm);
 
-    @PUT("/api/v1/users/{user}")
+    @PUT("api/v1/users/{user}")
     Call<UserResponse> updateUser(@Header("Authorization") String authorization, @Path("user") int id, @Body UserForm userForm);
 
-    @GET("/api/v1/user/whoami")
+    @GET("api/v1/user/whoami")
     Call<UserResponse> getCurrentUser(@Header("Authorization") String authorization);
 
-    @POST("/api/v1/users/password/request")
+    @POST("api/v1/users/password/request")
     Call<StatusResponse> requestPasswordReset(@Body RequestPasswordForm requestPasswordForm);
 
-    @POST("/api/v1/users/password/reset")
+    @POST("api/v1/users/password/reset")
     Call<StatusResponse> resetPassword(@Body ResetPasswordForm resetPasswordForm);
 
-    @GET("/api/v1/nodes.json")
+    @GET("api/v1/nodes.json")
     Call<List<Node>> listNodes(@Header("Authorization") String authorization);
 
-    @GET("/api/v1/edges.json")
+    @GET("api/v1/edges.json")
     Call<List<Edge>> listEdges(@Header("Authorization") String authorization);
 
-    @GET("/static/maps/{floor}")
+    @GET("static/maps/{floor}")
     @Streaming
     Call<ResponseBody> downloadFloorMap(@Path("floor") int floor);
 }

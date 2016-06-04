@@ -48,7 +48,7 @@ public class ApiBuilder {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();
-        
+
         return retrofit.create(WescapeService.class);
     }
 }
