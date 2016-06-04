@@ -5,6 +5,7 @@ import com.dii.ids.application.api.form.LoginForm;
 import com.dii.ids.application.api.form.RefreshTokenForm;
 import com.dii.ids.application.api.form.RequestPasswordForm;
 import com.dii.ids.application.api.form.ResetPasswordForm;
+import com.dii.ids.application.api.form.UserForm;
 import com.dii.ids.application.api.response.StatusResponse;
 import com.dii.ids.application.api.response.TokenResponse;
 import com.dii.ids.application.api.response.UserResponse;
@@ -19,6 +20,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Streaming;
 
@@ -31,6 +33,12 @@ public interface WescapeService {
 
     @POST("/api/v1/users")
     Call<UserResponse> createUser(@Body CreateUserForm userForm);
+
+    @PUT("/api/v1/users/{user}")
+    Call<UserResponse> updateUser(@Header("Authorization") String authorization, @Path("user") int id, @Body UserForm userForm);
+
+    @GET("/api/v1/user/whoami")
+    Call<UserResponse> getCurrentUser(@Header("Authorization") String authorization);
 
     @POST("/api/v1/users/password/request")
     Call<StatusResponse> requestPasswordReset(@Body RequestPasswordForm requestPasswordForm);
