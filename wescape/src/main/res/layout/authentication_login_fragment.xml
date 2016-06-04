@@ -114,15 +114,6 @@
                 android:clickable="true"
                 android:text="@string/reset_password_text"/>
 
-            <Button
-                android:id="@+id/login_home_button"
-                style="?android:textAppearanceSmall"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Vai Home"
-                android:textStyle="bold"/>
-
 
         </LinearLayout>
     </ScrollView>

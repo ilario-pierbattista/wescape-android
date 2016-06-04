@@ -1,12 +1,10 @@
 package com.dii.ids.application.main.navigation;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -28,15 +26,18 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.FabAnimation;
 import com.dii.ids.application.animations.ToolbarAnimation;
+import com.dii.ids.application.api.auth.wescape.WescapeAuthenticator;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.authentication.AuthenticationActivity;
 import com.dii.ids.application.main.navigation.listeners.EdgesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.listeners.NodesDownloaderTaskListener;
 import com.dii.ids.application.main.navigation.tasks.EdgesDownloaderTask;
 import com.dii.ids.application.main.navigation.tasks.MinimumPathTask;
 import com.dii.ids.application.main.navigation.tasks.NearestExitTask;
 import com.dii.ids.application.main.navigation.tasks.NodesDownloaderTask;
+import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.MapView;
@@ -152,6 +153,7 @@ public class HomeFragment extends BaseFragment {
         // Handle action bar item clicks here
         switch (item.getItemId()) {
             case R.id.action_settings:
+                logout();
                 return true;
             case R.id.action_emergency:
                 holder.toggleEmergency();
@@ -159,6 +161,24 @@ public class HomeFragment extends BaseFragment {
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    /**
+     * Logout the current user
+     */
+    private void logout() {
+        String ipAddress = (PreferenceManager.getDefaultSharedPreferences(getContext()))
+                .getString(SettingsActivity.WESCAPE_HOSTNAME,
+                           SettingsActivity.WESCAPE_DEFAULT_HOSTNAME);
+        WescapeAuthenticator authenticator = new WescapeAuthenticator(getContext(), ipAddress);
+        try {
+            authenticator.logout();
+            Intent intent = new Intent(getActivity(), AuthenticationActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Logout error: ", e);
         }
     }
 

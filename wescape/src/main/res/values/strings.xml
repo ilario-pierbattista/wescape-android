@@ -140,4 +140,5 @@
     <string name="wescape_notification">Wescape Notification</string>
     <string name="emergency_dialog_title">Situation of emergency</string>
     <string name="emergency_dialog_description">Keep calm, Wescape will guide you to nearest exit</string>
+    <string name="action_logout" translatable="false">Log out</string>
 </resources>
