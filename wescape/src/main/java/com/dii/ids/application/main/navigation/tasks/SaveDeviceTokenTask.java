@@ -41,6 +41,7 @@ public class SaveDeviceTokenTask extends AsyncTask<Void, Void, Boolean> {
             WescapeService service = ApiBuilder.buildWescapeService(ipAddress);
 
             String accessToken = sessionManager.getBearer();
+            Log.d(TAG, "Access token: " + accessToken);
 
             Call<UserResponse> call = service.getCurrentUser(accessToken);
             Response<UserResponse> response = call.execute();
