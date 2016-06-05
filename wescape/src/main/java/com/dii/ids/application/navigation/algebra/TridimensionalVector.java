@@ -1,6 +1,6 @@
 package com.dii.ids.application.navigation.algebra;
 
-import android.graphics.PointF;
+import com.dii.ids.application.navigation.Checkpoint;
 
 public class TridimensionalVector {
     public final double x;
@@ -13,9 +13,9 @@ public class TridimensionalVector {
      * @param begin
      * @param end
      */
-    public TridimensionalVector(PointF begin, PointF end) {
-        x = end.x - begin.x;
-        y = end.y - end.y;
+    public TridimensionalVector(Checkpoint begin, Checkpoint end) {
+        x = end.getX() - begin.getX();
+        y = end.getY() - begin.getY();
         z = 0;
     }
 
@@ -86,4 +86,24 @@ public class TridimensionalVector {
     public double dotProduct(TridimensionalVector otherVector) {
         return (x * otherVector.x) + (y * otherVector.y);
     }
+
+    /**
+     * Calcola l'angolo in base alla circonferenza unitaria.
+     * Nota: Lo 0 è a destra.
+     * @param centerPt
+     * @param targetPt
+     * @return
+     */
+
+    public static double calcRotationAngle(Checkpoint centerPt, Checkpoint targetPt)
+    {
+        double theta = Math.atan2(targetPt.getY() - centerPt.getY(), targetPt.getX() - centerPt.getX());
+        double angle = Math.toDegrees(theta);
+        if (angle < 0) {
+            angle += 360;
+        }
+
+        return angle;
+    }
+
 }
