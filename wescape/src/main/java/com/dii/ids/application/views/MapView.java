@@ -17,10 +17,8 @@ import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
-import com.dii.ids.application.utils.units.Tuple;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
 import com.dii.ids.application.views.exceptions.OriginNotSettedException;
-import com.dii.ids.application.views.exceptions.PiantineNotSettedException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,9 +29,7 @@ public class MapView extends LinearLayout {
     private ViewHolder holder;
     private String currentFloor;
     private Node origin, destination;
-    private HashMap<String, Path> route;
-    private Path orderedSolution;
-    private int currentNode;
+    private MultiFloorPath route;
 
     public MapView(Context context) {
         super(context);
@@ -61,18 +57,12 @@ public class MapView extends LinearLayout {
      *
      * @param origin Nodo di origine
      * @return Istanza di MapView
-     * @throws PiantineNotSettedException
      */
-    public MapView setOrigin(Node origin) throws PiantineNotSettedException {
+    public MapView setOrigin(Node origin) {
         this.origin = origin;
         this.currentFloor = origin.getFloor();
-        try {
-            changeImage(currentFloor);
-            drawPins(currentFloor);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
+        changeImage(currentFloor);
+        drawPins(currentFloor);
         return this;
     }
 
@@ -96,17 +86,22 @@ public class MapView extends LinearLayout {
         mapsDownloaderTask.execute(Integer.valueOf(floor));
     }
 
+    public void showSpinner(boolean show) {
+        holder.progressAnimation.showProgress(show);
+    }
+
     /**
      * Disegna i pin
+     *
      * @param floor Piano
      */
     private void drawPins(String floor) {
         ArrayList<MapPin> pins = new ArrayList<>();
 
-        if(origin != null && origin.getFloor().equals(floor)) {
+        if (origin != null && origin.getFloor().equals(floor)) {
             pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
         }
-        if(destination != null && destination.getFloor().equals(floor)) {
+        if (destination != null && destination.getFloor().equals(floor)) {
             pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
         }
 
@@ -118,18 +113,12 @@ public class MapView extends LinearLayout {
      *
      * @param destination Nodo destinazione
      * @return MapView
-     * @throws PiantineNotSettedException
      */
-    public MapView setDestination(Node destination) throws PiantineNotSettedException {
+    public MapView setDestination(Node destination) {
         this.destination = destination;
         this.currentFloor = destination.getFloor();
-        try {
-            changeImage(currentFloor);
-            drawPins(currentFloor);
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
+        changeImage(currentFloor);
+        drawPins(currentFloor);
         return this;
     }
 
@@ -138,12 +127,11 @@ public class MapView extends LinearLayout {
      *
      * @param route Soluzione
      * @return MapView
-     * @throws PiantineNotSettedException
      * @throws OriginNotSettedException
      * @throws DestinationNotSettedException
      */
     public MapView drawRoute(MultiFloorPath route)
-            throws PiantineNotSettedException, OriginNotSettedException, DestinationNotSettedException {
+            throws OriginNotSettedException, DestinationNotSettedException {
         this.route = route;
         this.origin = (Node) route.getOrigin();
         this.destination = (Node) route.getDestination();
@@ -155,28 +143,33 @@ public class MapView extends LinearLayout {
             throw new DestinationNotSettedException();
         }
 
-        try {
-            currentFloor = origin.getFloor();
+        currentFloor = origin.getFloor();
 
-            changeImage(currentFloor);
-            drawPath(currentFloor);
-            drawPins(currentFloor);
-            setupFloorButtons();
+        changeImage(currentFloor);
+        drawPath(currentFloor);
+        drawPins(currentFloor);
+        setupFloorButtons();
 
-            orderedSolution = route.toPath();
-        } catch (NullPointerException e) {
-            Log.e(TAG, "Errore ", e);
-            throw new PiantineNotSettedException();
-        }
+        return this;
+    }
+
+    public MapView reset() {
+        origin = null;
+        destination = null;
+        route = null;
+        holder.pinView.resetPath();
         return this;
     }
 
     /**
      * Disegna il percorso di un piano
+     *
      * @param floor Piano
      */
     private void drawPath(String floor) {
-        holder.pinView.setPath(this.route.get(floor));
+        if(this.route != null) {
+            holder.pinView.setPath(this.route.get(floor));
+        }
     }
 
     /**
@@ -209,97 +202,6 @@ public class MapView extends LinearLayout {
                 holder.floorButtons.get(floor).setOnClickListener(new FloorButtonListener());
             }
         }
-    }
-
-    /**
-     * Passa al nodo successivo della lista dei nodi della soluzione
-     *
-     * @return Tupla con l'indice del nodo successivo e successivo ancora
-     */
-    public Tuple<Integer, Integer> nextStep() {
-        int nextNode;
-        if (currentNode < orderedSolution.size() - 1) {
-            currentNode++;
-            if (!(currentNode == orderedSolution.size() - 1)) {
-                nextNode = currentNode + 1;
-            } else {
-                nextNode = currentNode;
-            }
-        } else {
-            nextNode = currentNode;
-        }
-
-        triggerStepChange();
-        return new Tuple<>(currentNode, nextNode);
-    }
-
-    /**
-     * Innesca il cambiamento di stato di navigazione
-     */
-    private void triggerStepChange() {
-        Node nextNode = (Node) orderedSolution.get(currentNode);
-
-        if (!currentFloor.equals(nextNode.getFloor())) {
-            changeFloor(nextNode.getFloor());
-        }
-
-        holder.pinView.resetPins();
-        holder.pinView.setSinglePin(new MapPin(nextNode.toPointF()));
-    }
-
-    /**
-     * Cambia il piano
-     * @param floor Piano
-     * @return Istanza corrente di MapView
-     */
-    public MapView changeFloor(String floor) {
-        for (String key : holder.floorButtons.keySet()) {
-            Button button = holder.floorButtons.get(key);
-            if (floor.equals(button.getText().toString())) {
-                button.performClick();
-            }
-        }
-        drawOnMap(floor);
-
-        return this;
-    }
-
-    /**
-     * Disegna i pin ed il percorso di un piano
-     *
-     * @param floor Piano
-     * @return Istanza di MapView
-     */
-    private MapView drawOnMap(String floor) {
-        ArrayList<MapPin> pins = new ArrayList<>();
-
-        if (origin != null && origin.getFloor().equals(floor)) {
-            pins.add(new MapPin(origin.toPointF(), MapPin.Colors.RED));
-        }
-        if (destination != null && destination.getFloor().equals(floor)) {
-            pins.add(new MapPin(destination.toPointF(), MapPin.Colors.BLUE));
-        }
-        holder.pinView.setMultiplePins(pins);
-        if (route != null) {
-            drawPath(floor);
-        }
-
-        return this;
-    }
-
-    /**
-     * Passa al nodo precedente della lista dei nodi della soluzione
-     *
-     * @return Tupla con l'indice del nodo precednete e precedente ancora
-     */
-    public Tuple<Integer, Integer> prevStep() {
-        if (currentNode > 0 && currentNode <= orderedSolution.size() - 1) {
-            currentNode--;
-        }
-        int nextNode = currentNode + 1;
-
-        triggerStepChange();
-        return new Tuple<>(currentNode, nextNode);
     }
 
     /**
@@ -386,6 +288,7 @@ public class MapView extends LinearLayout {
 
         /**
          * Nasconde i pulsanti dei piani
+         *
          * @return Istanza di Viewholder
          */
         private ViewHolder hideFloorButtons() {

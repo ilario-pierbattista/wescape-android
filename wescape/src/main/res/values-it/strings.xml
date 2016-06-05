@@ -34,7 +34,7 @@
     <string name="title_navigator">Indicazioni</string>
     <string name="action_qr">Inquadra il codice QR</string>
     <string name="error_no_camera_found">Non è stata trovata alcuna fotocamera</string>
-    <string name="search_hint" translatable="false">Cerca un punto</string>
+    <string name="search_hint">Cerca un punto</string>
     <string name="title_activity_settings">Impostazioni</string>
     <string name="toast_hidden_menu_feedback">Mantieni premuto per aprire le preferenze</string>
     <string name="select_different_nodes">Il punto di partenza deve essere diverso da quello di arrivo</string>
@@ -67,4 +67,10 @@
     <string name="label_select_path">Percorso %d</string>
     <string name="find_nearest_exit">Cerco l\'uscita più vicina</string>
     <string name="map_placeholder">Seleziona un punto di partenza per iniziare</string>
+    <string name="wescape_notification">Notifica Wescape</string>
+    <string name="emergency_dialog_title">Emergenza in corso!</string>
+    <string name="emergency_dialog_description">Mantieni la calma, Wescape ti guiderà verso l\'uscita più vicina!</string>
+    <string name="action_use_offline">Usa Offline</string>
+    <string name="error_no_data_cached">Non ci sono dati scaricati. Per usare il navigatore devi aver effettuato l\'accesso almeno una volta.</string>
+    <string name="error_reading_qr">Errore nella lettura del codice QR</string>
 </resources>

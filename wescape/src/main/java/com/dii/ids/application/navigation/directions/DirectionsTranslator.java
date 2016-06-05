@@ -73,7 +73,7 @@ public class DirectionsTranslator {
      * @param next    Nodo successivo
      * @return Azione corrispondente all'indicazione
      */
-    private Actions getDirectionForNextNode(@Nullable Checkpoint prev,
+    public Actions getDirectionForNextNode(@Nullable Checkpoint prev,
                                             @NonNull Checkpoint current,
                                             @Nullable Checkpoint next) {
         // Si inizia la navigazione (il nodo precedente è nullo)

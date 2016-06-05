@@ -1,25 +1,82 @@
 package com.dii.ids.application.main.navigation;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 
 import com.dii.ids.application.R;
+import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
+import com.dii.ids.application.main.navigation.tasks.SaveDeviceTokenTask;
 
 public class NavigationActivity extends AppCompatActivity {
 
     public static final String TAG = NavigationActivity.class.getSimpleName();
+    public static final String OFFLINE_USAGE = "offline_usage";
+    private boolean offline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_activity);
 
+        offline = getIntent().getExtras().getBoolean(OFFLINE_USAGE);
+
+        // Handle deviceToken for pushNotification
+        // [START handle_device_token]
+        SaveDeviceTokenTask task = new SaveDeviceTokenTask(this, new TaskListener<Void>() {
+            @Override
+            public void onTaskSuccess(Void aVoid) {
+                Log.d(TAG, "Device key save succesfully");
+            }
+
+            @Override
+            public void onTaskError(Exception e) {
+                Log.e(TAG, "Save deviceKey error", e);
+            }
+
+            @Override
+            public void onTaskComplete() {
+            }
+
+            @Override
+            public void onTaskCancelled() {
+            }
+        });
+        task.execute();
+        // [END handle_device_token]
+
+        // If a notification message is tapped, any data accompanying the notification
+        // message is available in the intent extras. In this sample the launcher
+        // intent is fired when the notification is tapped, so any accompanying data would
+        // be handled here. If you want a different intent fired, set the click_action
+        // field of the notification message to the desired intent. The launcher intent
+        // is used when no click_action is specified.
+        //
+        // Handle possible data accompanying notification message.
+        // [START handle_data_extras]
+        boolean emergency = false;
+        if (getIntent().getExtras() != null) {
+            for (String key : getIntent().getExtras().keySet()) {
+                if (key.equals("emergency")) {
+                    emergency = true;
+                }
+                String value = getIntent().getExtras().getString(key);
+                Log.d(TAG, "Key: " + key + " Value: " + value);
+            }
+        }
+        // [END handle_data_extras]
+
+        Log.d(TAG, String.valueOf(emergency));
         if (savedInstanceState == null) {
-            HomeFragment homeFragment = HomeFragment.newInstance();
+            HomeFragment homeFragment = HomeFragment.newInstance(emergency, offline);
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.TAG)
                     .commit();
@@ -41,6 +98,7 @@ public class NavigationActivity extends AppCompatActivity {
 
     /**
      * Cambia il fragment
+     *
      * @param fragment
      */
     public void changeFragment(BaseFragment fragment) {
@@ -52,4 +110,30 @@ public class NavigationActivity extends AppCompatActivity {
                 .addToBackStack(fragment.TAG)
                 .commit();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.registerReceiver(mMessageReceiver, new IntentFilter(HomeFragment.EMERGENCY_ACTION));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        this.unregisterReceiver(mMessageReceiver);
+    }
+
+    /**
+     * Manager dei messaggi broadcast
+     */
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // TODO andrebbe gestito meglio, al momento ci si puo imbattere in stackoverflow
+            HomeFragment homeFragment = HomeFragment.newInstance(true, false);
+            FragmentManager fm = getSupportFragmentManager();
+            fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.TAG)
+                    .commit();
+        }
+    };
 }

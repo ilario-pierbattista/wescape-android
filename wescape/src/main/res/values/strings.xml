@@ -5,6 +5,7 @@
     <string name="prompt_email" translatable="false">Email</string>
     <string name="prompt_password" translatable="false">Password</string>
     <string name="action_sign_in" translatable="false">Login</string>
+    <string name="action_use_offline">Use Offline</string>
     <string name="action_sign_in_short" translatable="false">Login</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -63,12 +64,12 @@
     <string name="pref_default_hostname" translatable="false">10.42.0.1</string>
 
     <string name="pref_title_add_friends_to_messages" translatable="false">Add friends to messages</string>
-    <string-array name="pref_example_list_titles">
+    <string-array name="pref_example_list_titles" translatable="false">
         <item>Always</item>
         <item>When possible</item>
         <item>Never</item>
     </string-array>
-    <string-array name="pref_example_list_values">
+    <string-array name="pref_example_list_values" translatable="false">
         <item>1</item>
         <item>0</item>
         <item>-1</item>
@@ -78,7 +79,7 @@
     <string name="pref_header_data_sync" translatable="false">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency" translatable="false">Sync frequency</string>
-    <string-array name="pref_sync_frequency_titles">
+    <string-array name="pref_sync_frequency_titles" translatable="false">
         <item>15 minutes</item>
         <item>30 minutes</item>
         <item>1 hour</item>
@@ -86,7 +87,7 @@
         <item>6 hours</item>
         <item>Never</item>
     </string-array>
-    <string-array name="pref_sync_frequency_values">
+    <string-array name="pref_sync_frequency_values" translatable="false">
         <item>15</item>
         <item>30</item>
         <item>60</item>
@@ -137,4 +138,10 @@
     <string name="label_select_path">Route %d</string>
     <string name="find_nearest_exit">Finding nearest exit</string>
     <string name="map_placeholder">Select a node to start navigation</string>
+    <string name="wescape_notification">Wescape Notification</string>
+    <string name="emergency_dialog_title">Situation of emergency</string>
+    <string name="emergency_dialog_description">Keep calm, Wescape will guide you to nearest exit</string>
+    <string name="action_logout" translatable="false">Log out</string>
+    <string name="error_no_data_cached">There is no data download from previous sessions. You must login at least one time to use the navigator.</string>
+    <string name="error_reading_qr">Error reading QR code</string>
 </resources>

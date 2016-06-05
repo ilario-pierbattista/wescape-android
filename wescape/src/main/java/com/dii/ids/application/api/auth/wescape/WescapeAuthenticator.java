@@ -1,10 +1,12 @@
 package com.dii.ids.application.api.auth.wescape;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.Authenticator;
 import com.dii.ids.application.api.auth.Client;
+import com.dii.ids.application.api.auth.exception.LoginException;
 import com.dii.ids.application.api.form.LoginForm;
 import com.dii.ids.application.api.response.TokenResponse;
 import com.dii.ids.application.api.service.WescapeService;
@@ -33,8 +35,16 @@ public class WescapeAuthenticator implements Authenticator {
 
         Call<TokenResponse> call = service.getAccessToken(form);
         Response<TokenResponse> response = call.execute();
-        Token token = new Token(response.body());
+        if(response == null || response.body() == null) {
+            throw new LoginException();
+        }
 
+        Token token = new Token(response.body());
         tokenStorage.save(token);
+    }
+
+    @Override
+    public void logout() throws Exception {
+        tokenStorage.delete();
     }
 }

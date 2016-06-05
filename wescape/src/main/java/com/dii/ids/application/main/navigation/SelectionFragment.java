@@ -109,7 +109,7 @@ public class SelectionFragment extends BaseFragment {
         });
 
         // Setup list of nodes
-        List<Node> nodesList = NodeRepository.findAllButOne(alreadySelectedNode);
+        List<Node> nodesList = NodeRepository.findSelectableNodes(alreadySelectedNode);
         NodeAdapter nodeAdapter = new NodeAdapter(getContext(), nodesList);
         holder.searchFieldTextView.addTextChangedListener(new SearchWatcher());
         holder.nodeListView.setAdapter(nodeAdapter);
@@ -157,8 +157,16 @@ public class SelectionFragment extends BaseFragment {
         if (fragment != null) {
             fm.beginTransaction().remove(fragment).commit();
         }
+        HomeFragment homeFragment = (HomeFragment) fm.findFragmentByTag(HomeFragment.TAG);
         QRDialogFragment dialogFragment = new QRDialogFragment();
-        dialogFragment.setTargetFragment(this, QR_READER_DIALOG_REQUEST_CODE);
+        switch (getArguments().getInt(SELECTION_REQUEST_CODE)) {
+            case ORIGIN_SELECTION_REQUEST_CODE:
+                dialogFragment.setTargetFragment(homeFragment, QR_READER_ORIGIN_REQUEST_CODE);
+                break;
+            case DESTINATION_SELECTION_REQUEST_CODE:
+                dialogFragment.setTargetFragment(homeFragment, QR_READER_DESTINATION_REQUEST_CODE);
+                break;
+        }
         dialogFragment.show(fm, QRDialogFragment.FRAGMENT_TAG);
     }
 
@@ -205,7 +213,7 @@ public class SelectionFragment extends BaseFragment {
     }
 
     /**
-     * Responsible for handling changes in search edit text.
+     * Responsible for handling changes in searchDoublePath edit text.
      */
     private class SearchWatcher implements TextWatcher {
         @Override
