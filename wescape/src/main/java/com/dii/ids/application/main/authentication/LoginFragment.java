@@ -339,6 +339,10 @@ public class LoginFragment extends BaseFragment {
         Intent intent = new Intent(getActivity(), NavigationActivity.class);
         intent.putExtra(NavigationActivity.OFFLINE_USAGE, offline);
         startActivity(intent);
+
+        if(!offline) {
+            getActivity().finish();
+        }
     }
 
     /**

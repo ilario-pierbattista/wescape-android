@@ -15,7 +15,6 @@ import com.dii.ids.application.R;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.SaveDeviceTokenTask;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 public class NavigationActivity extends AppCompatActivity {
 

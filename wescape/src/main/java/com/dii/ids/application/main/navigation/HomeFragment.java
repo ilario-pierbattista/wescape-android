@@ -125,12 +125,14 @@ public class HomeFragment extends BaseFragment {
             offline = getArguments().getBoolean(OFFLINE);
         }
 
-        NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
-                getContext(), new NodesDownloaderTaskListener());
-        nodesDownloaderTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-        EdgesDownloaderTask task = new EdgesDownloaderTask(
-                getContext(), new EdgesDownloaderTaskListener());
-        task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        if(!offline) {
+            NodesDownloaderTask nodesDownloaderTask = new NodesDownloaderTask(
+                    getContext(), new NodesDownloaderTaskListener());
+            nodesDownloaderTask.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+            EdgesDownloaderTask task = new EdgesDownloaderTask(
+                    getContext(), new EdgesDownloaderTaskListener());
+            task.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+        }
     }
 
     @Override
@@ -148,8 +150,16 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
         inflater.inflate(R.menu.menu_navigation, menu);
+
+        if(offline) {
+            MenuItem logoutItem = menu.findItem(R.id.action_settings);
+            logoutItem.setVisible(false);
+        }
+
+        if(getActivity() !=null) {
+            getActivity().invalidateOptionsMenu();
+        }
     }
 
     @Override
