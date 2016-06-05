@@ -2,6 +2,7 @@ package com.dii.ids.application.entity.repository;
 
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Edge_Table;
+import com.dii.ids.application.entity.Node;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.List;

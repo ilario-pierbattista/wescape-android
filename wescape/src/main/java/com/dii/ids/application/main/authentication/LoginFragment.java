@@ -415,7 +415,6 @@ public class LoginFragment extends BaseFragment {
 
         @Override
         public void onTaskError(Exception e) {
-            Log.e(TAG, "Automatic login error", e);
             holder.showProgressAnimation.showProgress(false);
             handleGeneralErrors(e);
         }

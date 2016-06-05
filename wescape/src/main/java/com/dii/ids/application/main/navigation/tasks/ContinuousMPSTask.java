@@ -4,10 +4,14 @@ package com.dii.ids.application.main.navigation.tasks;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.dii.ids.application.api.ApiBuilder;
 import com.dii.ids.application.api.auth.SessionManager;
 import com.dii.ids.application.api.auth.wescape.WescapeSessionManager;
+import com.dii.ids.application.api.form.UserPositionForm;
+import com.dii.ids.application.api.response.UserPositionResponse;
+import com.dii.ids.application.api.response.UserResponse;
 import com.dii.ids.application.api.service.WescapeService;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
@@ -43,6 +47,8 @@ public class ContinuousMPSTask extends AsyncTask<Node, Void, Boolean> {
     private Edge excludedEdge;
     private boolean emergency, offline;
     private DatabaseDefinition database;
+    private static UserResponse currentUser;
+    private static UserPositionResponse currentPosition;
 
     public ContinuousMPSTask(Context context,
                              TaskListener<Path> listener,
@@ -116,7 +122,56 @@ public class ContinuousMPSTask extends AsyncTask<Node, Void, Boolean> {
                     .setEmergency(emergency);
             minimumPath = solver.search(destination);
 
-            // @TODO Invio della posizione futura al server
+            if (!offline) {
+                if(ContinuousMPSTask.currentUser == null) {
+                    Call<UserResponse> call = service.getCurrentUser(sessionManager.getBearer());
+                    Response<UserResponse> response = call.execute();
+                    currentUser = response.body();
+
+                    Log.i(TAG, "User request");
+                }
+
+                if(minimumPath.size() >= 2) {
+                    // Creazione o aggiornamento della posizione
+                    Edge firstEdge = (Edge) graph.searchTrunk(minimumPath.getOrigin(), minimumPath.get(1));
+                    UserPositionForm positionForm = new UserPositionForm();
+                    positionForm.setUser(ContinuousMPSTask.currentUser.getId())
+                            .setEdge(firstEdge.getId());
+
+                    if(ContinuousMPSTask.currentPosition == null) {
+                        Call<UserPositionResponse> getPosition = service.getCurrentPosition(
+                                sessionManager.getBearer(), currentUser.getId());
+                        Response<UserPositionResponse> response = getPosition.execute();
+                        ContinuousMPSTask.currentPosition = response.body();
+
+                        if(ContinuousMPSTask.currentPosition == null) {
+                            Call<UserPositionResponse> createPosition = service.createCurrentPosition(
+                                    sessionManager.getBearer(), positionForm);
+                            Response<UserPositionResponse> createdPositionResponse = createPosition.execute();
+                            ContinuousMPSTask.currentPosition = createdPositionResponse.body();
+                        }
+
+                    } else {
+                        Call<UserPositionResponse> updatePosition = service.updateCurrentPosition(
+                                sessionManager.getBearer(),
+                                ContinuousMPSTask.currentUser.getId(),
+                                positionForm);
+                        Response<UserPositionResponse> response = updatePosition.execute();
+                        ContinuousMPSTask.currentPosition = response.body();
+
+                        Log.i(TAG, "update position");
+                    }
+                } else {
+                    Call<UserPositionResponse> deletePosition = service.deleteCurrentPosition(
+                            sessionManager.getBearer(),
+                            ContinuousMPSTask.currentUser.getId());
+                    Response<UserPositionResponse> response = deletePosition.execute();
+                    Log.i(TAG, ""+response.code());
+
+                    ContinuousMPSTask.currentPosition = null;
+                    ContinuousMPSTask.currentUser = null;
+                }
+            }
 
 
             return minimumPath != null;

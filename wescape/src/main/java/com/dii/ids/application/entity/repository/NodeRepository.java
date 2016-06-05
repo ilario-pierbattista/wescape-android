@@ -40,6 +40,7 @@ public class NodeRepository {
                     .select()
                     .from(Node.class)
                     .where(Node_Table.type.notEq(Node.TYPE_EMERGENCY))
+                    .and(Node_Table.id.notEq(alreadySelected.getId()))
                     .queryList();
         }
     }

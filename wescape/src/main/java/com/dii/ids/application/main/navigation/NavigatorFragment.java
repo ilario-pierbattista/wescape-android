@@ -139,6 +139,7 @@ public class NavigatorFragment extends BaseFragment {
                     (Edge) excludedTrunk, emergency, offline);
             continuousMPSTask.execute((Node) routeToBeFlown.get(1),
                     (Node) routeToBeFlown.getDestination());
+            holder.mapView.showSpinner(true);
         }
     }
 
@@ -150,6 +151,7 @@ public class NavigatorFragment extends BaseFragment {
                     (Edge) excludedTrunk, emergency, offline);
             continuousMPSTask.execute(backStep,
                     (Node) routeToBeFlown.getDestination());
+            holder.mapView.showSpinner(true);
         }
     }
 
@@ -171,6 +173,7 @@ public class NavigatorFragment extends BaseFragment {
     }
 
     private class ContinuousMPSTaskListener implements TaskListener<Path> {
+        private final String TAG = ContinuousMPSTask.class.getName();
         private Checkpoint prev, current, next, nexter;
         private Actions currentAction, nextAction;
 
@@ -204,17 +207,17 @@ public class NavigatorFragment extends BaseFragment {
 
         @Override
         public void onTaskError(Exception e) {
-
+            Log.e(TAG, "Error", e);
         }
 
         @Override
         public void onTaskComplete() {
-
+            holder.mapView.showSpinner(false);
         }
 
         @Override
         public void onTaskCancelled() {
-
+            holder.mapView.showSpinner(false);
         }
 
         private void setPoints() {

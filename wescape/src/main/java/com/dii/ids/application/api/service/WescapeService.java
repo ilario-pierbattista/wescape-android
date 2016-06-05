@@ -6,8 +6,10 @@ import com.dii.ids.application.api.form.RefreshTokenForm;
 import com.dii.ids.application.api.form.RequestPasswordForm;
 import com.dii.ids.application.api.form.ResetPasswordForm;
 import com.dii.ids.application.api.form.UserForm;
+import com.dii.ids.application.api.form.UserPositionForm;
 import com.dii.ids.application.api.response.StatusResponse;
 import com.dii.ids.application.api.response.TokenResponse;
+import com.dii.ids.application.api.response.UserPositionResponse;
 import com.dii.ids.application.api.response.UserResponse;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
@@ -17,6 +19,7 @@ import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
@@ -51,6 +54,23 @@ public interface WescapeService {
 
     @GET("api/v1/edges.json")
     Call<List<Edge>> listEdges(@Header("Authorization") String authorization);
+
+    @GET("api/v1/users/{user}/position")
+    Call<UserPositionResponse> getCurrentPosition(@Header("Authorization") String authorization,
+                                                  @Path("user") int userId);
+
+    @POST("api/v1/users/positions")
+    Call<UserPositionResponse> createCurrentPosition(@Header("Authorization") String authorization,
+                                                     @Body UserPositionForm userPositionForm);
+
+    @PUT("api/v1/users/{user}/position")
+    Call<UserPositionResponse> updateCurrentPosition(@Header("Authorization") String authorization,
+                                                     @Path("user") int userId,
+                                                     @Body UserPositionForm userPositionForm);
+
+    @DELETE("api/v1/users/{user}/position")
+    Call<UserPositionResponse> deleteCurrentPosition(@Header("Authorization") String authorization,
+                                                     @Path("user") int userId);
 
     @GET("static/maps/{floor}")
     @Streaming

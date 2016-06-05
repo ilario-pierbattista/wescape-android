@@ -12,7 +12,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiBuilder {
-    // @TODO Passare in produzione
     private static final boolean DEV_ENVIRONMENT = true;
     private static final long CONNECTION_TIMEOUT_STD = 3;
     private static final long READ_TIMEOUT = 5;

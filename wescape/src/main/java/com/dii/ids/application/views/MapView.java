@@ -86,6 +86,10 @@ public class MapView extends LinearLayout {
         mapsDownloaderTask.execute(Integer.valueOf(floor));
     }
 
+    public void showSpinner(boolean show) {
+        holder.progressAnimation.showProgress(show);
+    }
+
     /**
      * Disegna i pin
      *
