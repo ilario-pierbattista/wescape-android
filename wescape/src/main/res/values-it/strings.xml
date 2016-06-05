@@ -70,6 +70,6 @@
     <string name="wescape_notification">Notifica Wescape</string>
     <string name="emergency_dialog_title">Emergenza in corso!</string>
     <string name="emergency_dialog_description">Mantieni la calma, Wescape ti guiderà verso l\'uscita più vicina!</string>
-    <string name="action_use_offline">Usa Offiline</string>
+    <string name="action_use_offline">Usa Offline</string>
     <string name="error_no_data_cached">Non ci sono dati scaricati. Per usare il navigatore devi aver effettuato l\'accesso almeno una volta.</string>
 </resources>
