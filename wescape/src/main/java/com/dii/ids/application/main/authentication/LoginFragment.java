@@ -26,6 +26,7 @@ import android.widget.Toast;
 
 import com.dii.ids.application.R;
 import com.dii.ids.application.animations.ShowProgressAnimation;
+import com.dii.ids.application.api.auth.exception.LoginException;
 import com.dii.ids.application.entity.Edge;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.repository.EdgeRepository;
@@ -378,6 +379,7 @@ public class LoginFragment extends BaseFragment {
     }
 
     private class LoginTaskListener implements TaskListener<Void> {
+        private final String TAG = LoginTaskListener.class.getName();
         @Override
         public void onTaskSuccess(Void v) {
             openNavigationActivity(false);
@@ -385,12 +387,14 @@ public class LoginFragment extends BaseFragment {
 
         @Override
         public void onTaskError(Exception e) {
-            // @TODO Cambiare messaggio a seconda dell'errore
-            Log.e(TAG, "Login Error", e);
-            // holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
-            // holder.passwordField.requestFocus();
+            Log.e(TAG, "Errore", e);
             handleGeneralErrors(e);
             holder.showProgressAnimation.showProgress(false);
+
+            if(e instanceof LoginException) {
+                holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
+                holder.passwordField.requestFocus();
+            }
         }
 
         @Override
