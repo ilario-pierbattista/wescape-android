@@ -20,11 +20,15 @@ import com.google.firebase.iid.FirebaseInstanceId;
 public class NavigationActivity extends AppCompatActivity {
 
     public static final String TAG = NavigationActivity.class.getSimpleName();
+    public static final String OFFLINE_USAGE = "offline_usage";
+    private boolean offline;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.navigation_activity);
+
+        offline = getIntent().getExtras().getBoolean(OFFLINE_USAGE);
 
         // Handle deviceToken for pushNotification
         // [START handle_device_token]
@@ -73,7 +77,7 @@ public class NavigationActivity extends AppCompatActivity {
 
         Log.d(TAG, String.valueOf(emergency));
         if (savedInstanceState == null) {
-            HomeFragment homeFragment = HomeFragment.newInstance(emergency);
+            HomeFragment homeFragment = HomeFragment.newInstance(emergency, offline);
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.TAG)
                     .commit();
@@ -127,7 +131,7 @@ public class NavigationActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             // TODO andrebbe gestito meglio, al momento ci si puo imbattere in stackoverflow
-            HomeFragment homeFragment = HomeFragment.newInstance(true);
+            HomeFragment homeFragment = HomeFragment.newInstance(true, false);
             FragmentManager fm = getSupportFragmentManager();
             fm.beginTransaction().replace(R.id.navigation_content_pane, homeFragment, HomeFragment.TAG)
                     .commit();

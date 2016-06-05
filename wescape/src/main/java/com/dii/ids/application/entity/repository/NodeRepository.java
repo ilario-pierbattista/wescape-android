@@ -24,6 +24,26 @@ public class NodeRepository {
                 .queryList();
     }
 
+    public static List<Node> findSelectableNodes() {
+        return SQLite
+                .select()
+                .from(Node.class)
+                .where(Node_Table.type.notEq(Node.TYPE_EMERGENCY))
+                .queryList();
+    }
+
+    public static List<Node> findSelectableNodes(Node alreadySelected) {
+        if(alreadySelected == null) {
+            return findSelectableNodes();
+        } else {
+            return SQLite
+                    .select()
+                    .from(Node.class)
+                    .where(Node_Table.type.notEq(Node.TYPE_EMERGENCY))
+                    .queryList();
+        }
+    }
+
     public static List<Node> findAllButOne(Node node) {
         if(node == null) {
             return findAll();
