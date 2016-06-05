@@ -97,6 +97,7 @@ public class HomeFragment extends BaseFragment {
                     break;
             }
 
+            indexOfPathSelected = 0;
         } catch (NullPointerException ee) {
             Log.e(TAG, "NullPointer", ee);
         }
