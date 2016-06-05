@@ -143,4 +143,5 @@
     <string name="emergency_dialog_description">Keep calm, Wescape will guide you to nearest exit</string>
     <string name="action_logout" translatable="false">Log out</string>
     <string name="error_no_data_cached">There is no data download from previous sessions. You must login at least one time to use the navigator.</string>
+    <string name="error_reading_qr">Error reading QR code</string>
 </resources>

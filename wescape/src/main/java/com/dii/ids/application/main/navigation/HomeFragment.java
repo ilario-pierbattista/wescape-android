@@ -95,6 +95,12 @@ public class HomeFragment extends BaseFragment {
                 case DESTINATION_SELECTION_REQUEST_CODE:
                     destination = node;
                     break;
+                case QR_READER_ORIGIN_REQUEST_CODE:
+                    origin = node;
+                    break;
+                case QR_READER_DESTINATION_REQUEST_CODE:
+                    destination = node;
+                    break;
             }
 
             indexOfPathSelected = 0;
