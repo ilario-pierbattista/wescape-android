@@ -75,6 +75,11 @@ public class Edge extends BaseModel implements Trunk {
     }
 
     @Override
+    public boolean isConnectedTo(Checkpoint checkpoint) {
+        return begin.equals(checkpoint) || end.equals(checkpoint);
+    }
+
+    @Override
     public boolean isConnectedTo(Trunk trunk) {
         return begin.equals(trunk.getBegin()) ||
                 begin.equals(trunk.getEnd()) ||

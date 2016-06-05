@@ -7,4 +7,5 @@ public interface Trunk {
     double getCost(double normalizationBasis, boolean emergency);
     boolean isConnecting(Checkpoint checkpoint1, Checkpoint checkpoint2);
     boolean isConnectedTo(Trunk trunk);
+    boolean isConnectedTo(Checkpoint checkpoint);
 }

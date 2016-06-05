@@ -64,12 +64,15 @@ public class DijkstraSolver {
         solutions.add(search(destination));
 
         // Ricerca della seconda soluzione
-        Trunk trunkToKill = graph.getTrunkToBreakPath(solutions.get(0));
-        Graph subGraph = graph.createNewGraphWithoutATrunk(trunkToKill);
-        if (subGraph.isConnected()) {
-            Path secondSolution = search(destination, subGraph);
-            secondSolution.setExcludedTrunk(trunkToKill);
-            solutions.add(secondSolution);
+        List<Trunk> star = graph.getStar(solutions.get(0).getOrigin());
+        if(star.size() > 1) {
+            Trunk trunkToKill = graph.getTrunkToBreakPath(solutions.get(0));
+            Graph subGraph = graph.createNewGraphWithoutATrunk(trunkToKill);
+            if (subGraph.isConnected()) {
+                Path secondSolution = search(destination, subGraph);
+                secondSolution.setExcludedTrunk(trunkToKill);
+                solutions.add(secondSolution);
+            }
         }
 
         return solutions;

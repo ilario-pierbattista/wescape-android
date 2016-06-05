@@ -46,6 +46,17 @@ public class Graph extends ArrayList<Trunk> {
         return unConnectedRegion.isEmpty();
     }
 
+    public List<Trunk> getStar(Checkpoint checkpoint) {
+        List<Trunk> trunks = new ArrayList<>();
+
+        for (Trunk trunk : this) {
+            if(trunk.isConnectedTo(checkpoint)) {
+                trunks.add(trunk);
+            }
+        }
+        return trunks;
+    }
+
     private boolean isConnectedTo(Trunk trunk) {
         for (Trunk graphTrunk : this) {
             if(graphTrunk.isConnectedTo(trunk)) {
