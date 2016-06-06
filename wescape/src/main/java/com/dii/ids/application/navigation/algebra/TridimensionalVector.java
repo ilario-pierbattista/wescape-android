@@ -1,21 +1,17 @@
 package com.dii.ids.application.navigation.algebra;
 
-import android.graphics.PointF;
+import android.util.Log;
+
+import com.dii.ids.application.navigation.Checkpoint;
 
 public class TridimensionalVector {
     public final double x;
     public final double y;
     public final double z;
 
-    /**
-     * Costruzione del vettore da due punti complanari
-     *
-     * @param begin
-     * @param end
-     */
-    public TridimensionalVector(PointF begin, PointF end) {
-        x = end.x - begin.x;
-        y = end.y - end.y;
+    public TridimensionalVector(Checkpoint begin, Checkpoint end) {
+        x = end.getX() - begin.getX();
+        y = end.getY() - begin.getY();
         z = 0;
     }
 
@@ -33,15 +29,15 @@ public class TridimensionalVector {
     }
 
     public double getPlaneAngle(TridimensionalVector vector) {
-        double sine, cosine, planeAngle;
-        sine = sine(vector);
+        double cosine, planeAngle;
+        TridimensionalVector crossProduct = vectorProduct(vector);
         cosine = cosine(vector);
 
         planeAngle = Math.acos(cosine);
-        if (sine < 0) {
+        if (crossProduct.getZ() >= 0) {
             planeAngle = (2 * Math.PI) - planeAngle;
         }
-
+        
         return planeAngle;
     }
 
@@ -74,7 +70,7 @@ public class TridimensionalVector {
      * @return
      */
     public double module() {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2));
     }
 
     /**
@@ -85,5 +81,26 @@ public class TridimensionalVector {
      */
     public double dotProduct(TridimensionalVector otherVector) {
         return (x * otherVector.x) + (y * otherVector.y);
+    }
+
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    @Override
+    public String toString() {
+        return "TridimensionalVector{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
     }
 }

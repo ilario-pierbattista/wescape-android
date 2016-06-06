@@ -7,9 +7,8 @@ import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.algebra.TridimensionalVector;
 
-// @TODO Fixare e testare (unit tests)
 public class DirectionsTranslator {
-    private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 45.0;
+    private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 25.0;
     private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
     private final double straightAngleLowerBound,
             straightAngleUpperBound,
@@ -94,13 +93,7 @@ public class DirectionsTranslator {
         if (!current.getFloor().equals(next.getFloor())) {
             return getStairsAction(current, next);
         }
-
-        // Punto corrente generale
-        if (current.isGeneral()) {
-            return getPlaneAngleAction(prev, current, next);
-        }
-
-        return Actions.GO_AHEAD;
+        return getPlaneAngleAction(prev, current, next);
     }
 
     /**
@@ -135,8 +128,8 @@ public class DirectionsTranslator {
         double angle;
         TridimensionalVector prevArch, nextArc;
 
-        prevArch = new TridimensionalVector(current.toPointF(), prev.toPointF());
-        nextArc = new TridimensionalVector(current.toPointF(), next.toPointF());
+        prevArch = new TridimensionalVector(current, prev);
+        nextArc = new TridimensionalVector(current, next);
 
         // Calcolo dell'angolo
         angle = prevArch.getPlaneAngle(nextArc);
