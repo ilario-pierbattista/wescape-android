@@ -37,7 +37,7 @@ public class TridimensionalVector {
         if (crossProduct.getZ() >= 0) {
             planeAngle = (2 * Math.PI) - planeAngle;
         }
-        
+
         return planeAngle;
     }
 
