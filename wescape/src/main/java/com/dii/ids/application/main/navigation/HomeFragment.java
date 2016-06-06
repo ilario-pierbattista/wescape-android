@@ -530,7 +530,11 @@ public class HomeFragment extends BaseFragment {
                             if (!emergency) {
                                 holder.toggleEmergency();
                             }
+                            holder.setupMapView();
 
+                            if(getArguments() != null) {
+                                getArguments().putBoolean(EMERGENCY, false);
+                            }
                         }
                     })
                     .icon(getResources().getDrawable(R.drawable.ic_fire))
