@@ -7,21 +7,15 @@ import com.dii.ids.application.navigation.Checkpoint;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.navigation.algebra.TridimensionalVector;
 
-// @TODO Fixare e testare (unit tests)
 public class DirectionsTranslator {
-    private static final double EAST = 0.0;
-    private static final double NORTH_EAST = 45.0;
-    private static final double NORTH_WEST = 135.0;
-    private static final double WEST = 180;
-    private static final double SOUTH = 270;
-    private static final double SOUTH_EAST = 360;
-
-    private static final double RIGHT_ANGLE = 90.0;
-    private static final double ROUND_ANGLE = 360.0;
-
+    private static final double STRAIGHT_TRUNK_TOLLERANCE_ANGLE = 25.0;
+    private static final double CURVED_BACK_TRUNK_MIN_ANGLE = 130.0;
+    private final double straightAngleLowerBound,
+            straightAngleUpperBound,
+            curvedAngleLowerUpperBound,
+            curvedAngleUpperLowerBound;
     private Path nodes;
     private Directions directions;
-    private double offset;
 
     /**
      * Costruttore
@@ -31,6 +25,11 @@ public class DirectionsTranslator {
     public DirectionsTranslator(Path path) {
         this.nodes = path;
         this.directions = new Directions();
+
+        straightAngleLowerBound = Math.PI - Math.toRadians(STRAIGHT_TRUNK_TOLLERANCE_ANGLE);
+        straightAngleUpperBound = Math.PI + Math.toRadians(STRAIGHT_TRUNK_TOLLERANCE_ANGLE);
+        curvedAngleLowerUpperBound = Math.PI - Math.toRadians(CURVED_BACK_TRUNK_MIN_ANGLE);
+        curvedAngleUpperLowerBound = Math.PI + Math.toRadians(CURVED_BACK_TRUNK_MIN_ANGLE);
     }
 
     /**
@@ -94,13 +93,7 @@ public class DirectionsTranslator {
         if (!current.getFloor().equals(next.getFloor())) {
             return getStairsAction(current, next);
         }
-
-        // Punto corrente generale
-        if (current.isGeneral()) {
-            return getPlaneAngleAction(current, next);
-        }
-
-        return Actions.GO_AHEAD;
+        return getPlaneAngleAction(prev, current, next);
     }
 
     /**
@@ -123,64 +116,41 @@ public class DirectionsTranslator {
         }
     }
 
-    private void addOffset(double offset) {
-        this.offset += offset;
-    }
-
-    private void calcOffset (double angle, Actions action) {
-        switch (action){
-            case GO_AHEAD: this.addOffset(angle);
-                break;
-            case TURN_RIGHT:
-            case TURN_BACK_RIGHT: this.addOffset(RIGHT_ANGLE - angle);
-                break;
-            case TURN_LEFT:
-            case TURN_BACK_LEFT: this.addOffset(-RIGHT_ANGLE);
-                break;
-        }
-    }
-
-
-    private double adjustAngle (double angle){
-        if (angle < 0) {
-            angle += ROUND_ANGLE;
-        }
-
-        else if (angle > 360) {
-            angle -= ROUND_ANGLE;
-        }
-
-        return angle;
-    }
-
-    private Actions getPlaneAngleAction(Checkpoint current, Checkpoint next) {
+    /**
+     * Calcola la direzione in base all'angolo tra 3 punti
+     *
+     * @param prev    Punto precedente
+     * @param current Punto corrente
+     * @param next    Punto successivo
+     * @return Indicazione
+     */
+    private Actions getPlaneAngleAction(Checkpoint prev, Checkpoint current, Checkpoint next) {
         double angle;
-        Actions action = null;
+        TridimensionalVector prevArch, nextArc;
+
+        prevArch = new TridimensionalVector(current, prev);
+        nextArc = new TridimensionalVector(current, next);
 
         // Calcolo dell'angolo
-        angle = TridimensionalVector.calcRotationAngle(current, next);
-        angle += this.getOffset();
-        angle = adjustAngle(angle);
+        angle = prevArch.getPlaneAngle(nextArc);
 
-        if (angle > NORTH_EAST && angle <= NORTH_WEST)
-            action = Actions.GO_AHEAD;
-        else if (angle >= EAST && angle <= NORTH_EAST)
-            action = Actions.TURN_RIGHT;
-        else if (angle > SOUTH && angle <= SOUTH_EAST)
-            action = Actions.TURN_BACK_RIGHT;
-        else if (angle > WEST && angle <= SOUTH)
-            action = Actions.TURN_BACK_LEFT;
-        else if (angle > NORTH_WEST && angle <= WEST)
-            action = Actions.TURN_LEFT;
-
-        calcOffset(angle, action);
-        return action;
+        // Definizione dell'azione a partire a seconda dell'angolo
+        if (straightAngleLowerBound < angle && angle < straightAngleUpperBound) {
+            return Actions.GO_AHEAD;
+        } else if (angle < curvedAngleLowerUpperBound || curvedAngleUpperLowerBound < angle) {
+            if (angle < Math.PI) {
+                return Actions.TURN_BACK_RIGHT;
+            } else {
+                return Actions.TURN_BACK_LEFT;
+            }
+        } else {
+            if (angle < Math.PI) {
+                return Actions.TURN_RIGHT;
+            } else {
+                return Actions.TURN_LEFT;
+            }
+        }
     }
-
-    public double getOffset() {
-        return offset;
-    }
-
 
     public Directions getDirections() {
         return directions;

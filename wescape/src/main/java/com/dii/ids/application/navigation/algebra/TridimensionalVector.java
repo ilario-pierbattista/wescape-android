@@ -1,5 +1,6 @@
 package com.dii.ids.application.navigation.algebra;
 
+
 import com.dii.ids.application.navigation.Checkpoint;
 
 public class TridimensionalVector {
@@ -7,12 +8,6 @@ public class TridimensionalVector {
     public final double y;
     public final double z;
 
-    /**
-     * Costruzione del vettore da due punti complanari
-     *
-     * @param begin
-     * @param end
-     */
     public TridimensionalVector(Checkpoint begin, Checkpoint end) {
         x = end.getX() - begin.getX();
         y = end.getY() - begin.getY();
@@ -33,12 +28,12 @@ public class TridimensionalVector {
     }
 
     public double getPlaneAngle(TridimensionalVector vector) {
-        double sine, cosine, planeAngle;
-        sine = sine(vector);
+        double cosine, planeAngle;
+        TridimensionalVector crossProduct = vectorProduct(vector);
         cosine = cosine(vector);
 
         planeAngle = Math.acos(cosine);
-        if (sine < 0) {
+        if (crossProduct.getZ() >= 0) {
             planeAngle = (2 * Math.PI) - planeAngle;
         }
 
@@ -74,7 +69,7 @@ public class TridimensionalVector {
      * @return
      */
     public double module() {
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2) + Math.pow(this.z, 2));
     }
 
     /**
@@ -87,23 +82,24 @@ public class TridimensionalVector {
         return (x * otherVector.x) + (y * otherVector.y);
     }
 
-    /**
-     * Calcola l'angolo in base alla circonferenza unitaria.
-     * Nota: Lo 0 è a destra.
-     * @param centerPt
-     * @param targetPt
-     * @return
-     */
-
-    public static double calcRotationAngle(Checkpoint centerPt, Checkpoint targetPt)
-    {
-        double theta = Math.atan2(targetPt.getY() - centerPt.getY(), targetPt.getX() - centerPt.getX());
-        double angle = Math.toDegrees(theta);
-        if (angle < 0) {
-            angle += 360;
-        }
-
-        return angle;
+    public double getX() {
+        return x;
     }
 
+    public double getY() {
+        return y;
+    }
+
+    public double getZ() {
+        return z;
+    }
+
+    @Override
+    public String toString() {
+        return "TridimensionalVector{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                '}';
+    }
 }
