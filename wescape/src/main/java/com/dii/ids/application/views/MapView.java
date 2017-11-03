@@ -1,6 +1,7 @@
 package com.dii.ids.application.views;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import com.dii.ids.application.entity.Map;
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+import com.dii.ids.application.main.navigation.tasks.MapsStaticLoaderTask;
 import com.dii.ids.application.navigation.MultiFloorPath;
 import com.dii.ids.application.navigation.Path;
 import com.dii.ids.application.views.exceptions.DestinationNotSettedException;
@@ -30,6 +32,16 @@ public class MapView extends LinearLayout {
     private String currentFloor;
     private Node origin, destination;
     private MultiFloorPath route;
+    private boolean offline;
+
+    public boolean isOffline() {
+        return offline;
+    }
+
+    public MapView setOffline(boolean offline) {
+        this.offline = offline;
+        return this;
+    }
 
     public MapView(Context context) {
         super(context);
@@ -82,8 +94,13 @@ public class MapView extends LinearLayout {
                 20);
 
         holder.progressAnimation.showProgress(true);
-        MapsDownloaderTask mapsDownloaderTask = new MapsDownloaderTask(getContext(), new MapListener());
-        mapsDownloaderTask.execute(Integer.valueOf(floor));
+        AsyncTask<Integer, Void, Boolean> mapLoader;
+        if(offline) {
+            mapLoader = new MapsStaticLoaderTask(getContext(), new MapListener());
+        } else {
+            mapLoader = new MapsDownloaderTask(getContext(), new MapListener());
+        }
+        mapLoader.execute(Integer.valueOf(floor));
     }
 
     public void showSpinner(boolean show) {
@@ -167,7 +184,7 @@ public class MapView extends LinearLayout {
      * @param floor Piano
      */
     private void drawPath(String floor) {
-        if(this.route != null) {
+        if (this.route != null) {
             holder.pinView.setPath(this.route.get(floor));
         }
     }

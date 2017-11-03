@@ -40,14 +40,24 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="15dp"
                 android:layout_marginTop="20dp"
-                android:contentDescription="@string/accessibility_logo_description"
                 android:clickable="true"
+                android:contentDescription="@string/accessibility_logo_description"
                 android:src="@drawable/wescape_logo"/>
+
+            <TextView
+                android:id="@+id/api_offline_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp"
+                android:clickable="true"
+                android:text="@string/api_offline_warning"/>
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/login_email_text_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/Wescape.RedTheme.ErrorText">
 
@@ -68,6 +78,7 @@
                 android:id="@+id/login_password_text_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 app:errorEnabled="true"
                 app:errorTextAppearance="@style/Wescape.RedTheme.ErrorText">
 
@@ -94,8 +105,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:text="@string/action_sign_in"
-                android:textStyle="bold"/>
-
+                android:textStyle="bold"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/sign_up_text"
@@ -104,7 +115,8 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="20dp"
                 android:clickable="true"
-                android:text="@string/create_account_text"/>
+                android:text="@string/create_account_text"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/reset_passwd_text"
@@ -113,7 +125,8 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="15dp"
                 android:clickable="true"
-                android:text="@string/reset_password_text"/>
+                android:text="@string/reset_password_text"
+                android:visibility="gone"/>
 
             <Button
                 android:id="@+id/use_offline_button"

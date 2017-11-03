@@ -220,7 +220,7 @@ public class HomeFragment extends BaseFragment {
                 break;
         }
 
-        selectionFragment = SelectionFragment.newInstance(code, alreadySelectedNode);
+        selectionFragment = SelectionFragment.newInstance(code, alreadySelectedNode, offline);
         selectionFragment.setTargetFragment(this, code);
         ((NavigationActivity) getActivity()).changeFragment(selectionFragment);
     }
@@ -461,6 +461,7 @@ public class HomeFragment extends BaseFragment {
         }
 
         public void setupMapView() {
+            holder.mapView.setOffline(offline);
             if (!emergency) {
                 if (destination != null && origin == null) {
                     holder.mapView.setDestination(destination);

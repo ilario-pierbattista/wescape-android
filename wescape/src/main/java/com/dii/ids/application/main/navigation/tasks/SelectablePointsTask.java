@@ -1,6 +1,7 @@
 package com.dii.ids.application.main.navigation.tasks;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.dii.ids.application.entity.Node;
 import com.dii.ids.application.entity.Position;

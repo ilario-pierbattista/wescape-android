@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,14 +33,15 @@ import com.dii.ids.application.entity.repository.NodeRepository;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.authentication.tasks.AutomaticLoginTask;
+import com.dii.ids.application.main.authentication.tasks.LoadAssetsTask;
 import com.dii.ids.application.main.authentication.tasks.UserLoginTask;
 import com.dii.ids.application.main.authentication.utils.EmailAutocompleter;
 import com.dii.ids.application.main.navigation.NavigationActivity;
-import com.dii.ids.application.main.navigation.NavigatorFragment;
 import com.dii.ids.application.main.settings.SettingsActivity;
 import com.dii.ids.application.validators.EmailValidator;
 import com.dii.ids.application.validators.PasswordValidator;
 
+import java.io.InputStream;
 import java.util.List;
 
 public class LoginFragment extends BaseFragment {
@@ -65,7 +65,7 @@ public class LoginFragment extends BaseFragment {
     }
 
     public LoginFragment enableAutomaticLogin(boolean enabled) {
-        if(getArguments() == null) {
+        if (getArguments() == null) {
             setArguments(new Bundle());
         }
         getArguments().putBoolean(AUTOMATIC_LOGIN, enabled);
@@ -167,16 +167,21 @@ public class LoginFragment extends BaseFragment {
             public void onClick(View v) {
                 List<Node> savedNodes = NodeRepository.findAll();
                 List<Edge> savedEdges = EdgeRepository.findAll();
-                if(savedEdges.size() == 0 && savedNodes.size() == 0) {
-                    Toast.makeText(getContext(), getString(R.string.error_no_data_cached), Toast.LENGTH_SHORT)
-                            .show();
+                if (savedEdges.size() == 0 && savedNodes.size() == 0) {
+                    // @TODO aggiungere staticamente i dati
+                    //Toast.makeText(getContext(), getString(R.string.error_no_data_cached), Toast.LENGTH_LONG).show();
+                    holder.showProgressAnimation.showProgress(true);
+                    InputStream nodeStream = getResources().openRawResource(R.raw.nodes);
+                    InputStream edgeStream = getResources().openRawResource(R.raw.edges);
+                    LoadAssetsTask task = new LoadAssetsTask(new LoadOfflineAssetsTaskListener(), nodeStream, edgeStream);
+                    task.execute();
                 } else {
                     openNavigationActivity(true);
                 }
             }
         });
 
-        if(getArguments() != null) {
+        if (getArguments() != null) {
             doAutomaticLogin = getArguments().getBoolean(AUTOMATIC_LOGIN);
         }
     }
@@ -185,7 +190,7 @@ public class LoginFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         // Tenta di effettuare il login automatico
-        if(doAutomaticLogin) {
+        if (doAutomaticLogin) {
             automaticLogin();
         }
     }
@@ -341,7 +346,7 @@ public class LoginFragment extends BaseFragment {
         intent.putExtra(NavigationActivity.OFFLINE_USAGE, offline);
         startActivity(intent);
 
-        if(!offline) {
+        if (!offline) {
             getActivity().finish();
         }
     }
@@ -380,6 +385,7 @@ public class LoginFragment extends BaseFragment {
 
     private class LoginTaskListener implements TaskListener<Void> {
         private final String TAG = LoginTaskListener.class.getName();
+
         @Override
         public void onTaskSuccess(Void v) {
             openNavigationActivity(false);
@@ -391,7 +397,7 @@ public class LoginFragment extends BaseFragment {
             handleGeneralErrors(e);
             holder.showProgressAnimation.showProgress(false);
 
-            if(e instanceof LoginException) {
+            if (e instanceof LoginException) {
                 holder.passwordFieldLayout.setError(getString(R.string.error_incorrect_password));
                 holder.passwordField.requestFocus();
             }
@@ -422,6 +428,30 @@ public class LoginFragment extends BaseFragment {
         @Override
         public void onTaskComplete() {
             doAutomaticLogin = false;
+        }
+
+        @Override
+        public void onTaskCancelled() {
+            holder.showProgressAnimation.showProgress(false);
+        }
+    }
+
+    private class LoadOfflineAssetsTaskListener implements TaskListener<Void> {
+        @Override
+        public void onTaskSuccess(Void aVoid) {
+            holder.showProgressAnimation.showProgress(false);
+            openNavigationActivity(true);
+        }
+
+        @Override
+        public void onTaskError(Exception e) {
+            holder.showProgressAnimation.showProgress(false);
+            handleGeneralErrors(e);
+        }
+
+        @Override
+        public void onTaskComplete() {
+
         }
 
         @Override

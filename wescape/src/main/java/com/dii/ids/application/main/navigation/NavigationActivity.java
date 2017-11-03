@@ -29,29 +29,31 @@ public class NavigationActivity extends AppCompatActivity {
 
         offline = getIntent().getExtras().getBoolean(OFFLINE_USAGE);
 
-        // Handle deviceToken for pushNotification
-        // [START handle_device_token]
-        SaveDeviceTokenTask task = new SaveDeviceTokenTask(this, new TaskListener<Void>() {
-            @Override
-            public void onTaskSuccess(Void aVoid) {
-                Log.d(TAG, "Device key save succesfully");
-            }
+        if (!offline) {
+            // Handle deviceToken for pushNotification
+            // [START handle_device_token]
+            SaveDeviceTokenTask task = new SaveDeviceTokenTask(this, new TaskListener<Void>() {
+                @Override
+                public void onTaskSuccess(Void aVoid) {
+                    Log.d(TAG, "Device key save succesfully");
+                }
 
-            @Override
-            public void onTaskError(Exception e) {
-                Log.e(TAG, "Save deviceKey error", e);
-            }
+                @Override
+                public void onTaskError(Exception e) {
+                    Log.e(TAG, "Save deviceKey error", e);
+                }
 
-            @Override
-            public void onTaskComplete() {
-            }
+                @Override
+                public void onTaskComplete() {
+                }
 
-            @Override
-            public void onTaskCancelled() {
-            }
-        });
-        task.execute();
-        // [END handle_device_token]
+                @Override
+                public void onTaskCancelled() {
+                }
+            });
+            task.execute();
+            // [END handle_device_token]
+        }
 
         // If a notification message is tapped, any data accompanying the notification
         // message is available in the intent extras. In this sample the launcher

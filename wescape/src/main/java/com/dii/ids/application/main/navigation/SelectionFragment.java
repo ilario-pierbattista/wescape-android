@@ -1,7 +1,10 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -30,26 +33,32 @@ import org.apache.commons.lang3.SerializationUtils;
 
 import java.util.List;
 
+import static android.Manifest.permission.CAMERA;
+
 public class SelectionFragment extends BaseFragment {
     public static final int POSITION_ACQUIRED = 1;
     private static final String LOG_TAG = SelectionFragment.class.getSimpleName();
     private static final String SELECTION_REQUEST_CODE = "selection_request_code";
     private static final String ALREADY_SELECTED_NODE = "already_selected_node";
+    public static final String OFFLINE_USAGE = "offline_usage";
+    private static final int REQUEST_CAMERA_PERMISSION_CODE = 100;
     private NavigationActivity mActivity;
     private ViewHolder holder;
     private StaticListAdapter staticListAdapter;
     private Node alreadySelectedNode;
+    private boolean offline;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFragment newInstance(int requestCode, Node alreadySelectedNode) {
+    public static SelectionFragment newInstance(int requestCode, Node alreadySelectedNode, boolean offline) {
         SelectionFragment fragment = new SelectionFragment();
         Bundle args = new Bundle();
         args.putInt(SELECTION_REQUEST_CODE, requestCode);
         args.putSerializable(ALREADY_SELECTED_NODE, alreadySelectedNode);
+        args.putSerializable(OFFLINE_USAGE, offline);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,6 +75,7 @@ public class SelectionFragment extends BaseFragment {
                              final Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.navigation_selection_fragment, container, false);
         holder = new ViewHolder(view);
+        offline = getArguments().getBoolean(OFFLINE_USAGE);
 
         // Setup toolbar
         mActivity = (NavigationActivity) getActivity();
@@ -134,7 +144,7 @@ public class SelectionFragment extends BaseFragment {
         HomeFragment homeFragment = (HomeFragment) fragmentManager
                 .findFragmentByTag(HomeFragment.TAG);
 
-        fragment = SelectionFromMapFragment.newInstance();
+        fragment = SelectionFromMapFragment.newInstance(offline);
         fragment.setTargetFragment(homeFragment, getArguments().getInt(SELECTION_REQUEST_CODE));
 
         fragmentManager.beginTransaction()
@@ -152,6 +162,26 @@ public class SelectionFragment extends BaseFragment {
      * @param v Oggetto View
      */
     private void qrScannerListener(View v) {
+        // Request permission
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            openQr();
+        } else if (getActivity().checkSelfPermission(CAMERA) == PackageManager.PERMISSION_GRANTED) {
+            openQr();
+        } else {
+            getActivity().requestPermissions(new String[]{CAMERA}, REQUEST_CAMERA_PERMISSION_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == REQUEST_CAMERA_PERMISSION_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            openQr();
+        }
+    }
+
+    private void openQr() {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         Fragment fragment = fm.findFragmentByTag(QRDialogFragment.FRAGMENT_TAG);
         if (fragment != null) {

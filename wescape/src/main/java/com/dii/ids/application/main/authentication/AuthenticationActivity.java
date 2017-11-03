@@ -8,6 +8,7 @@ import android.view.Window;
 
 import com.dii.ids.application.R;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.idescout.sql.SqlScoutServer;
 
 /**
  * A login screen that offers login via email/password.
@@ -24,6 +25,7 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SqlScoutServer.create(this, getPackageName());
         // Mi assicuro di avere a disposizione l'action bar
         // Va richiamato prima di tutto
         getWindow().requestFeature(Window.FEATURE_ACTION_BAR);

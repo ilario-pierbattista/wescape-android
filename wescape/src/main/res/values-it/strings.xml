@@ -73,4 +73,5 @@
     <string name="action_use_offline">Usa Offline</string>
     <string name="error_no_data_cached">Non ci sono dati scaricati. Per usare il navigatore devi aver effettuato l\'accesso almeno una volta.</string>
     <string name="error_reading_qr">Errore nella lettura del codice QR</string>
+    <string name="api_offline_warning">A causa della mancanza di fondi i nostri server sono offline. La nostra app resta disponibile per l\'utilizzo offline con lo scopo di fornire una proof of concept del suo funzionamento.</string>
 </resources>

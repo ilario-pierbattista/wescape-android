@@ -1,7 +1,9 @@
 package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.PointF;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -18,6 +20,8 @@ import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
 
 import org.apache.commons.lang3.SerializationUtils;
 
+import static android.Manifest.permission.CAMERA;
+
 public class QRDialogFragment extends DialogFragment implements QRCodeReaderView.OnQRCodeReadListener {
 
     public static final String FRAGMENT_TAG = "fragment_read_qr";
@@ -27,30 +31,31 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
         getDialog().setTitle(getString(R.string.action_qr));
         View view = inflater.inflate(R.layout.navigation_qr_dialog_fragment, container, false);
         mydecoderview = (QRCodeReaderView) view.findViewById(R.id.qrdecoderview);
         mydecoderview.setOnQRCodeReadListener(this);
+        mydecoderview.setQRDecodingEnabled(true);
+        mydecoderview.setBackCamera();
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mydecoderview.getCameraManager().startPreview();
+        mydecoderview.startCamera();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mydecoderview.getCameraManager().stopPreview();
+        mydecoderview.stopCamera();
     }
 
     @Override
     public void onQRCodeRead(String text, PointF[] points) {
         String[] parts = text.split("_");
-        if(parts != null && parts.length >= 2) {
+        if (parts != null && parts.length >= 2) {
             int id = Integer.parseInt(parts[0]);
             Node node = NodeRepository.find(id);
             Intent data = new Intent().putExtra(HomeFragment.INTENT_KEY_POSITION, SerializationUtils.serialize(node));
@@ -62,15 +67,5 @@ public class QRDialogFragment extends DialogFragment implements QRCodeReaderView
             Toast.makeText(getActivity(), getString(R.string.error_reading_qr), Toast.LENGTH_SHORT)
                     .show();
         }
-    }
-
-    @Override
-    public void cameraNotFound() {
-        Toast.makeText(getActivity(), getString(R.string.error_no_camera_found), Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void QRCodeNotFoundOnCamImage() {
-
     }
 }

@@ -288,6 +288,7 @@ public class NavigatorFragment extends BaseFragment {
         }
 
         private void setupUI() {
+            mapView.setOffline(offline);
             nextButton.setTag(ButtonType.NEXT);
             previousButton.setTag(ButtonType.PREVIOUS);
             nextButton.setOnClickListener(new IndicationButtonListener());

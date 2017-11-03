@@ -2,6 +2,7 @@ package com.dii.ids.application.main.navigation;
 
 import android.content.Intent;
 import android.graphics.PointF;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -22,6 +23,7 @@ import com.dii.ids.application.entity.Position;
 import com.dii.ids.application.listener.TaskListener;
 import com.dii.ids.application.main.BaseFragment;
 import com.dii.ids.application.main.navigation.tasks.MapsDownloaderTask;
+import com.dii.ids.application.main.navigation.tasks.MapsStaticLoaderTask;
 import com.dii.ids.application.main.navigation.tasks.SelectablePointsTask;
 import com.dii.ids.application.utils.units.UnitConverter;
 import com.dii.ids.application.views.MapPin;
@@ -34,19 +36,22 @@ public class SelectionFromMapFragment extends BaseFragment {
     public static final int POSITION_NOT_ACQUIRED = 0;
     public static final String TAG = SelectionFromMapFragment.class.getSimpleName();
     private static final int SEARCH_RADIUS_IN_DP = 100;
-    private MapsDownloaderTask mapsTask;
+    public static final String OFFLINE_USAGE = "offline_usage";
+    private AsyncTask<Integer, Void, Boolean> mapsTask;
     private ViewHolder holder;
     private int currentFloor = STARTING_FLOOR;
     private Node selectedNode = null;
+    private boolean offline;
 
     /**
      * Use this factory method to create a new instance of this fragment using the provided parameters.
      *
      * @return A new instance of fragment ResetPasswordFragment.
      */
-    public static SelectionFromMapFragment newInstance() {
+    public static SelectionFromMapFragment newInstance(boolean offline) {
         SelectionFromMapFragment fragment = new SelectionFromMapFragment();
         Bundle args = new Bundle();
+        args.putSerializable(OFFLINE_USAGE, offline);
         fragment.setArguments(args);
         return fragment;
     }
@@ -56,6 +61,7 @@ public class SelectionFromMapFragment extends BaseFragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.navigation_selection_from_map_fragment, container, false);
         holder = new ViewHolder(view);
+        offline = getArguments().getBoolean(OFFLINE_USAGE);
 
         switch (getTargetRequestCode()) {
             case ORIGIN_SELECTION_REQUEST_CODE:
@@ -68,7 +74,12 @@ public class SelectionFromMapFragment extends BaseFragment {
 
         toggleConfirmButtonState();
 
-        mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
+        if(offline) {
+            mapsTask = new MapsStaticLoaderTask(getContext(), new MapsDownloaderListener());
+        } else {
+            mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
+        }
+
         mapsTask.execute(STARTING_FLOOR);
         holder.floor155Button.setTextColor(color(R.color.linkText));
 
@@ -131,7 +142,11 @@ public class SelectionFromMapFragment extends BaseFragment {
             currentFloor = floor;
 
             if (mapsTask == null) {
-                mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
+                if(offline) {
+                    mapsTask = new MapsStaticLoaderTask(getContext(), new MapsDownloaderListener());
+                } else {
+                    mapsTask = new MapsDownloaderTask(getContext(), new MapsDownloaderListener());
+                }
                 mapsTask.execute(floor);
             }
         }
